@@ -114,6 +114,13 @@
   footer{ background:var(--white); color:var(--ink); padding:64px 6vw 30px; border-top:1px solid var(--line); text-align:center; }
   footer .logo{ justify-content:center; margin-bottom:10px; }
   .foot-bottom{ margin-top:20px; font-size:12px; color:var(--taupe); }
+
+  /* nav: keep items on one line now that there is one more link */
+  .nav-links a, .nav-dropdown > span, .nav-cta{ white-space:nowrap; }
+  .nav-cta-mobile{ display:none; }
+  /* backdrop-filter traps the fixed mobile menu inside the header, so turn it off on phones */
+  @media (max-width:860px){ nav{ -webkit-backdrop-filter:none; backdrop-filter:none; background:#fff; } }
+  @media (min-width:861px) and (max-width:1180px){ .nav-links{ gap:16px; font-size:13px; } .nav-cta{ padding:9px 16px; } .logo{ font-size:18px; } .logo img{ height:42px; width:42px; } }
 </style>
 </head>
 <body>
@@ -133,6 +140,7 @@
         <a href="rewire-challenge.html">Rewire Challenge</a>
       </div>
     </div>
+    <a href="challenges.html">Challenges</a>
     <a href="nutrition.html" class="active">Nutrition</a>
     <a href="blog.html">Blog</a>
     <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20know%20more." target="_blank" rel="noopener">Contact</a>

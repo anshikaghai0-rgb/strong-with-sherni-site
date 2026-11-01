@@ -107,6 +107,13 @@
     .nav-cta{ display:none; }
     .nav-links .nav-cta-mobile{ display:block; width:100%; text-align:center; margin-top:20px; background:var(--maroon); color:var(--white); padding:14px; border-radius:26px; font-weight:700; }
   }
+
+  /* nav: keep items on one line now that there is one more link */
+  .nav-links a, .nav-dropdown > span, .nav-cta{ white-space:nowrap; }
+  .nav-cta-mobile{ display:none; }
+  /* backdrop-filter traps the fixed mobile menu inside the header, so turn it off on phones */
+  @media (max-width:860px){ nav{ -webkit-backdrop-filter:none; backdrop-filter:none; background:#fff; } }
+  @media (min-width:861px) and (max-width:1180px){ .nav-links{ gap:16px; font-size:13px; } .nav-cta{ padding:9px 16px; } .logo{ font-size:18px; } .logo img{ height:42px; width:42px; } }
 </style>
 </head>
 <body>
@@ -126,6 +133,7 @@
         <a href="rewire-challenge.html">Rewire Challenge</a>
       </div>
     </div>
+    <a href="challenges.html">Challenges</a>
     <a href="nutrition.html">Nutrition</a>
     <a href="blog.html">Blog</a>
     <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20know%20more." target="_blank" rel="noopener">Contact</a>
@@ -221,6 +229,7 @@
         <li><a href="index.html#services">Services</a></li>
         <li><a href="index.html#about">About</a></li>
         <li><a href="nutrition.html">Nutrition</a></li>
+        <li><a href="challenges.html">Challenges</a></li>
         <li><a href="blog.html">Blog</a></li>
       </ul>
     </div>

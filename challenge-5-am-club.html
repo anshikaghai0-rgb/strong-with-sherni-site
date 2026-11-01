@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5 AM Club — 21-Day Challenge — Strong With Sherni</title>
+<meta name="description" content="21 days to wake up earlier and build a morning routine that sticks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500;1,700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2D322C; --cream:#FAF9F3; --white:#FFFFFF;
+    --maroon:#7B0237; --teal:#1F4037; --coral:#FF833B; --mustard:#9C9C1E;
+    --taupe:#6B6459; --line:rgba(45,50,44,0.13);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:'Work Sans', sans-serif; background:var(--white); color:var(--ink); }
+  h1,h2,h3{ font-family:'Cormorant Garamond', serif; }
+  a{ text-decoration:none; color:inherit; }
+  .eyebrow{ font-size:12px; letter-spacing:0.16em; text-transform:uppercase; font-weight:600; color:var(--coral); }
+  .btn-teal{ background:var(--teal); color:var(--white); padding:14px 28px; border-radius:26px; font-weight:600; font-size:13px; letter-spacing:0.03em; text-transform:uppercase; display:inline-block; }
+
+  nav{ display:flex; align-items:center; justify-content:space-between; padding:20px 6vw; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); z-index:50; }
+  .logo{ display:flex; align-items:center; gap:12px; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px; }
+  .logo img{ height:52px; width:52px; object-fit:contain; }
+  .nav-links{ display:flex; gap:34px; font-size:13.5px; font-weight:500; }
+  .nav-links a{ opacity:0.75; }
+  .nav-links a.active, .nav-links a:hover{ opacity:1; color:var(--teal); }
+  .nav-cta{ background:var(--maroon); color:var(--white); padding:10px 22px; border-radius:24px; font-size:13px; font-weight:600; }
+  @media (max-width:860px){ .nav-links{ display:none; } }
+
+  footer{ background:var(--white); color:var(--ink); padding:64px 6vw 30px; border-top:1px solid var(--line); text-align:center; }
+  footer .logo{ justify-content:center; margin-bottom:10px; }
+  .foot-bottom{ margin-top:20px; font-size:12px; color:var(--taupe); }
+  footer{ background:var(--white); color:var(--ink); padding:64px 6vw 30px; border-top:1px solid var(--line); text-align:left; }
+  .foot-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; padding-bottom:44px; }
+  footer h4{ font-size:12.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--teal); margin-bottom:16px; }
+  footer .logo{ color:var(--ink); margin-bottom:12px; justify-content:flex-start; }
+  footer p.tag{ font-size:14px; color:var(--taupe); max-width:280px; line-height:1.6; }
+  footer ul{ list-style:none; padding:0; margin:0; }
+  footer ul li{ margin-bottom:9px; font-size:13.5px; }
+  footer ul li a{ color:var(--taupe); transition:color .2s ease; }
+  footer ul li a:hover{ color:var(--maroon); }
+  .foot-bottom{ display:flex; justify-content:space-between; padding-top:22px; font-size:12px; color:var(--taupe); flex-wrap:wrap; gap:8px; border-top:1px solid var(--line); }
+  @media (max-width:760px){ .foot-grid{ grid-template-columns:1fr 1fr; } }
+
+  .nav-dropdown{ position:relative; }
+  .nav-dropdown > span{ cursor:pointer; opacity:0.75; }
+  .nav-dropdown:hover > span{ opacity:1; color:var(--teal); }
+  .nav-dropdown-menu{ position:absolute; top:28px; left:50%; transform:translateX(-50%) translateY(6px); background:var(--white); border:1px solid var(--line); border-radius:10px; padding:10px; min-width:200px; box-shadow:0 12px 30px rgba(45,50,44,0.14); opacity:0; visibility:hidden; transition:opacity .2s ease, transform .2s ease; z-index:60; }
+  .nav-dropdown:hover .nav-dropdown-menu{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
+  .nav-dropdown-menu a{ display:block; padding:9px 12px; border-radius:6px; font-size:13px; opacity:0.85; }
+  .nav-dropdown-menu a:hover{ background:var(--cream); opacity:1; }
+
+  .nav-hamburger{ display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:8px; z-index:70; }
+  .nav-hamburger span{ width:24px; height:2px; background:var(--ink); border-radius:2px; transition:transform .25s ease, opacity .25s ease; }
+  .nav-hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2){ opacity:0; }
+  .nav-hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+  @media (max-width:860px){
+    .nav-hamburger{ display:flex; }
+    .nav-links{ display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:var(--white); flex-direction:column; align-items:flex-start; gap:0; padding:90px 8vw 40px; z-index:65; overflow-y:auto; }
+    .nav-links.mobile-open{ display:flex; }
+    .nav-links a{ width:100%; padding:16px 0; border-bottom:1px solid var(--line); font-size:16px; opacity:1; }
+    .nav-dropdown{ width:100%; }
+    .nav-dropdown > span{ display:flex; justify-content:space-between; align-items:center; width:100%; padding:16px 0; border-bottom:1px solid var(--line); font-size:16px; opacity:1; }
+    .nav-dropdown-menu{ position:static; opacity:1; visibility:visible; transform:none; box-shadow:none; border:none; padding:0 0 0 14px; display:none; min-width:0; }
+    .nav-dropdown.mobile-expanded .nav-dropdown-menu{ display:block; }
+    .nav-dropdown-menu a{ border-bottom:1px solid var(--line); }
+    .nav-cta{ display:none; }
+    .nav-links .nav-cta-mobile{ display:block; width:100%; text-align:center; margin-top:20px; background:var(--maroon); color:var(--white); padding:14px; border-radius:26px; font-weight:700; }
+  }
+
+  /* nav: keep items on one line now that there is one more link */
+  .nav-links a, .nav-dropdown > span, .nav-cta{ white-space:nowrap; }
+  .nav-cta-mobile{ display:none; }
+  /* backdrop-filter traps the fixed mobile menu inside the header, so turn it off on phones */
+  @media (max-width:860px){ nav{ -webkit-backdrop-filter:none; backdrop-filter:none; background:#fff; } }
+  @media (min-width:861px) and (max-width:1180px){ .nav-links{ gap:16px; font-size:13px; } .nav-cta{ padding:9px 16px; } .logo{ font-size:18px; } .logo img{ height:42px; width:42px; } }
+
+  .eyebrow{ font-size:12px; letter-spacing:0.16em; text-transform:uppercase; font-weight:600; color:var(--coral); }
+  .wrap{ max-width:1080px; margin:0 auto; }
+  section.blk{ padding:72px 6vw; }
+  .sec-head{ text-align:center; margin-bottom:38px; }
+  .sec-head h2{ font-size:clamp(30px,3.6vw,42px); font-weight:600; margin-top:10px; }
+  .sec-head p{ color:var(--taupe); margin:10px auto 0; max-width:560px; font-size:15px; line-height:1.6; }
+  .btn{ background:var(--maroon); color:#fff; padding:15px 30px; border-radius:28px; font-weight:700; font-size:13px; letter-spacing:.04em; text-transform:uppercase; display:inline-block; border:none; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(123,2,55,.25); }
+  .btn.ghost{ background:transparent; color:var(--teal); border:1.5px solid var(--teal); }
+  .btn.ghost:hover{ box-shadow:none; background:rgba(31,64,55,.06); }
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in-view{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion:reduce){ .reveal{ opacity:1; transform:none; transition:none; } }
+
+  /* detail hero */
+  .ch-hero{ background:var(--cream); padding:64px 6vw 80px; }
+  .ch-hero-in{ max-width:1080px; margin:0 auto; display:grid; grid-template-columns:1.1fr .9fr; gap:56px; align-items:center; }
+  .crumb{ font-size:13px; color:var(--taupe); margin-bottom:18px; display:inline-block; }
+  .crumb:hover{ color:var(--maroon); }
+  .ch-hero h1{ font-size:clamp(42px,5.4vw,72px); font-weight:700; line-height:1.02; margin-top:12px; }
+  .ch-hero h1 em{ color:var(--maroon); }
+  .ch-hero .tag{ margin-top:18px; color:var(--taupe); font-size:17px; line-height:1.6; max-width:520px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .chip{ background:var(--white); border:1px solid var(--line); border-radius:30px; padding:9px 16px; font-size:13px; font-weight:600; color:var(--teal); }
+  .hero-cta{ margin-top:30px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  .hero-cta .pr{ font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:700; color:var(--maroon); margin-right:10px; line-height:1; }
+  .media-wrap{ position:relative; max-width:440px; margin:0 auto; width:100%; }
+  .media{ aspect-ratio:4/5; border-radius:220px 220px 28px 28px; overflow:hidden; box-shadow:0 30px 60px rgba(45,50,44,.18); background:var(--sand,#E7DED0); }
+  .media img, .media video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .sticker{ position:absolute; right:-18px; top:30px; width:118px; height:118px; border-radius:50%; background:var(--coral); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-weight:800; transform:rotate(-8deg); box-shadow:0 12px 26px rgba(0,0,0,.18); line-height:1; }
+  .sticker b{ font-family:'Cormorant Garamond',serif; font-size:44px; }
+  .sticker span{ font-size:11px; letter-spacing:.14em; margin-top:4px; }
+
+  .gains{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .gain{ background:var(--white); border:1px solid var(--line); border-radius:16px; padding:28px 26px; }
+  .gain .n{ width:42px; height:42px; border-radius:50%; background:var(--teal); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; }
+  .gain h3{ font-size:25px; font-weight:600; margin:16px 0 8px; }
+  .gain p{ font-size:14px; color:var(--taupe); line-height:1.65; }
+  .rule{ margin:30px auto 0; max-width:720px; text-align:center; background:var(--cream); border-radius:12px; padding:16px 22px; font-size:14px; color:var(--ink); line-height:1.6; }
+
+  .day-split{ display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; max-width:1000px; margin:0 auto; }
+  .day-split h2{ font-size:clamp(30px,3.4vw,40px); font-weight:600; margin:10px 0 14px; }
+  .day-split p{ color:var(--taupe); line-height:1.7; font-size:15px; }
+  .day-split ul{ list-style:none; margin-top:18px; }
+  .day-split li{ padding:8px 0; font-size:14.5px; display:flex; gap:12px; }
+  .day-split li:before{ content:"\2713"; color:var(--teal); font-weight:800; }
+  .phone{ background:#E7DED0; border-radius:26px; padding:16px; max-width:360px; margin:0 auto; border:8px solid var(--ink); width:100%; }
+  .wa-head{ background:var(--teal); color:#fff; margin:-16px -16px 14px; padding:13px 16px; font-size:13px; font-weight:600; }
+  .msg{ background:#fff; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; margin-bottom:10px; max-width:92%; }
+  .msg.me{ background:#DCF8C6; margin-left:auto; font-weight:700; }
+  .msg b{ color:var(--maroon); }
+
+  .guide-bg{ background:var(--cream); }
+  .weeks{ max-width:820px; margin:0 auto; display:grid; gap:14px; }
+  details.week{ background:var(--white); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  details.week summary{ list-style:none; cursor:pointer; padding:22px 26px; display:flex; align-items:center; gap:16px; }
+  details.week summary::-webkit-details-marker{ display:none; }
+  .wk-n{ flex-shrink:0; width:48px; height:48px; border-radius:14px; background:var(--maroon); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; }
+  .wk-n small{ font-size:9px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; opacity:.85; }
+  .wk-n b{ font-family:'Cormorant Garamond',serif; font-size:24px; }
+  .wk-t{ flex-grow:1; }
+  .wk-t h3{ font-size:25px; font-weight:600; line-height:1.1; }
+  .wk-t span{ font-size:13px; color:var(--taupe); }
+  .chev{ transition:transform .25s ease; color:var(--teal); font-size:20px; }
+  details[open] .chev{ transform:rotate(180deg); }
+  ol.days{ list-style:none; padding:4px 26px 24px; border-top:1px solid var(--line); }
+  ol.days li{ display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--line); font-size:14.5px; line-height:1.55; align-items:flex-start; }
+  ol.days li:last-child{ border-bottom:none; }
+  .dn{ flex-shrink:0; min-width:58px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--coral); padding-top:3px; }
+  ol.days li.chk .dn{ color:var(--teal); }
+
+  .acc-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .acc{ text-align:center; padding:6px 10px; }
+  .acc .ic{ width:60px; height:60px; border-radius:50%; background:rgba(255,131,59,.14); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:26px; }
+  .acc h3{ font-size:22px; font-weight:600; }
+  .acc p{ font-size:13.5px; color:var(--taupe); margin-top:8px; line-height:1.6; }
+
+  .incl{ max-width:640px; margin:0 auto; list-style:none; }
+  .incl li{ display:flex; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  .incl li:before{ content:"\2713"; color:#fff; background:var(--teal); width:24px; height:24px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; margin-top:1px; }
+  .buy{ text-align:center; margin-top:34px; }
+  .buy .pr{ font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:700; color:var(--maroon); line-height:1; }
+  .buy .pr small{ display:block; font-family:'Work Sans',sans-serif; font-size:12px; color:var(--taupe); font-weight:500; margin:6px 0 18px; }
+
+  .faq{ max-width:760px; margin:0 auto; }
+  .faq details{ border-bottom:1px solid var(--line); padding:18px 0; }
+  .faq summary{ font-weight:600; font-size:16px; cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:16px; }
+  .faq summary::-webkit-details-marker{ display:none; }
+  .faq summary:after{ content:"+"; font-size:22px; color:var(--teal); line-height:1; }
+  .faq details[open] summary:after{ content:"\2212"; }
+  .faq p{ margin-top:12px; font-size:14.5px; color:var(--taupe); line-height:1.7; }
+
+  .others{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .card{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--white); display:flex; flex-direction:column; transition:transform .25s ease, box-shadow .25s ease; }
+  .card:hover{ transform:translateY(-5px); box-shadow:0 18px 38px rgba(45,50,44,.12); }
+  .card .ph{ position:relative; aspect-ratio:4/3; overflow:hidden; background:var(--cream); }
+  .card .ph img{ width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+  .card:hover .ph img{ transform:scale(1.06); }
+  .card .dys{ position:absolute; left:14px; bottom:14px; background:var(--teal); color:#fff; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; border-radius:20px; }
+  .card .bdg{ position:absolute; right:14px; top:14px; background:var(--maroon); color:#fff; font-size:11px; font-weight:700; padding:5px 12px; border-radius:20px; }
+  .card .bd{ padding:22px 24px 24px; display:flex; flex-direction:column; flex-grow:1; }
+  .card .ct{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--teal); }
+  .card h3{ font-size:27px; font-weight:600; margin-top:8px; line-height:1.1; }
+  .card p{ font-size:13.5px; color:var(--taupe); line-height:1.6; margin-top:10px; flex-grow:1; }
+  .card .row{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+  .card .pr{ font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:700; color:var(--maroon); line-height:1; }
+  .card .go{ font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--teal); }
+
+  .ladder{ background:var(--teal); color:#fff; text-align:center; }
+  .ladder h2{ font-size:clamp(30px,3.6vw,44px); font-weight:600; }
+  .ladder p{ opacity:.85; margin:12px auto 26px; max-width:560px; line-height:1.65; }
+  .ladder .btn{ background:var(--coral); }
+  .disc{ text-align:center; font-size:12.5px; color:var(--taupe); max-width:640px; margin:0 auto; padding:0 6vw 40px; line-height:1.6; }
+
+  .join-bar{ display:none; }
+  @media (max-width:860px){
+    .ch-hero{ padding:36px 6vw 56px; }
+    .ch-hero-in{ grid-template-columns:1fr; gap:34px; }
+    .media-wrap{ max-width:340px; }
+    .gains, .others{ grid-template-columns:1fr; }
+    .day-split{ grid-template-columns:1fr; gap:34px; }
+    .acc-grid{ grid-template-columns:1fr 1fr; }
+    section.blk{ padding:52px 6vw; }
+    .join-bar{ display:flex; position:fixed; left:0; right:0; bottom:0; z-index:40; background:#fff; border-top:1px solid var(--line); padding:12px 5vw calc(12px + env(safe-area-inset-bottom)); align-items:center; justify-content:space-between; gap:12px; box-shadow:0 -8px 24px rgba(0,0,0,.08); }
+    .join-bar .pr{ font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:700; color:var(--maroon); line-height:1; }
+    .join-bar .pr small{ display:block; font-family:'Work Sans',sans-serif; font-size:11px; color:var(--taupe); font-weight:500; }
+    body.has-bar{ padding-bottom:84px; }
+  }
+  @media (max-width:520px){ .acc-grid{ grid-template-columns:1fr; } details.week summary{ padding:18px 18px; } ol.days{ padding:4px 18px 20px; } ol.days li{ flex-direction:column; gap:4px; } }
+
+</style>
+</head>
+<body class="has-bar">
+
+<nav>
+  <a href="index.html" class="logo" style="text-decoration:none; color:inherit;"><img src="logo.png" alt="Strong With Sherni logo">Strong With Sherni</a>
+  <div class="nav-links">
+    <a href="index.html#services">Services</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#transformations">Transformations</a>
+    <div class="nav-dropdown">
+      <span>Programs ▾</span>
+      <div class="nav-dropdown-menu">
+        <a href="individual-coaching.html">Individual Coaching</a>
+        <a href="buddy-program.html">Buddy Program</a>
+        <a href="pcos-coaching.html">PCOS Coaching</a>
+        <a href="rewire-challenge.html">Rewire Challenge</a>
+      </div>
+    </div>
+    <a href="challenges.html" class="active">Challenges</a>
+    <a href="nutrition.html">Nutrition</a>
+    <a href="blog.html">Blog</a>
+    <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20know%20more." target="_blank" rel="noopener">Contact</a>
+    <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20book%20a%20free%20consultation." class="nav-cta-mobile" target="_blank" rel="noopener">Book a Call</a>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+  <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20book%20a%20free%20consultation." class="nav-cta" target="_blank" rel="noopener">Book a Call</a>
+</nav>
+
+
+<section class="ch-hero"><div class="ch-hero-in">
+  <div>
+    <a class="crumb" href="challenges.html">&larr; All challenges</a><br>
+    <span class="eyebrow">Lifestyle</span>
+    <h1>5 AM <em>Club</em></h1>
+    <p class="tag">21 days to wake up earlier and build a morning routine that sticks.</p>
+    <div class="chips"><span class="chip">21 days</span><span class="chip">2 minutes a day</span><span class="chip">WhatsApp group</span><span class="chip">Coach check-ins</span></div>
+    <div class="hero-cta"><span class="pr">₹299</span><a class="btn" href="signup.html?plan=5%20AM%20Club%20Challenge&duration=21%20Days&price=299">Join now · ₹299</a><a class="btn ghost" href="#guide">See the day-by-day guide</a></div>
+  </div>
+  <div class="media-wrap"><div class="media"><img src="images/challenge-door.jpg" alt="5 AM Club challenge" style="object-position:50% 28%"></div><div class="sticker"><b>21</b><span>DAYS</span></div></div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">What you'll gain</span><h2>Why join 5 AM Club</h2></div>
+  <div class="gains"><div class="gain reveal"><div class="n">1</div><h3>Mornings that feel yours</h3><p>Time for movement, quiet and planning before the day takes over.</p></div><div class="gain reveal"><div class="n">2</div><h3>Better sleep habits</h3><p>An evening wind-down so you actually feel rested when you wake up.</p></div><div class="gain reveal"><div class="n">3</div><h3>A routine that lasts</h3><p>Shift your wake-up time step by step so it feels doable.</p></div></div>
+  <div class="rule reveal">You wake up a little earlier each day, so there&#x27;s no sudden jump. If 5:00 feels too much, choose 5:30 or 6:00.</div>
+</div></section>
+
+<section class="blk" style="background:var(--cream)"><div class="day-split">
+  <div class="reveal"><span class="eyebrow">Not overwhelming</span><h2>A day takes about 2 minutes</h2>
+    <p>Every morning you get one small task on WhatsApp. Do it, reply, and you're done. No long videos, no complicated plans.</p>
+    <ul><li>One task a day, written in plain words</li><li>A quick reply keeps your streak going</li><li>A coach and a community cheering you on</li></ul></div>
+  <div class="phone reveal"><div class="wa-head">5 AM Club &middot; Today</div>
+    <div class="msg"><b>Coach Sherni</b><br>Day 4: wake up 45 minutes earlier than usual and get some daylight within 10 minutes. Reply DONE when you&#x27;re up.</div>
+    <div class="msg me">DONE</div>
+    <div class="msg"><b>Streak</b><br>You're on a roll. Keep it going tomorrow!</div></div>
+</div></section>
+
+<section class="blk guide-bg" id="guide"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">Your guided plan</span><h2>The day-by-day guide</h2><p>Tap a week to see exactly what each day asks of you.</p></div>
+  <div class="weeks"><details class="week reveal" open><summary><div class="wk-n"><small>Week</small><b>1</b></div><div class="wk-t"><h3>Prepare</h3><span>Days 1-7 &middot; Shift your wake-up time gradually.</span></div><span class="chev">&#9662;</span></summary><ol class="days"><li><span class="dn">Day 1</span><span>Write why you want 5 AM mornings and set tonight&#x27;s bedtime (aim for 7-8 hours of sleep).</span></li><li><span class="dn">Day 2</span><span>Evening wind-down: screens off 30 minutes before bed. Lay out your clothes and water.</span></li><li><span class="dn">Day 3</span><span>Wake 30 minutes earlier than usual and drink water first thing.</span></li><li><span class="dn">Day 4</span><span>Wake 45 minutes earlier and get daylight within 10 minutes.</span></li><li><span class="dn">Day 5</span><span>Wake 1 hour earlier and do 5 minutes of stretching.</span></li><li><span class="dn">Day 6</span><span>Plan a simple 3-step morning routine.</span></li><li class="chk"><span class="dn">Day 7</span><span>Check-in: how are your sleep and energy?</span></li></ol></details><details class="week reveal"><summary><div class="wk-n"><small>Week</small><b>2</b></div><div class="wk-t"><h3>Build</h3><span>Days 8-14 &middot; Reach your wake-up time and add a routine.</span></div><span class="chev">&#9662;</span></summary><ol class="days"><li><span class="dn">Day 8</span><span>Wake at 5:00 AM (or your chosen time). Drink water and stretch for 5 minutes.</span></li><li><span class="dn">Day 9</span><span>Add a 10-minute walk or movement.</span></li><li><span class="dn">Day 10</span><span>Add 5 quiet minutes: journaling, planning or breathing.</span></li><li><span class="dn">Day 11</span><span>No phone for the first 20 minutes after waking.</span></li><li><span class="dn">Day 12</span><span>Prepare a healthy breakfast the night before.</span></li><li><span class="dn">Day 13</span><span>Easy day: a gentle routine and an early bedtime.</span></li><li class="chk"><span class="dn">Day 14</span><span>Check-in: what&#x27;s the hardest part of waking up?</span></li></ol></details><details class="week reveal"><summary><div class="wk-n"><small>Week</small><b>3</b></div><div class="wk-t"><h3>Own it</h3><span>Days 15-21 &middot; Make it a habit you love.</span></div><span class="chev">&#9662;</span></summary><ol class="days"><li><span class="dn">Day 15</span><span>Do your full routine: wake, water, 15 minutes of movement and 5 quiet minutes.</span></li><li><span class="dn">Day 16</span><span>Add one thing just for you: reading, a hobby or a goal task (10 minutes).</span></li><li><span class="dn">Day 17</span><span>Write down your top 3 tasks for the day each morning.</span></li><li><span class="dn">Day 18</span><span>Keep your wake-up time even after a short night, and rest later if you need to.</span></li><li><span class="dn">Day 19</span><span>Share a morning photo with the group or invite a friend to join you.</span></li><li><span class="dn">Day 20</span><span>Notice what has changed in your mood, focus and energy.</span></li><li class="chk"><span class="dn">Day 21</span><span>Final check-in: design the morning routine you&#x27;ll keep.</span></li></ol></details></div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">You won't do it alone</span><h2>How we keep you on track</h2></div>
+  <div class="acc-grid">
+    <div class="acc reveal"><div class="ic">&#9200;</div><h3>Daily reminders</h3><p>A morning task and an evening nudge on WhatsApp.</p></div>
+    <div class="acc reveal"><div class="ic">&#128293;</div><h3>Streaks &amp; leaderboard</h3><p>Check in each day to keep your streak. Weekly top spots are shared.</p></div>
+    <div class="acc reveal"><div class="ic">&#129309;</div><h3>Coach follow-up</h3><p>Miss 2 days? Coach Sherni messages you personally.</p></div>
+    <div class="acc reveal"><div class="ic">&#127873;</div><h3>Finisher reward</h3><p>Complete the challenge and unlock an offer on your next one.</p></div>
+  </div>
+</div></section>
+
+<section class="blk" style="background:var(--cream)"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">Everything included</span><h2>What you get</h2></div>
+  <ul class="incl reveal"><li>A private WhatsApp group with your batch</li><li>One short daily task (about 2 minutes) sent every morning</li><li>A reminder and a quick check-in reply each day</li><li>Streaks and a weekly leaderboard</li><li>A personal message from Coach Sherni if you miss 2 days</li><li>A special offer on your next challenge when you finish</li></ul>
+  <div class="buy reveal"><div class="pr">₹299<small>one-time payment · UPI, cards &amp; netbanking</small></div><a class="btn" href="signup.html?plan=5%20AM%20Club%20Challenge&duration=21%20Days&price=299">Join now · ₹299</a></div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">Questions</span><h2>Good to know</h2></div>
+  <div class="faq reveal"><details><summary>When does it start?</summary><p>After you join, you&#x27;re added to the next batch&#x27;s WhatsApp group and Coach Sherni sends you the start date and first task there.</p></details><details><summary>What if I miss a day?</summary><p>Just pick it back up the next day. If you miss 2 days in a row, Coach Sherni will message you personally.</p></details><details><summary>Do I need a gym or any equipment?</summary><p>No. Everything is designed to be done at home with what you already have.</p></details><details><summary>Can I join if I have a health condition or I&#x27;m pregnant?</summary><p>These challenges are lifestyle support, not medical treatment. Please check with your doctor first if you have a medical condition, are pregnant or are on medication.</p></details></div>
+</div></section>
+
+<section class="blk" style="background:var(--cream)"><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">More challenges</span><h2>Try another one next</h2></div>
+  <div class="others"><a href="challenge-sugar-break.html" class="card reveal">
+      <div class="ph"><img src="images/challenge-snacks.jpg" alt="Sugar Break challenge" style="object-position:30% 50%"><span class="dys">21 days</span><span class="bdg">Most popular</span></div>
+      <div class="bd"><span class="ct">Food &amp; Nutrition</span><h3>Sugar Break</h3><p>Cut added sugar for 21 days, one small step at a time.</p>
+      <div class="row"><span class="pr">₹299</span><span class="go">View challenge &rarr;</span></div></div>
+    </a><a href="challenge-mindful-eating.html" class="card reveal">
+      <div class="ph"><img src="images/challenge-jars.jpg" alt="Mindful Eating challenge" style="object-position:50% 35%"><span class="dys">21 days</span></div>
+      <div class="bd"><span class="ct">Food &amp; Nutrition</span><h3>Mindful Eating</h3><p>Slow down, tune in and eat without guilt for 21 days.</p>
+      <div class="row"><span class="pr">₹479</span><span class="go">View challenge &rarr;</span></div></div>
+    </a><a href="challenge-wedding-season-ready.html" class="card reveal">
+      <div class="ph"><img src="images/challenge-white.jpg" alt="Wedding Season Ready challenge" style="object-position:50% 25%"><span class="dys">21 days</span><span class="bdg">Seasonal</span></div>
+      <div class="bd"><span class="ct">Seasonal</span><h3>Wedding Season Ready</h3><p>Feel strong, energised and confident before the big day.</p>
+      <div class="row"><span class="pr">₹599</span><span class="go">View challenge &rarr;</span></div></div>
+    </a></div>
+</div></section>
+
+<section class="blk ladder"><div class="wrap reveal"><h2>Want more after your challenge?</h2><p>Finishers get a special offer on the Everyday Membership: daily live classes, nutrition talks and a community that keeps you going.</p><a class="btn" href="https://wa.me/919036147675?text=Hi%21%20I%27d%20like%20to%20know%20more%20about%20the%20Everyday%20Membership." target="_blank" rel="noopener">Ask about membership</a></div></section>
+
+<p class="disc" style="padding-top:34px">Challenges are lifestyle support, not medical treatment. If you have a medical condition, are pregnant or take medication, please check with your doctor first.</p>
+
+<div class="join-bar"><div class="pr">₹299<small>21 days</small></div><a class="btn" href="signup.html?plan=5%20AM%20Club%20Challenge&duration=21%20Days&price=299">Join now</a></div>
+
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <a href="index.html" class="logo" style="text-decoration:none; color:inherit;"><img src="logo.png" alt="Strong With Sherni logo">Strong With Sherni</a>
+      <p class="tag">Holistic health coaching for women who want strength, not shortcuts.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="nutrition.html">Nutrition</a></li>
+        <li><a href="challenges.html">Challenges</a></li>
+        <li><a href="blog.html">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Programs</h4>
+      <ul>
+        <li><a href="individual-coaching.html">Individual Coaching</a></li>
+        <li><a href="buddy-program.html">Buddy Coaching</a></li>
+        <li><a href="rewire-challenge.html">Rewire Challenge</a></li>
+        <li><a href="pcos-coaching.html">PCOS Coaching</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="https://wa.me/919036147675" target="_blank" rel="noopener">WhatsApp</a></li>
+        <li><a href="https://instagram.com/strongwithshernii" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20know%20more." target="_blank" rel="noopener">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Strong With Sherni. All rights reserved.</span>
+    <span>Bengaluru, India</span>
+  </div>
+</footer>
+
+<script>
+  function toggleMobileNav(){
+    document.querySelector('.nav-links').classList.toggle('mobile-open');
+    document.querySelector('.nav-hamburger').classList.toggle('open');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    const dropdownToggle = document.querySelector('.nav-dropdown > span');
+    if(dropdownToggle){
+      dropdownToggle.addEventListener('click', function(){
+        if(window.innerWidth <= 860){
+          this.parentElement.classList.toggle('mobile-expanded');
+        }
+      });
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){ els.forEach(function(e){ e.classList.add('in-view'); }); return; }
+    var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in-view'); io.unobserve(en.target); } }); }, {threshold:0.12});
+    els.forEach(function(e){ io.observe(e); });
+  });
+</script>
+</body>
+</html>
