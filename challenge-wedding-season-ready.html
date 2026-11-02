@@ -107,6 +107,8 @@
   .media-wrap{ position:relative; max-width:440px; margin:0 auto; width:100%; }
   .media{ aspect-ratio:4/5; border-radius:220px 220px 28px 28px; overflow:hidden; box-shadow:0 30px 60px rgba(45,50,44,.18); background:var(--sand,#E7DED0); }
   .media img, .media video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .media-wrap.vid{ max-width:360px; }
+  .media-wrap.vid .media{ aspect-ratio:9/16; border-radius:180px 180px 28px 28px; }
   .sticker{ position:absolute; right:-18px; top:30px; width:118px; height:118px; border-radius:50%; background:var(--coral); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-weight:800; transform:rotate(-8deg); box-shadow:0 12px 26px rgba(0,0,0,.18); line-height:1; }
   .sticker b{ font-family:'Cormorant Garamond',serif; font-size:44px; }
   .sticker span{ font-size:11px; letter-spacing:.14em; margin-top:4px; }
@@ -247,7 +249,7 @@
     <div class="chips"><span class="chip">21 days</span><span class="chip">2 minutes a day</span><span class="chip">WhatsApp group</span><span class="chip">Coach check-ins</span></div>
     <div class="hero-cta"><span class="pr">₹599</span><a class="btn" href="signup.html?plan=Wedding%20Season%20Ready%20Challenge&duration=21%20Days&price=599">Join now · ₹599</a><a class="btn ghost" href="#guide">See the day-by-day guide</a></div>
   </div>
-  <div class="media-wrap"><div class="media"><img src="images/challenge-white.jpg" alt="Wedding Season Ready challenge" style="object-position:50% 25%"></div><div class="sticker"><b>21</b><span>DAYS</span></div></div>
+  <div class="media-wrap vid"><div class="media"><video src="images/wedding-season-ready.mp4" poster="images/challenge-white.jpg" autoplay muted loop playsinline></video></div><div class="sticker"><b>21</b><span>DAYS</span></div></div>
 </div></section>
 
 <section class="blk"><div class="wrap">
