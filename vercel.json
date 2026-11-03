@@ -1,25 +1,5 @@
 {
   "crons": [
-    {
-      "path": "/api/daily-reminders",
-      "schedule": "30 3 * * *"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/book-online",
-      "destination": "/#services",
-      "permanent": true
-    },
-    {
-      "source": "/book-online/:path*",
-      "destination": "/#services",
-      "permanent": true
-    },
-    {
-      "source": "/post/:path*",
-      "destination": "/blog.html",
-      "permanent": true
-    }
+    { "path": "/api/daily-reminders", "schedule": "30 3 * * *" }
   ]
 }
