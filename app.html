@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Challenge App — Strong With Sherni</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#123A30">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="app-icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sherni Challenge">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="challenges-data.js"></script>
+<style>
+:root{--ink:#16231E;--bg:#EEF3F0;--white:#fff;--maroon:#7B0237;--berry:#B0125B;--teal:#123A30;--teal2:#1F5C4B;--mint:#9FE0C2;--green:#1FA86B;--coral:#FF6B4A;--amber:#FFB020;--sky:#3A86FF;--taupe:#5E6B66;--line:rgba(22,35,30,.09);--soft:#E4ECE8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Work Sans',sans-serif;background:radial-gradient(1200px 500px at 50% -200px,#D7EBE1 0%,var(--bg) 60%);color:var(--ink);min-height:100vh;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:'Work Sans',sans-serif;font-weight:700;letter-spacing:-.02em}
+button{font-family:inherit;cursor:pointer;transition:transform .12s ease}
+button:active{transform:scale(.97)}
+.wrap{max-width:460px;margin:0 auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.brand img{width:34px;height:34px;object-fit:contain;border-radius:10px}
+.ghost{background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:20px;padding:7px 12px;font-size:12.5px;color:var(--taupe)}
+.card{background:var(--white);border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(18,58,48,.05),0 8px 24px rgba(18,58,48,.06)}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--berry)}
+.muted{color:var(--taupe);font-size:13.5px;line-height:1.55}
+.hide{display:none!important}
+/* login */
+.login h1{font-size:34px;line-height:1.08;margin:18px 0 8px}
+.field{margin:14px 0}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--taupe);margin-bottom:6px}
+.field input{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:14px;font-size:16px;background:var(--white);font-family:inherit}
+.field input:focus{outline:none;border-color:var(--teal2)}
+#l-code{letter-spacing:8px;font-size:22px;text-align:center;font-weight:700}
+.btn{width:100%;border:none;border-radius:18px;padding:16px;font-weight:700;font-size:15px;background:linear-gradient(135deg,var(--maroon),var(--berry));color:#fff;box-shadow:0 8px 20px rgba(123,2,55,.25)}
+.btn:disabled{opacity:.6}
+.btn.teal{background:linear-gradient(135deg,var(--teal),var(--teal2));box-shadow:0 8px 20px rgba(18,58,48,.25)}
+.link{background:none;border:none;color:var(--teal2);font-weight:600;font-size:13.5px;text-decoration:underline;margin-top:14px}
+.err{background:rgba(176,18,91,.08);color:var(--maroon);font-size:13px;padding:10px 12px;border-radius:12px;margin-top:10px}
+.ok{background:rgba(31,168,107,.1);color:var(--teal2);font-size:13px;padding:10px 12px;border-radius:12px;margin-top:10px}
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:22px 20px;margin-bottom:14px;color:#fff;background:linear-gradient(140deg,#0E2F27 0%,#1F5C4B 55%,#2E8C6E 100%);box-shadow:0 14px 34px rgba(18,58,48,.28)}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;background:rgba(159,224,194,.14)}
+.hero::before{width:220px;height:220px;right:-70px;top:-90px}
+.hero::after{width:140px;height:140px;right:40px;bottom:-80px;background:rgba(255,255,255,.07)}
+.hero-row{position:relative;display:flex;align-items:center;gap:18px;z-index:1}
+.ring{position:relative;width:120px;height:120px;flex:0 0 120px}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num small{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;font-weight:600}
+.ring .num b{font-size:42px;line-height:1;font-weight:800;letter-spacing:-.03em}
+.ring .num span{font-size:11px;opacity:.75;margin-top:2px}
+.hero .wk-chip{display:inline-block;background:rgba(159,224,194,.2);color:var(--mint);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:20px}
+.hero h2{font-size:25px;line-height:1.15;margin:8px 0 4px}
+.hero p{font-size:13px;line-height:1.5;opacity:.82}
+.daydone{position:relative;z-index:1;margin-top:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:10px 12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px}
+.daydone .dots{display:flex;gap:5px;margin-left:auto}
+.daydone .dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25)}
+.daydone .dots i.on{background:var(--mint)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--white);border-radius:18px;padding:14px 8px 12px;text-align:center;box-shadow:0 1px 2px rgba(18,58,48,.05),0 8px 24px rgba(18,58,48,.06)}
+.stat .ic{width:34px;height:34px;border-radius:12px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center}
+.stat .ic svg{width:18px;height:18px}
+.stat b{display:block;font-size:26px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--taupe);font-weight:500}
+.ic.fire{background:#FFF1E0;color:#F07800}.ic.leaf{background:#E2F6EC;color:var(--green)}.ic.cal{background:#F9E3EE;color:var(--berry)}
+/* task */
+.task .pill{display:inline-flex;align-items:center;gap:6px;background:#F9E3EE;color:var(--berry);font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:20px;letter-spacing:.04em}
+.task h3{font-size:22px;margin:10px 0 6px}
+.task p{font-size:15px;line-height:1.55;color:#2B3A34}
+.tip{display:flex;gap:10px;background:#EEF6F2;border-radius:14px;padding:11px 12px;font-size:13px;color:var(--teal2);margin-top:12px;line-height:1.5}
+.tip svg{flex:0 0 18px;width:18px;height:18px;margin-top:1px}
+.video{margin-top:12px;border-radius:16px;overflow:hidden;background:#0E2F27;aspect-ratio:16/9}
+.video iframe,.video video{width:100%;height:100%;border:0;display:block}
+.toggle{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:14px;border-radius:16px;border:1.5px dashed rgba(31,92,75,.35);background:#F7FBF9;font-weight:700;font-size:14.5px;color:var(--teal2)}
+.toggle .box{width:26px;height:26px;border-radius:9px;border:2px solid var(--teal2);display:flex;align-items:center;justify-content:center;color:transparent}
+.toggle.on{border-style:solid;border-color:var(--green);background:var(--green);color:#fff}
+.toggle.on .box{background:#fff;border-color:#fff;color:var(--green)}
+/* check-in */
+.q{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:6px 0 12px}
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.yn button{padding:16px 8px 14px;border-radius:18px;border:1.5px solid var(--line);background:#F7F9F8;font-weight:700;font-size:14px;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:8px}
+.yn button .bub{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.yn button .bub svg{width:22px;height:22px}
+.yn .yes .bub{background:#E2F6EC;color:var(--green)}
+.yn .no .bub{background:#FFE9E3;color:var(--coral)}
+.yn .yes.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 8px 18px rgba(31,168,107,.3)}
+.yn .no.on{background:var(--coral);border-color:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(255,107,74,.3)}
+.yn .on .bub{background:rgba(255,255,255,.25);color:#fff}
+.crave{margin-top:16px}
+.crave .lbl{font-size:13px;color:var(--taupe);margin-bottom:8px;font-weight:600}
+.chips{display:flex;gap:8px}
+.chips button{flex:1;padding:11px 0;border-radius:14px;border:none;font-weight:800;color:var(--ink);background:var(--soft)}
+.chips button:nth-child(1).on{background:#1FA86B;color:#fff}.chips button:nth-child(2).on{background:#7CC24A;color:#fff}.chips button:nth-child(3).on{background:#FFB020;color:#fff}.chips button:nth-child(4).on{background:#FF7A3D;color:#fff}.chips button:nth-child(5).on{background:#E5304F;color:#fff}
+.chips-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--taupe);margin-top:6px}
+.msg{margin-top:12px;font-size:13.5px;color:var(--teal2);font-weight:600;min-height:18px}
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:12px}
+.cal button{aspect-ratio:1;border-radius:12px;border:none;background:var(--soft);font-weight:700;font-size:13px;color:var(--taupe);display:flex;align-items:center;justify-content:center}
+.cal .done{background:linear-gradient(135deg,#1FA86B,#2BC483);color:#fff}
+.cal .slip{background:linear-gradient(135deg,#FF6B4A,#FF8E6B);color:#fff}
+.cal .miss{background:#fff;border:1.5px dashed rgba(22,35,30,.18)}
+.cal .today{outline:3px solid var(--berry);outline-offset:2px}
+.cal .future{opacity:.45}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--taupe)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:4px;margin-right:5px;vertical-align:-1px}
+.wk{display:flex;justify-content:space-between;align-items:baseline}
+/* sos */
+.sos{width:100%;border:none;border-radius:22px;padding:16px 18px;background:linear-gradient(135deg,#7B0237,#C2185B);color:#fff;font-weight:800;font-size:16px;margin-bottom:14px;box-shadow:0 12px 26px rgba(176,18,91,.3);display:flex;align-items:center;gap:14px;text-align:left}
+.sos .bub{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 44px}
+.sos .bub svg{width:22px;height:22px}
+.sos small{display:block;font-weight:500;font-size:12.5px;opacity:.85;margin-top:2px}
+/* rules */
+details summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+details summary::-webkit-details-marker{display:none}
+details[open] summary .chev{transform:rotate(180deg)}
+.chev{transition:transform .2s}
+.rules{display:grid;gap:14px;margin-top:12px}
+.rules h4{font-size:13px;margin-bottom:6px}
+.rules ul{list-style:none;display:grid;gap:7px}
+.rules li{font-size:13.5px;line-height:1.45;padding-left:22px;position:relative}
+.rules .no li::before{content:'✕';position:absolute;left:0;color:var(--coral);font-weight:800}
+.rules .yes li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:800}
+.steps{list-style:none;display:grid;gap:10px;margin-top:12px;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.45}
+.steps li::before{counter-increment:s;content:counter(s);flex:0 0 26px;height:26px;border-radius:9px;background:#E2F6EC;color:var(--green);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px}
+/* sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,25,20,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20;backdrop-filter:blur(2px)}
+.sheet{background:var(--bg);width:100%;max-width:460px;border-radius:26px 26px 0 0;padding:22px 18px calc(24px + env(safe-area-inset-bottom));max-height:86vh;overflow:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet h3{font-size:22px;margin:4px 0}
+.sos-list{list-style:none;display:grid;gap:10px;margin:14px 0}
+.sos-list li{background:var(--white);border-radius:16px;padding:13px 14px;font-size:14.5px;line-height:1.45;display:flex;gap:10px}
+.sos-list li b{flex:0 0 24px;height:24px;border-radius:8px;background:#F9E3EE;color:var(--berry);display:flex;align-items:center;justify-content:center;font-size:12px}
+.foot{text-align:center;font-size:12px;color:var(--taupe);margin-top:8px}
+.foot a{color:var(--teal2);font-weight:700}
+.big{font-size:60px;font-weight:800;letter-spacing:-.04em;color:var(--maroon);line-height:1}
+.hero .big{color:#fff}
+.demo{background:var(--amber);color:#3A2600;text-align:center;font-size:12px;font-weight:700;padding:7px;border-radius:12px;margin-bottom:12px}
+/* confetti */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
+.pop{animation:pop .35s ease}
+@keyframes pop{50%{transform:scale(1.08)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><img src="logo.png" alt="">Strong With Sherni</div>
+    <button class="ghost hide" id="logout">Log out</button>
+  </div>
+  <div class="demo hide" id="demo-bar">Demo mode, nothing is saved</div>
+
+  <!-- LOGIN -->
+  <section id="v-login" class="login hide">
+    <span class="eyebrow">Challenge app</span>
+    <h1>Welcome back,<br>Sherni.</h1>
+    <p class="muted">Log in with the email you signed up with and the 6-digit code from your welcome email.</p>
+    <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label for="l-code">Login code</label><input id="l-code" inputmode="numeric" maxlength="6" placeholder="••••••"></div>
+    <button class="btn" id="l-btn">Log in</button>
+    <div id="l-err" class="err hide"></div>
+    <div id="l-ok" class="ok hide"></div>
+    <div style="text-align:center"><button class="link" id="l-forgot">Forgot your code?</button></div>
+  </section>
+
+  <!-- BEFORE START -->
+  <section id="v-pre" class="hide">
+    <div class="hero" style="text-align:center">
+      <div style="position:relative;z-index:1">
+      <span class="wk-chip" id="pre-name">Sugar Break</span>
+      <h2 style="font-size:26px;margin:10px 0 4px">Hi <span class="first"></span>, you're in!</h2>
+      <p>Your challenge starts in</p>
+      <div class="big" id="pre-count" style="margin:12px 0 6px">3</div>
+      <p id="pre-date"></p>
+      </div>
+    </div>
+    <div class="card">
+      <span class="eyebrow">Get ready</span>
+      <ul class="steps"><li>Join your batch WhatsApp group (link in your email).</li><li>Clear sweets and sugary drinks out of your kitchen.</li><li>Stock up on fruit, nuts, curd and roasted chana.</li><li>Add this app to your home screen.</li></ul>
+    </div>
+    <div class="card"><details open><summary>The rules <span class="chev">▾</span></summary><div class="rules rules-box"></div></details></div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="v-dash" class="hide">
+    <div class="hero" id="hero">
+      <div class="hero-row">
+        <div class="ring">
+          <svg width="120" height="120"><circle cx="60" cy="60" r="51" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="11"/><circle id="ring-arc" cx="60" cy="60" r="51" fill="none" stroke="#9FE0C2" stroke-width="11" stroke-linecap="round" stroke-dasharray="320.44" stroke-dashoffset="320.44" style="transition:stroke-dashoffset .8s ease"/></svg>
+          <div class="num"><small>Day</small><b id="d-day">1</b><span>of 21</span></div>
+        </div>
+        <div>
+          <span class="wk-chip" id="d-week">Week 1 · Break</span>
+          <h2>Hi <span class="first"></span>!</h2>
+          <p id="d-weeksub"></p>
+        </div>
+      </div>
+      <div class="daydone" id="daydone"><span id="dd-text">Complete today: tap your task and check-in</span><span class="dots"><i id="dd1"></i><i id="dd2"></i></span></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="ic fire"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.8 2-5 0 2 1 3 2 3 0-3 1-6 1-8z"/></svg></div><b id="s-streak">0</b><span>day streak</span></div>
+      <div class="stat"><div class="ic leaf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19 13 11"/></svg></div><b id="s-free">0</b><span>sugar-free days</span></div>
+      <div class="stat"><div class="ic cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></div><b id="s-left">21</b><span>days to go</span></div>
+    </div>
+
+    <div class="card task">
+      <span class="pill" id="t-label">TODAY'S TASK · DAY 1</span>
+      <h3 id="t-title"></h3>
+      <p id="t-text"></p>
+      <div class="video hide" id="t-video"></div>
+      <div class="tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><span id="t-tip"></span></div>
+      <button class="toggle" id="t-done"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg></span><span id="t-done-lbl">Tap when done</span></button>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow" id="c-label">Daily check-in</span>
+      <div class="q" id="c-q">Were you sugar-free today?</div>
+      <div class="yn"><button class="yes" id="c-yes"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg></span>Yes, sugar-free</button><button class="no" id="c-no"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>I slipped</button></div>
+      <div class="crave">
+        <div class="lbl">How strong were your cravings?</div>
+        <div class="chips" id="c-chips"></div>
+        <div class="chips-legend"><span>Barely</span><span>Very strong</span></div>
+      </div>
+      <div class="msg" id="c-msg"></div>
+    </div>
+
+    <button class="sos" id="sos-btn"><span class="bub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span>Craving SOS<small>Tap for quick help right now</small></span></button>
+
+    <div class="card">
+      <div class="wk"><span class="eyebrow">Your 21 days</span><span class="muted" style="font-size:12px">Tap a past day to update it</span></div>
+      <div class="cal" id="cal"></div>
+      <div class="legend"><span><i style="background:var(--green)"></i>Sugar-free</span><span><i style="background:var(--coral)"></i>Slipped</span><span><i style="background:var(--soft);border:1px solid var(--line)"></i>Not logged</span></div>
+    </div>
+
+    <div class="card"><details><summary>What's allowed and what's not <span class="chev">▾</span></summary><div class="rules rules-box"></div></details></div>
+    <p class="foot">Need help? <a href="https://wa.me/919036147675" target="_blank" rel="noopener">WhatsApp Coach Sherni</a></p>
+  </section>
+
+  <!-- FINISHED -->
+  <section id="v-end" class="hide">
+    <div class="hero" style="text-align:center">
+      <div style="position:relative;z-index:1">
+      <span class="wk-chip">Challenge complete</span>
+      <h2 style="font-size:28px;margin:10px 0">You did it, <span class="first"></span>!</h2>
+      <div class="big" id="e-free">0</div>
+      <p>sugar-free days out of 21</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="ic fire"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.8 2-5 0 2 1 3 2 3 0-3 1-6 1-8z"/></svg></div><b id="e-best">0</b><span>best streak</span></div>
+      <div class="stat"><div class="ic leaf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg></div><b id="e-tasks">0</b><span>tasks done</span></div>
+      <div class="stat"><div class="ic cal"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div><b id="e-crave">-</b><span>avg craving</span></div>
+    </div>
+    <div class="card"><p class="muted" style="text-align:center">Your last task: write your own sugar rule for the next month and share it in the group.</p></div>
+    <a class="btn teal" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20I%20finished%20Sugar%20Break.%20I%27d%20love%20to%20know%20about%20my%20finisher%20offer." target="_blank" rel="noopener">Claim my finisher offer</a>
+    <p class="foot" style="margin-top:16px"><button class="link" id="e-review">Look back at my 21 days</button></p>
+  </section>
+</div>
+
+<!-- SOS SHEET -->
+<div class="sheet-bg hide" id="sos-sheet">
+  <div class="sheet">
+    <span class="eyebrow">Craving SOS</span>
+    <h3>This craving will pass.</h3>
+    <p class="muted">Most cravings fade in 10-15 minutes. Pick one of these right now:</p>
+    <ul class="sos-list" id="sos-list"></ul>
+    <button class="btn teal" id="sos-close">I've got this</button>
+  </div>
+</div>
+
+<!-- PAST DAY SHEET -->
+<div class="sheet-bg hide" id="day-sheet">
+  <div class="sheet">
+    <span class="eyebrow" id="ds-label">Day 1</span>
+    <h3 id="ds-title"></h3>
+    <p class="muted" id="ds-task" style="margin-bottom:14px"></p>
+    <div class="q" style="font-size:19px">Were you sugar-free that day?</div>
+    <div class="yn"><button class="yes" id="ds-yes"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg></span>Yes, sugar-free</button><button class="no" id="ds-no"><span class="bub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></span>I slipped</button></div>
+    <button class="toggle" id="ds-done"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg></span><span>Task done</span></button>
+    <button class="btn" id="ds-close" style="margin-top:16px">Done</button>
+  </div>
+</div>
+
+<script>
+const DEMO = new URLSearchParams(location.search).has('demo');
+const LS = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+const $ = id => document.getElementById(id);
+const DAYMS = 86400000;
+let S = { token: LS.get(DEMO ? 'sws_demo_token' : 'sws_token'), member: null, checkins: {}, ch: null, review: false };
+
+/* ---------- API (real server, or a fake one in demo mode) ---------- */
+const demoDB = { members: { '123456': { name: 'Anshika Ghai', email: 'demo@sws.com', challenge: 'sugar-break' } }, checkins: {} };
+function demoStart(){ const p = new URLSearchParams(location.search).get('day'); const d = p ? Number(p) : 6; const t = new Date(Date.now()+5.5*3600000); t.setUTCHours(0,0,0,0); return new Date(t - (d-1)*DAYMS).toISOString().slice(0,10); }
+function demoDay(start){ const t=new Date(Date.now()+5.5*3600000).toISOString().slice(0,10); return Math.floor((new Date(t+'T00:00:00Z')-new Date(start+'T00:00:00Z'))/DAYMS)+1; }
+async function api(body){
+  if (DEMO) {
+    const start = demoStart(); const m = { ...demoDB.members['123456'], start_date: start, day: demoDay(start) };
+    if (!S._seeded) { S._seeded = true; for (let d=1; d<m.day && d<=21; d++){ if (d===3) continue; demoDB.checkins[d] = { day:d, sugar_free: d!==4, task_done: d%5!==0, craving: Math.max(1, 5-Math.floor(d/4)) }; } }
+    if (body.action==='login') { if (body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return { token:'demo', member:m }; }
+    if (body.action==='forgot') return { ok:true };
+    if (body.action==='state') return { member:m, checkins:Object.values(demoDB.checkins) };
+    if (body.action==='checkin') { const c = demoDB.checkins[body.day] || { day: body.day }; ['sugar_free','task_done','craving'].forEach(k=>{ if (body[k]!==undefined) c[k]=body[k]; }); demoDB.checkins[body.day]=c; return { ok:true, checkin:c }; }
+  }
+  const r = await fetch('/api/challenge', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const j = await r.json().catch(()=>({}));
+  if (!r.ok) { const e = new Error(j.error || 'Something went wrong. Please try again.'); e.status = r.status; throw e; }
+  return j;
+}
+
+/* ---------- helpers ---------- */
+function show(view){ ['v-login','v-pre','v-dash','v-end'].forEach(v => $(v).classList.toggle('hide', v!==view)); $('logout').classList.toggle('hide', view==='v-login'); }
+function fmtDate(iso){ return new Date(iso+'T00:00:00Z').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}); }
+function curDay(){ return S.member.day; }
+function streak(){ let n=0; let d = Math.min(curDay(),21); if (!(S.checkins[d] && S.checkins[d].sugar_free===true)) d--; for(; d>=1; d--){ if (S.checkins[d] && S.checkins[d].sugar_free===true) n++; else break; } return n; }
+function bestStreak(){ let b=0,n=0; for(let d=1; d<=21; d++){ if (S.checkins[d] && S.checkins[d].sugar_free===true){ n++; b=Math.max(b,n);} else n=0; } return b; }
+function freeCount(){ return Object.values(S.checkins).filter(c=>c.sugar_free===true && c.day<=21).length; }
+function renderRules(){ const r=S.ch.rules; document.querySelectorAll('.rules-box').forEach(b=>{ b.innerHTML = `<div class="no"><h4>Not allowed</h4><ul>${r.no.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="yes"><h4>Enjoy freely</h4><ul>${r.yes.map(x=>`<li>${x}</li>`).join('')}</ul></div>`; }); }
+
+/* ---------- render ---------- */
+function render(){
+  const m = S.member; S.ch = (window.SWS_CHALLENGES||{})[m.challenge] || window.SWS_CHALLENGES['sugar-break'];
+  document.querySelectorAll('.first').forEach(e => e.textContent = (m.name||'').split(' ')[0] || 'Sherni');
+  renderRules();
+  const day = curDay();
+  if (day < 1) { show('v-pre'); $('pre-name').textContent = S.ch.name; const n = 1-day; $('pre-count').textContent = n===1 ? 'Tomorrow' : n+' days'; $('pre-date').textContent = fmtDate(m.start_date); return; }
+  if (day > S.ch.days && !S.review) { return renderEnd(); }
+  show('v-dash');
+  const d = Math.min(day, S.ch.days);
+  const wk = S.ch.weeks[Math.min(2, Math.floor((d-1)/7))];
+  $('d-day').textContent = d; $('d-week').textContent = `Week ${wk.n} · ${wk.title}`; $('d-weeksub').textContent = wk.sub.split('·')[1].trim();
+  $('ring-arc').style.strokeDashoffset = 320.44 * (1 - d/S.ch.days);
+  $('s-streak').textContent = streak(); $('s-free').textContent = freeCount(); $('s-left').textContent = Math.max(0, S.ch.days - d);
+  const t = S.ch.tasks[d-1];
+  $('t-label').textContent = `TODAY'S TASK · DAY ${d}`; $('t-title').textContent = t.title; $('t-text').textContent = t.task; $('t-tip').textContent = t.tip;
+  const v = $('t-video'); if (t.video) { if (v.dataset.src!==t.video) { v.dataset.src=t.video; v.innerHTML = /youtu/.test(t.video) ? `<iframe src="${t.video.replace('watch?v=','embed/').replace('youtu.be/','www.youtube.com/embed/')}" allowfullscreen></iframe>` : `<video src="${t.video}" controls playsinline preload="metadata"></video>`; } v.classList.remove('hide'); } else v.classList.add('hide');
+  const c = S.checkins[d] || {};
+  $('t-done').classList.toggle('on', !!c.task_done); $('t-done-lbl').textContent = c.task_done ? 'Task done. Nice work!' : 'Tap when done';
+  const both = c.task_done && c.sugar_free===true; $('dd1').classList.toggle('on', !!c.task_done); $('dd2').classList.toggle('on', c.sugar_free!==undefined && c.sugar_free!==null);
+  $('dd-text').textContent = both ? `Day ${d} complete. See you tomorrow!` : (c.task_done || c.sugar_free!=null) ? 'Almost there, one more tap' : 'Complete today: tap your task and check-in';
+  $('c-label').textContent = `Daily check-in · Day ${d}`;
+  $('c-yes').classList.toggle('on', c.sugar_free===true); $('c-no').classList.toggle('on', c.sugar_free===false);
+  $('c-chips').innerHTML = [1,2,3,4,5].map(n=>`<button data-n="${n}" class="${c.craving===n?'on':''}">${n}</button>`).join('');
+  $('c-chips').querySelectorAll('button').forEach(b => b.onclick = () => save(d, { craving: Number(b.dataset.n) }));
+  // calendar
+  $('cal').innerHTML = Array.from({length:S.ch.days},(_,i)=>{ const n=i+1, ci=S.checkins[n]; let cls = n>day ? 'future' : ci&&ci.sugar_free===true ? 'done' : ci&&ci.sugar_free===false ? 'slip' : n<day ? 'miss' : ''; if (n===day) cls+=' today'; return `<button data-d="${n}" class="${cls}" ${n>day?'disabled':''}>${n}</button>`; }).join('');
+  $('cal').querySelectorAll('button:not([disabled])').forEach(b => b.onclick = () => openDay(Number(b.dataset.d)));
+}
+function renderEnd(){
+  show('v-end');
+  $('e-free').textContent = freeCount(); $('e-best').textContent = bestStreak();
+  $('e-tasks').textContent = Object.values(S.checkins).filter(c=>c.task_done).length;
+  const cr = Object.values(S.checkins).filter(c=>c.craving); $('e-crave').textContent = cr.length ? (cr.reduce((a,c)=>a+c.craving,0)/cr.length).toFixed(1) : '-';
+}
+
+function confetti(){ const box=document.createElement('div'); box.className='confetti'; const cols=['#1FA86B','#9FE0C2','#B0125B','#FFB020','#3A86FF','#FF6B4A']; for(let i=0;i<60;i++){ const e=document.createElement('i'); e.style.left=Math.random()*100+'%'; e.style.background=cols[i%cols.length]; e.style.animationDelay=(Math.random()*.4)+'s'; e.style.animationDuration=(1.2+Math.random()*.9)+'s'; e.style.transform=`rotate(${Math.random()*360}deg)`; box.appendChild(e);} document.body.appendChild(box); setTimeout(()=>box.remove(),2600); $('hero').classList.remove('pop'); void $('hero').offsetWidth; $('hero').classList.add('pop'); }
+let msgTimer;
+function flash(text){ $('c-msg').textContent = text; clearTimeout(msgTimer); msgTimer = setTimeout(()=>$('c-msg').textContent='', 3500); }
+async function save(day, patch){
+  const prev = { ...(S.checkins[day]||{day}) };
+  S.checkins[day] = { ...prev, ...patch, day }; render(); if (!$('day-sheet').classList.contains('hide')) openDay(day);
+  try { await api({ action:'checkin', token:S.token, day, ...patch }); }
+  catch(e){ S.checkins[day] = prev; render(); flash(e.message); return; }
+  if (patch.sugar_free===true) { flash(day===curDay() ? 'Amazing! Another sugar-free day.' : 'Updated.'); if (day===curDay()) confetti(); }
+  else if (patch.sugar_free===false) flash('That\'s okay. One slip doesn\'t undo your progress. Back on track tomorrow.');
+  else if (patch.task_done===true) flash('Task done!');
+  else if (patch.craving) flash(patch.craving>=4 ? 'Strong cravings? Tap Craving SOS anytime.' : 'Noted. Cravings getting easier!');
+}
+
+function openDay(d){
+  const t = S.ch.tasks[d-1], c = S.checkins[d] || {};
+  $('ds-label').textContent = `Day ${d}`; $('ds-title').textContent = t.title; $('ds-task').textContent = t.task;
+  $('ds-yes').classList.toggle('on', c.sugar_free===true); $('ds-no').classList.toggle('on', c.sugar_free===false); $('ds-done').classList.toggle('on', !!c.task_done);
+  $('ds-yes').onclick = () => save(d, { sugar_free:true }); $('ds-no').onclick = () => save(d, { sugar_free:false });
+  $('ds-done').onclick = () => save(d, { task_done: !c.task_done });
+  $('day-sheet').classList.remove('hide');
+}
+
+/* ---------- events ---------- */
+$('l-btn').onclick = async () => {
+  const email = $('l-email').value.trim(), code = $('l-code').value.trim();
+  $('l-err').classList.add('hide'); $('l-ok').classList.add('hide');
+  if (!email || code.length!==6) { $('l-err').textContent = 'Please enter your email and the 6-digit code.'; $('l-err').classList.remove('hide'); return; }
+  $('l-btn').disabled = true; $('l-btn').textContent = 'Logging in…';
+  try { const r = await api({ action:'login', email, code }); S.token = r.token; LS.set(DEMO?'sws_demo_token':'sws_token', r.token); await load(); }
+  catch(e){ $('l-err').textContent = e.message; $('l-err').classList.remove('hide'); }
+  $('l-btn').disabled = false; $('l-btn').textContent = 'Log in';
+};
+$('l-code').addEventListener('keydown', e => { if (e.key==='Enter') $('l-btn').click(); });
+$('l-forgot').onclick = async () => {
+  const email = $('l-email').value.trim(); $('l-err').classList.add('hide');
+  if (!email) { $('l-err').textContent = 'Type your email above first, then tap "Forgot your code?".'; $('l-err').classList.remove('hide'); return; }
+  try { await api({ action:'forgot', email }); } catch(e){}
+  $('l-ok').textContent = 'If this email is registered, we\'ve sent your code again. Check your inbox (and spam).'; $('l-ok').classList.remove('hide');
+};
+$('logout').onclick = () => { LS.del(DEMO?'sws_demo_token':'sws_token'); S = { token:null, member:null, checkins:{}, review:false }; show('v-login'); };
+$('t-done').onclick = () => { const d = Math.min(curDay(), S.ch.days); save(d, { task_done: !(S.checkins[d]||{}).task_done }); };
+$('c-yes').onclick = () => save(Math.min(curDay(), S.ch.days), { sugar_free:true });
+$('c-no').onclick = () => save(Math.min(curDay(), S.ch.days), { sugar_free:false });
+$('sos-btn').onclick = () => { const list = [...S.ch.sos].sort(()=>Math.random()-.5).slice(0,4); $('sos-list').innerHTML = list.map((x,i)=>`<li><b>${i+1}.</b>${x}</li>`).join(''); $('sos-sheet').classList.remove('hide'); };
+$('sos-close').onclick = () => $('sos-sheet').classList.add('hide');
+$('ds-close').onclick = () => $('day-sheet').classList.add('hide');
+document.querySelectorAll('.sheet-bg').forEach(bg => bg.addEventListener('click', e => { if (e.target===bg) bg.classList.add('hide'); }));
+$('e-review').onclick = () => { S.review = true; S.member.day = S.ch.days; render(); };
+
+async function load(){
+  try { const r = await api({ action:'state', token:S.token }); S.member = r.member; S.checkins = {}; (r.checkins||[]).forEach(c => S.checkins[c.day] = c); render(); }
+  catch(e){ if (e.status===401 || DEMO) { LS.del(DEMO?'sws_demo_token':'sws_token'); S.token=null; show('v-login'); } else { show('v-login'); $('l-err').textContent = e.message; $('l-err').classList.remove('hide'); } }
+}
+
+if (DEMO) { $('demo-bar').classList.remove('hide'); $('l-email').value = 'demo@sws.com'; }
+// One-tap login from the welcome email: app.html?login=<email:code>
+(function(){
+  const p = new URLSearchParams(location.search).get('login');
+  if (!p) { if (S.token) load(); else show('v-login'); return; }
+  let email='', code='';
+  try { [email, code] = atob(p.replace(/-/g,'+').replace(/_/g,'/')).split(':'); } catch(e){}
+  history.replaceState(null, '', location.pathname + (DEMO ? '?demo' : ''));
+  if (!email || !code) { if (S.token) load(); else show('v-login'); return; }
+  $('l-email').value = email; $('l-code').value = code; show('v-login'); $('l-btn').click();
+})();
+</script>
+</body>
+</html>

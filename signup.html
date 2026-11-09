@@ -95,7 +95,7 @@
   <div class="success-box" id="success-box">
     <div class="check">✅</div>
     <h2>You're In!</h2>
-    <p>Payment received and your enrollment is confirmed. Vanshika will reach out on WhatsApp shortly to get you started.</p>
+    <p id="success-text">Payment received and your enrollment is confirmed. Vanshika will reach out on WhatsApp shortly to get you started.</p>
   </div>
 
 </div>
@@ -179,6 +179,11 @@
           if(result.success){
             document.getElementById('signup-form').style.display = 'none';
             document.getElementById('success-box').style.display = 'block';
+            if(result.challenge){
+              document.getElementById('success-text').innerHTML = result.emailSent
+                ? 'Check your email (and spam folder) for your <b>WhatsApp group link</b> and your <b>app login code</b>.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>'
+                : 'Coach Sherni will WhatsApp you your group link and app login code shortly.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>';
+            }
           } else {
             showError('Payment succeeded but confirmation failed. Please contact us on WhatsApp with your payment ID: ' + response.razorpay_payment_id);
           }

@@ -1,0 +1,20 @@
+{
+  "name": "Strong With Sherni Challenges",
+  "short_name": "Sherni Challenge",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#FAF9F3",
+  "theme_color": "#1F4037",
+  "icons": [
+    {
+      "src": "app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
