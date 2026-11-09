@@ -12,12 +12,15 @@ function challengeSlug(plan) {
   return String(plan || '').replace(/\s*challenge\s*$/i, '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// Batch starts on the next Monday (India time). You can change any member's start_date in Supabase.
-function nextMondayIST() {
+// Monthly batches: everyone starts together on the 1st of the month (India time).
+// Join on the 1st-3rd -> this month's batch. Join later -> next month's batch (waitlist).
+// You can still change any member's start_date in Supabase.
+const LATE_JOIN_DAYS = 3;
+function batchStartIST() {
   const ist = new Date(Date.now() + 5.5 * 3600000);
-  const dow = ist.getUTCDay(); // 0 Sun ... 1 Mon
-  const add = ((8 - dow) % 7) || 7;
-  return new Date(ist.getTime() + add * DAY).toISOString().slice(0, 10);
+  let y = ist.getUTCFullYear(), m = ist.getUTCMonth();
+  if (ist.getUTCDate() > LATE_JOIN_DAYS) { m += 1; if (m > 11) { m = 0; y += 1; } }
+  return `${y}-${String(m + 1).padStart(2, '0')}-01`;
 }
 
 function prettyDate(iso) {
@@ -30,7 +33,7 @@ export function welcomeEmailHtml({ name, email, challengeName, code, startDate, 
   return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#2D322C;background:#FAF9F3;padding:28px 24px;border-radius:14px">
   <h2 style="font-family:Georgia,serif;color:#7B0237;margin:0 0 6px">Welcome to ${challengeName}, ${first}!</h2>
   <p style="margin:0 0 18px;color:#6B6459">21 days. Zero added sugar. You've got this.</p>
-  <p style="margin:0 0 6px"><b>Your challenge starts:</b> ${prettyDate(startDate)}</p>
+  <p style="margin:0 0 6px"><b>Your batch starts:</b> ${prettyDate(startDate)}</p><p style="margin:0 0 6px;color:#6B6459;font-size:14px">Everyone in your batch starts Day 1 together. Your app shows a countdown until then.</p>
   <h3 style="margin:22px 0 8px;font-size:16px">Step 1 &mdash; Join your WhatsApp group</h3>
   <p style="margin:0 0 10px">Your daily tasks, reminders and batch support happen here.</p>
   <a href="${groupLink}" style="display:inline-block;background:#1F4037;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join WhatsApp group</a>
@@ -60,7 +63,7 @@ async function handleChallenge(customer, paymentId, sb) {
   const challengeName = String(customer.plan || '').replace(/\s*challenge\s*$/i, '').trim() || 'your challenge';
   const code = String(crypto.randomInt(100000, 1000000));
   const startDate = process.env.CHALLENGE_START_DATE && process.env.CHALLENGE_START_DATE > new Date().toISOString().slice(0, 10)
-    ? process.env.CHALLENGE_START_DATE : nextMondayIST();
+    ? process.env.CHALLENGE_START_DATE : batchStartIST();
 
   const ins = await fetch(`${sb.url}/rest/v1/challenge_members`, {
     method: 'POST',
@@ -123,7 +126,10 @@ export default async function handler(req, res) {
 
     // Step 2a: challenges get an app login code + welcome email
     if (/challenge/i.test(customer.plan || '')) {
-      const out = await handleChallenge(customer, razorpay_payment_id, { url: supabaseUrl, key: supabaseServiceKey });
+      const out = await handleChallenge(customer, razorpay_payment_id, {
+        url: String(process.env.CHALLENGE_SUPABASE_URL || supabaseUrl || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, ''),
+        key: String(process.env.CHALLENGE_SUPABASE_KEY || supabaseServiceKey || '').trim()
+      });
       return res.status(200).json({ success: true, ...out });
     }
 

@@ -4,21 +4,21 @@ import crypto from 'crypto';
 //   login   { email, code }  -> { token }
 //   forgot  { email }        -> emails the login code again
 //   state   { token }        -> progress, today's attempt, scorecard
-//   update  { token, sugar_free?, task_done?, quiz_answer?, quiz_correct?, craving? }
+//   update  { token, sugar_free?, task_done?, quiz_answer?, quiz_correct?, learned?, craving? }
 //
 // Rules:
 //   - One attempt per calendar day (India time). Today's attempt is always the next locked day.
-//   - Points: sugar-free 40, task 30, quiz 20 (10 if wrong), craving level 10.
+//   - Points: sugar-free 40, task 25, quiz 15 (10 if wrong), today's learning 10, craving level 10.
 //   - A day is PASSED with 70+ points AND sugar-free = yes. The next day unlocks the next morning.
 //   - Ate sugar / under 70 points -> the same day repeats tomorrow.
 //   - 42-day window from start_date to finish all 21 days, after that the challenge expires.
 
 const DAY = 86400000;
 const TOTAL_DAYS = 21, WINDOW = 42;
-const P = { sugarFree: 40, task: 30, quizRight: 20, quizWrong: 10, craving: 10, unlock: 70 };
+const P = { sugarFree: 40, task: 25, quizRight: 15, quizWrong: 10, learn: 10, craving: 10, unlock: 70 };
 const TOKEN_DAYS = 60;
 
-const secret = () => process.env.CHALLENGE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'dev-secret';
+const secret = () => process.env.CHALLENGE_SECRET || process.env.CHALLENGE_SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || 'dev-secret';
 const b64u = s => Buffer.from(s).toString('base64url');
 function sign(memberId) {
   const body = b64u(JSON.stringify({ m: memberId, e: Date.now() + TOKEN_DAYS * DAY }));
@@ -42,6 +42,7 @@ export function scoreOf(a) {
   if (a.sugar_free === true) pts += P.sugarFree;
   if (a.task_done) pts += P.task;
   if (a.quiz_correct === true) pts += P.quizRight; else if (a.quiz_correct === false) pts += P.quizWrong;
+  if (a.learned) pts += P.learn;
   if (a.craving) pts += P.craving;
   return { points: pts, passed: a.sugar_free === true && pts >= P.unlock };
 }
@@ -79,21 +80,48 @@ export function progress(member, attempts, today = todayIST()) {
   };
 }
 
+// The challenge app can use its own Supabase project (CHALLENGE_SUPABASE_URL / CHALLENGE_SUPABASE_KEY).
+// If those aren't set, it falls back to the website's main Supabase project.
+const cleanUrl = u => String(u || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, '').replace(/\/+$/, '');
+const SB_URL = () => cleanUrl(process.env.CHALLENGE_SUPABASE_URL || process.env.SUPABASE_URL);
+const SB_KEY = () => String(process.env.CHALLENGE_SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 function sb(path, opts = {}) {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  return fetch(`${process.env.SUPABASE_URL}/rest/v1/${path}`, {
+  const key = SB_KEY();
+  return fetch(`${SB_URL()}/rest/v1/${path}`, {
     ...opts,
     headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }
   });
 }
-async function rows(path) { const r = await sb(path); return r.ok ? r.json() : []; }
+async function rows(path) {
+  if (!SB_URL() || !SB_KEY()) throw new Error('Database settings missing in Vercel (CHALLENGE_SUPABASE_URL / CHALLENGE_SUPABASE_KEY).');
+  const r = await sb(path);
+  if (!r.ok) throw new Error(`Database error ${r.status}: ${(await r.text()).slice(0, 160)}`);
+  return r.json();
+}
+
+const shortName = n => { const p = String(n || 'Sherni').trim().split(/\s+/); const f = p[0].charAt(0).toUpperCase() + p[0].slice(1).toLowerCase(); return f + (p[1] ? ' ' + p[1][0].toUpperCase() + '.' : ''); };
+
+// Everyone with the same challenge + start_date is one batch. Ranked by points (then days done).
+async function leaderboard(member) {
+  const mates = await rows(`challenge_members?challenge=eq.${encodeURIComponent(member.challenge)}&start_date=eq.${member.start_date}&select=id,name`);
+  if (!mates.length) return { size: 0, rank: null, top: [] };
+  const ids = mates.map(m => m.id).join(',');
+  const done = await rows(`challenge_attempts?member_id=in.(${ids})&passed=eq.true&select=member_id,points`);
+  const tally = Object.fromEntries(mates.map(m => [m.id, { name: shortName(m.name), points: 0, days: 0, me: m.id === member.id }]));
+  done.forEach(a => { if (tally[a.member_id]) { tally[a.member_id].points += a.points || 0; tally[a.member_id].days += 1; } });
+  const list = Object.values(tally).sort((a, b) => b.points - a.points || b.days - a.days || a.name.localeCompare(b.name));
+  list.forEach((x, i) => x.rank = i + 1);
+  const meRow = list.find(x => x.me);
+  return { size: list.length, rank: meRow ? meRow.rank : null, top: list.slice(0, 10), me: meRow };
+}
 
 async function fullState(member) {
-  const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=attempt_date,day,sugar_free,task_done,quiz_answer,quiz_correct,craving,points,passed&order=attempt_date.asc`);
+  const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=attempt_date,day,sugar_free,task_done,quiz_answer,quiz_correct,learned,craving,points,passed&order=attempt_date.asc`);
   return {
     member: { name: member.name, email: member.email, challenge: member.challenge, start_date: member.start_date },
     attempts,
     today: todayIST(),
+    leaderboard: await leaderboard(member),
     ...progress(member, attempts)
   };
 }
@@ -145,17 +173,18 @@ export default async function handler(req, res) {
       const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=*&order=attempt_date.asc`);
       const pr = progress(member, attempts, today);
       if (pr.status !== 'active') return res.status(400).json({ error: pr.status === 'pre' ? 'Your challenge hasn\'t started yet.' : 'This challenge is no longer active.' });
-      const cur = pr.todayAttempt || { sugar_free: null, task_done: false, quiz_answer: null, quiz_correct: null, craving: null };
+      const cur = pr.todayAttempt || { sugar_free: null, task_done: false, quiz_answer: null, quiz_correct: null, learned: false, craving: null };
       const b = req.body;
       const next = { ...cur };
       if (typeof b.sugar_free === 'boolean') next.sugar_free = b.sugar_free;
       if (typeof b.task_done === 'boolean') next.task_done = b.task_done;
+      if (typeof b.learned === 'boolean') next.learned = b.learned;
       if (cur.quiz_answer == null && Number.isInteger(b.quiz_answer) && typeof b.quiz_correct === 'boolean') { next.quiz_answer = b.quiz_answer; next.quiz_correct = b.quiz_correct; } // quiz locks after first answer
       if (Number.isInteger(b.craving) && b.craving >= 1 && b.craving <= 5) next.craving = b.craving;
       const sc = scoreOf(next);
       const row = {
         member_id: member.id, attempt_date: today, day: pr.currentDay,
-        sugar_free: next.sugar_free, task_done: !!next.task_done, quiz_answer: next.quiz_answer, quiz_correct: next.quiz_correct, craving: next.craving,
+        sugar_free: next.sugar_free, task_done: !!next.task_done, quiz_answer: next.quiz_answer, quiz_correct: next.quiz_correct, learned: !!next.learned, craving: next.craving,
         points: sc.points, passed: sc.passed, updated_at: new Date().toISOString()
       };
       const r = await sb('challenge_attempts?on_conflict=member_id,attempt_date', {
@@ -167,6 +196,6 @@ export default async function handler(req, res) {
 
     return res.status(400).json({ error: 'Unknown action' });
   } catch (err) {
-    return res.status(500).json({ error: 'Server error', details: err.message });
+    return res.status(500).json({ error: err.message || 'Server error' });
   }
 }
