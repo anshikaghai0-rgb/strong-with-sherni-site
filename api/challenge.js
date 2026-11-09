@@ -1,34 +1,82 @@
 import crypto from 'crypto';
 
-// Challenge app backend. One endpoint, four actions:
-//   login   { email, code }            -> { token, member }
-//   forgot  { email }                  -> emails the login code again
-//   state   { token }                  -> { member, checkins, today }
-//   checkin { token, day, sugar_free, task_done, craving }
-// The Supabase service key never leaves the server.
+// Challenge app backend (unlock system). One endpoint, four actions:
+//   login   { email, code }  -> { token }
+//   forgot  { email }        -> emails the login code again
+//   state   { token }        -> progress, today's attempt, scorecard
+//   update  { token, sugar_free?, task_done?, quiz_answer?, quiz_correct?, craving? }
+//
+// Rules:
+//   - One attempt per calendar day (India time). Today's attempt is always the next locked day.
+//   - Points: sugar-free 40, task 30, quiz 20 (10 if wrong), craving level 10.
+//   - A day is PASSED with 70+ points AND sugar-free = yes. The next day unlocks the next morning.
+//   - Ate sugar / under 70 points -> the same day repeats tomorrow.
+//   - 42-day window from start_date to finish all 21 days, after that the challenge expires.
 
 const DAY = 86400000;
+const TOTAL_DAYS = 21, WINDOW = 42;
+const P = { sugarFree: 40, task: 30, quizRight: 20, quizWrong: 10, craving: 10, unlock: 70 };
 const TOKEN_DAYS = 60;
 
 const secret = () => process.env.CHALLENGE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'dev-secret';
 const b64u = s => Buffer.from(s).toString('base64url');
 function sign(memberId) {
   const body = b64u(JSON.stringify({ m: memberId, e: Date.now() + TOKEN_DAYS * DAY }));
-  const sig = crypto.createHmac('sha256', secret()).update(body).digest('base64url');
-  return `${body}.${sig}`;
+  return `${body}.${crypto.createHmac('sha256', secret()).update(body).digest('base64url')}`;
 }
 function verify(token) {
   if (!token || typeof token !== 'string' || !token.includes('.')) return null;
   const [body, sig] = token.split('.');
   const good = crypto.createHmac('sha256', secret()).update(body).digest('base64url');
-  if (sig.length !== good.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good))) return null;
+  if (!sig || sig.length !== good.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good))) return null;
   const p = JSON.parse(Buffer.from(body, 'base64url').toString());
   return p.e > Date.now() ? p.m : null;
 }
 
-function todayIST() { return new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10); }
-function dayNumber(startDate) {
-  return Math.floor((new Date(todayIST() + 'T00:00:00Z') - new Date(startDate + 'T00:00:00Z')) / DAY) + 1;
+const todayIST = () => new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / DAY);
+const addDays = (iso, n) => new Date(new Date(iso + 'T00:00:00Z').getTime() + n * DAY).toISOString().slice(0, 10);
+
+export function scoreOf(a) {
+  let pts = 0;
+  if (a.sugar_free === true) pts += P.sugarFree;
+  if (a.task_done) pts += P.task;
+  if (a.quiz_correct === true) pts += P.quizRight; else if (a.quiz_correct === false) pts += P.quizWrong;
+  if (a.craving) pts += P.craving;
+  return { points: pts, passed: a.sugar_free === true && pts >= P.unlock };
+}
+
+export function progress(member, attempts, today = todayIST()) {
+  const past = attempts.filter(a => a.attempt_date < today);
+  const passedBefore = past.filter(a => a.passed).length;
+  const todayAttempt = attempts.find(a => a.attempt_date === today) || null;
+  const passedTotal = passedBefore + (todayAttempt && todayAttempt.passed ? 1 : 0);
+  const dayIdx = daysBetween(member.start_date, today); // 0 on start day
+  const windowLeft = WINDOW - dayIdx; // days left including today
+  let status = 'active';
+  if (dayIdx < 0) status = 'pre';
+  else if (passedBefore >= TOTAL_DAYS) status = 'complete';
+  else if (dayIdx >= WINDOW) status = 'expired';
+  // streak: consecutive passed calendar days ending today (if passed) or yesterday
+  const byDate = Object.fromEntries(attempts.map(a => [a.attempt_date, a]));
+  let streak = 0, d = todayAttempt && todayAttempt.passed ? today : addDays(today, -1);
+  while (byDate[d] && byDate[d].passed) { streak++; d = addDays(d, -1); }
+  const passedList = attempts.filter(a => a.passed);
+  return {
+    status,
+    currentDay: Math.min(TOTAL_DAYS, passedBefore + 1),
+    todayAttempt,
+    startsIn: dayIdx < 0 ? -dayIdx : 0,
+    windowLeft: Math.max(0, windowLeft),
+    windowEnd: addDays(member.start_date, WINDOW - 1),
+    score: {
+      points: passedList.reduce((s, a) => s + (a.points || 0), 0),
+      maxPoints: TOTAL_DAYS * 100,
+      daysCompleted: passedTotal,
+      repeats: past.filter(a => !a.passed).length,
+      streak
+    }
+  };
 }
 
 function sb(path, opts = {}) {
@@ -38,13 +86,16 @@ function sb(path, opts = {}) {
     headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }
   });
 }
+async function rows(path) { const r = await sb(path); return r.ok ? r.json() : []; }
 
-const publicMember = m => ({ name: m.name, email: m.email, challenge: m.challenge, start_date: m.start_date, day: dayNumber(m.start_date) });
-
-async function getMember(id) {
-  const r = await sb(`challenge_members?id=eq.${encodeURIComponent(id)}&select=*`);
-  const rows = r.ok ? await r.json() : [];
-  return rows[0] || null;
+async function fullState(member) {
+  const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=attempt_date,day,sugar_free,task_done,quiz_answer,quiz_correct,craving,points,passed&order=attempt_date.asc`);
+  return {
+    member: { name: member.name, email: member.email, challenge: member.challenge, start_date: member.start_date },
+    attempts,
+    today: todayIST(),
+    ...progress(member, attempts)
+  };
 }
 
 export default async function handler(req, res) {
@@ -56,58 +107,62 @@ export default async function handler(req, res) {
       const email = String(req.body.email || '').trim().toLowerCase();
       const code = String(req.body.code || '').trim();
       if (!email || !/^\d{6}$/.test(code)) return res.status(400).json({ error: 'Please enter your email and the 6-digit code.' });
-      const r = await sb(`challenge_members?email=eq.${encodeURIComponent(email)}&access_code=eq.${code}&select=*&order=created_at.desc&limit=1`);
-      const rows = r.ok ? await r.json() : [];
-      if (!rows.length) return res.status(401).json({ error: 'That email and code don\'t match. Check your welcome email.' });
-      return res.status(200).json({ token: sign(rows[0].id), member: publicMember(rows[0]) });
+      const found = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&access_code=eq.${code}&select=*&order=created_at.desc&limit=1`);
+      if (!found.length) return res.status(401).json({ error: 'That email and code don\'t match. Check your welcome email.' });
+      return res.status(200).json({ token: sign(found[0].id) });
     }
 
     if (action === 'forgot') {
       const email = String(req.body.email || '').trim().toLowerCase();
-      const r = await sb(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc&limit=1`);
-      const rows = r.ok ? await r.json() : [];
-      if (rows.length && process.env.RESEND_API_KEY) {
+      const found = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc&limit=1`);
+      if (found.length && process.env.RESEND_API_KEY) {
+        const m = found[0];
+        const link = `https://www.strongwithsherni.com/app.html?login=${Buffer.from(`${email}:${m.access_code}`).toString('base64url')}`;
         await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             from: process.env.EMAIL_FROM || 'Strong With Sherni <onboarding@resend.dev>',
             to: [email],
-            subject: `Your Strong With Sherni login code: ${rows[0].access_code}`,
-            html: `<div style="font-family:Arial,sans-serif;max-width:480px"><p>Hi ${String(rows[0].name || '').split(' ')[0]},</p><p>Your challenge app login code is:</p><p style="font-size:28px;letter-spacing:6px;font-weight:bold;color:#7B0237">${rows[0].access_code}</p><p><a href="https://www.strongwithsherni.com/app.html?login=${Buffer.from(`${email}:${rows[0].access_code}`).toString('base64url')}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p><p>Coach Sherni</p></div>`
+            subject: `Your Strong With Sherni login code: ${m.access_code}`,
+            html: `<div style="font-family:Arial,sans-serif;max-width:480px"><p>Hi ${String(m.name || '').split(' ')[0]},</p><p>Tap below to open your challenge app:</p><p><a href="${link}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p><p>Your code: <b style="font-size:20px;letter-spacing:4px">${m.access_code}</b></p><p>Coach Sherni</p></div>`
           })
         });
       }
-      // Same answer either way, so nobody can test which emails are registered.
-      return res.status(200).json({ ok: true });
+      return res.status(200).json({ ok: true }); // same answer either way
     }
 
     const memberId = verify(req.body.token);
     if (!memberId) return res.status(401).json({ error: 'Please log in again.' });
-    const member = await getMember(memberId);
+    const found = await rows(`challenge_members?id=eq.${encodeURIComponent(memberId)}&select=*`);
+    const member = found[0];
     if (!member) return res.status(401).json({ error: 'Please log in again.' });
 
-    if (action === 'state') {
-      const r = await sb(`challenge_checkins?member_id=eq.${memberId}&select=day,sugar_free,task_done,craving&order=day.asc`);
-      return res.status(200).json({ member: publicMember(member), checkins: r.ok ? await r.json() : [], today: todayIST() });
-    }
+    if (action === 'state') return res.status(200).json(await fullState(member));
 
-    if (action === 'checkin') {
-      const day = Number(req.body.day);
-      const current = dayNumber(member.start_date);
-      if (!Number.isInteger(day) || day < 1 || day > 21 || day > current) return res.status(400).json({ error: 'You can only check in for today or earlier days.' });
-      const row = { member_id: memberId, day, updated_at: new Date().toISOString() };
-      if (typeof req.body.sugar_free === 'boolean') row.sugar_free = req.body.sugar_free;
-      if (typeof req.body.task_done === 'boolean') row.task_done = req.body.task_done;
-      if (Number.isInteger(req.body.craving) && req.body.craving >= 1 && req.body.craving <= 5) row.craving = req.body.craving;
-      const r = await sb('challenge_checkins?on_conflict=member_id,day', {
-        method: 'POST',
-        headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
-        body: JSON.stringify(row)
+    if (action === 'update') {
+      const today = todayIST();
+      const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=*&order=attempt_date.asc`);
+      const pr = progress(member, attempts, today);
+      if (pr.status !== 'active') return res.status(400).json({ error: pr.status === 'pre' ? 'Your challenge hasn\'t started yet.' : 'This challenge is no longer active.' });
+      const cur = pr.todayAttempt || { sugar_free: null, task_done: false, quiz_answer: null, quiz_correct: null, craving: null };
+      const b = req.body;
+      const next = { ...cur };
+      if (typeof b.sugar_free === 'boolean') next.sugar_free = b.sugar_free;
+      if (typeof b.task_done === 'boolean') next.task_done = b.task_done;
+      if (cur.quiz_answer == null && Number.isInteger(b.quiz_answer) && typeof b.quiz_correct === 'boolean') { next.quiz_answer = b.quiz_answer; next.quiz_correct = b.quiz_correct; } // quiz locks after first answer
+      if (Number.isInteger(b.craving) && b.craving >= 1 && b.craving <= 5) next.craving = b.craving;
+      const sc = scoreOf(next);
+      const row = {
+        member_id: member.id, attempt_date: today, day: pr.currentDay,
+        sugar_free: next.sugar_free, task_done: !!next.task_done, quiz_answer: next.quiz_answer, quiz_correct: next.quiz_correct, craving: next.craving,
+        points: sc.points, passed: sc.passed, updated_at: new Date().toISOString()
+      };
+      const r = await sb('challenge_attempts?on_conflict=member_id,attempt_date', {
+        method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(row)
       });
       if (!r.ok) return res.status(500).json({ error: 'Could not save. Please try again.', details: await r.text() });
-      const saved = await r.json();
-      return res.status(200).json({ ok: true, checkin: saved[0] });
+      return res.status(200).json(await fullState(member));
     }
 
     return res.status(400).json({ error: 'Unknown action' });
