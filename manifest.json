@@ -3,8 +3,8 @@
   "short_name": "Sherni Challenge",
   "start_url": "/app.html",
   "display": "standalone",
-  "background_color": "#FAF9F3",
-  "theme_color": "#1F4037",
+  "background_color": "#0C0A12",
+  "theme_color": "#0C0A12",
   "icons": [
     {
       "src": "app-icon-192.png",

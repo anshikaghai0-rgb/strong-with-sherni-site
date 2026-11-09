@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Challenge App — Strong With Sherni</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0E2F27">
+<meta name="theme-color" content="#0C0A12">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="app-icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,339 +14,350 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="challenges-data.js"></script>
 <style>
-:root{--ink:#14211C;--bg:#EDF3EF;--white:#fff;--maroon:#7B0237;--berry:#B0125B;--pink:#F9E3EE;--teal:#0E2F27;--teal2:#1F5C4B;--mint:#9FE0C2;--mint2:#E2F6EC;--green:#18A566;--coral:#FF6B4A;--coral2:#FFE9E3;--amber:#FFB020;--amber2:#FFF3D9;--violet:#6C4CF1;--violet2:#ECE8FF;--taupe:#5E6B66;--line:rgba(20,33,28,.09);--soft:#E3EBE7}
+:root{
+  --bg:#0C0A12; --card:#17141F; --card2:#221E2D; --ink:#F6F3FB; --ink2:#D9D3E6; --muted:#9C94B0; --line:rgba(255,255,255,.08); --white:#fff;
+  --pri:#8B5CF6; --pri2:#C026D3; --lime:#FFC94D; --limeInk:#2A1A00;
+  --t-task:rgba(255,92,154,.16); --c-task:#FF6FA8; --t-learn:rgba(79,216,245,.15); --c-learn:#5ADCF6; --t-quiz:rgba(255,201,77,.15); --c-quiz:#FFC94D;
+  --t-crave:rgba(255,138,92,.16); --c-crave:#FF9466; --t-sf:rgba(167,139,250,.18); --c-sf:#B9A0FF; --bad:#FF6B6B; --t-bad:rgba(255,107,107,.16);
+  --grad:linear-gradient(135deg,#7C3AED,#C026D3 60%,#FF4D8D);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:radial-gradient(1100px 520px at 50% -220px,#CFE8DB 0%,var(--bg) 62%);color:var(--ink);min-height:100vh;-webkit-tap-highlight-color:transparent}
-h1,h2,h3,h4{font-weight:800;letter-spacing:-.025em}
-button{font-family:inherit;cursor:pointer;transition:transform .12s ease,background .2s,color .2s,box-shadow .2s;color:inherit}
-button:active{transform:scale(.97)}
-.wrap{max-width:460px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-inset-bottom))}
-.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14.5px}
-.brand img{width:34px;height:34px;object-fit:contain;border-radius:10px}
-.ghost{background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:20px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--taupe)}
-.card{background:var(--white);border-radius:24px;padding:18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(14,47,39,.05),0 10px 28px rgba(14,47,39,.07)}
-.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:800;color:var(--berry)}
-.muted{color:var(--taupe);font-size:13.5px;line-height:1.55}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;transition:transform .12s ease,background .2s,box-shadow .2s}
+button:active{transform:scale(.96)}
 .hide{display:none!important}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.login h1{font-size:33px;line-height:1.08;margin:16px 0 8px}
-.field{margin:14px 0}
-.field label{display:block;font-size:12.5px;font-weight:700;color:var(--taupe);margin-bottom:6px}
-.field input{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:14px;font-size:16px;background:var(--white);font-family:inherit}
-.field input:focus{outline:none;border-color:var(--teal2)}
-#l-code{letter-spacing:8px;font-size:22px;text-align:center;font-weight:800}
-.btn{width:100%;border:none;border-radius:18px;padding:16px;font-weight:800;font-size:15px;background:linear-gradient(135deg,var(--maroon),var(--berry));color:#fff;box-shadow:0 10px 22px rgba(123,2,55,.25);display:block;text-align:center;text-decoration:none}
-.btn:disabled{opacity:.6}
-.btn.teal{background:linear-gradient(135deg,var(--teal),var(--teal2));box-shadow:0 10px 22px rgba(14,47,39,.25)}
-.link{background:none;border:none;color:var(--teal2);font-weight:700;font-size:13.5px;text-decoration:underline;margin-top:14px}
-.err{background:rgba(176,18,91,.08);color:var(--maroon);font-size:13px;padding:10px 12px;border-radius:12px;margin-top:10px}
-.ok{background:rgba(24,165,102,.1);color:var(--teal2);font-size:13px;padding:10px 12px;border-radius:12px;margin-top:10px}
-.hero{position:relative;overflow:hidden;border-radius:28px;padding:20px;margin-bottom:14px;color:#fff;background:linear-gradient(145deg,#0B2822 0%,#1F5C4B 58%,#2E8C6E 100%);box-shadow:0 16px 36px rgba(14,47,39,.3)}
-.hero::before,.hero::after{content:'';position:absolute;border-radius:50%}
-.hero::before{width:230px;height:230px;right:-80px;top:-100px;background:rgba(159,224,194,.15)}
-.hero::after{width:150px;height:150px;right:30px;bottom:-90px;background:rgba(255,255,255,.07)}
-.hero > *{position:relative;z-index:1}
-.hero-row{display:flex;align-items:center;gap:16px}
-.ring{position:relative;width:116px;height:116px;flex:0 0 116px}
+.app{max-width:440px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 14px 0;position:relative}
+/* top bar */
+.top{display:flex;align-items:center;gap:10px;height:44px;flex:0 0 auto}
+.top img{width:32px;height:32px;border-radius:10px;object-fit:contain}
+.top .who{flex:1;min-width:0}
+.top .who b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-.01em}
+.top .who span{font-size:11.5px;color:var(--muted);font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);padding:6px 10px;border-radius:20px;font-size:12.5px;font-weight:800}
+.pill svg{width:14px;height:14px;color:#F07A00}
+.icon-btn{width:34px;height:34px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.icon-btn svg{width:16px;height:16px}
+.demo{background:var(--lime);color:var(--limeInk);font-size:11.5px;font-weight:800;padding:6px 10px;border-radius:12px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.demo button{background:#1a1424;color:#fff;border-radius:9px;padding:5px 9px;font-size:11px;font-weight:800}
+/* views */
+.view{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 0 calc(78px + env(safe-area-inset-bottom))}
+/* hero strip */
+.strip{background:var(--grad);border-radius:22px;padding:14px;color:#fff;display:flex;gap:14px;align-items:center;flex:0 0 auto;position:relative;overflow:hidden}
+.strip::after{content:'';position:absolute;right:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.1)}
+.ring{position:relative;width:70px;height:70px;flex:0 0 70px}
 .ring svg{transform:rotate(-90deg)}
-.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring .num small{font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.75;font-weight:700}
-.ring .num b{font-size:42px;line-height:1;font-weight:800;letter-spacing:-.04em}
-.ring .num span{font-size:11px;opacity:.75;margin-top:2px;font-weight:600}
-.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(159,224,194,.2);color:var(--mint);font-size:10.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;padding:5px 10px;border-radius:20px}
-.hero h2{font-size:24px;line-height:1.15;margin:8px 0 4px}
-.hero p{font-size:13px;line-height:1.5;opacity:.85}
-.hero .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-.hero .meta div{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:9px 11px}
-.hero .meta b{display:block;font-size:17px;font-weight:800}
-.hero .meta span{font-size:11px;opacity:.8;font-weight:600}
-.mission-head h3{font-size:21px;margin:6px 0 2px}
-.bar{position:relative;height:14px;border-radius:10px;background:var(--soft);margin:26px 0 6px}
-.bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:10px;background:linear-gradient(90deg,#F7A928,#18A566);transition:width .6s cubic-bezier(.2,.8,.2,1)}
-.bar .mark{position:absolute;left:70%;top:-6px;bottom:-6px;width:2px;background:var(--ink);opacity:.55;border-radius:2px}
-.bar .mark span{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;white-space:nowrap;color:var(--ink)}
-.barlbl{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--taupe)}
-.barlbl b{color:var(--ink);font-size:15px}
-.steps{display:grid;gap:10px;margin-top:16px}
-.step{border-radius:18px;border:1.5px solid var(--line);background:#FAFCFB;overflow:hidden;transition:border-color .2s,background .2s}
-.step.done{border-color:rgba(24,165,102,.45);background:#F2FBF6}
-.step.bad{border-color:rgba(255,107,74,.5);background:#FFF6F3}
-.step-h{width:100%;display:flex;align-items:center;gap:12px;padding:13px 14px;background:none;border:none;text-align:left}
-.step-ic{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:0 0 40px}
-.step-ic svg{width:20px;height:20px}
-.ic-task{background:var(--violet2);color:var(--violet)}.ic-quiz{background:var(--amber2);color:#D88800}.ic-crave{background:var(--pink);color:var(--berry)}.ic-sf{background:var(--mint2);color:var(--green)}
-.step.done .step-ic{background:var(--green);color:#fff}
-.step.bad .step-ic{background:var(--coral);color:#fff}
-.step-t{flex:1;min-width:0}
-.step-t b{display:block;font-size:14.5px;font-weight:800}
-.step-t span{font-size:12px;color:var(--taupe);font-weight:600}
-.pts{font-size:12px;font-weight:800;padding:5px 9px;border-radius:20px;background:var(--soft);color:var(--taupe);white-space:nowrap}
-.step.done .pts{background:var(--green);color:#fff}
-.step.bad .pts{background:var(--coral);color:#fff}
-.step-b{padding:0 14px 14px}
-.step-b p{font-size:14.5px;line-height:1.55;color:#24332D}
-.tip{display:flex;gap:9px;background:#EEF6F2;border-radius:13px;padding:10px 12px;font-size:12.8px;color:var(--teal2);margin-top:10px;line-height:1.5;font-weight:500}
-.tip svg{flex:0 0 17px;width:17px;height:17px;margin-top:1px}
-.video{margin-top:12px;border-radius:16px;overflow:hidden;background:#0B2822;aspect-ratio:16/9}
-.video iframe,.video video{width:100%;height:100%;border:0;display:block}
-.act{width:100%;margin-top:12px;border:none;border-radius:15px;padding:14px;font-weight:800;font-size:14.5px;background:var(--teal2);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
-.act svg{width:18px;height:18px}
-.act.on{background:var(--green)}
-.opts{display:grid;gap:8px;margin-top:12px}
-.opts button{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:13px 14px;text-align:left;font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px}
-.opts button .l{width:26px;height:26px;border-radius:8px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 26px}
-.opts button.right{border-color:var(--green);background:#EAF8F0}
-.opts button.right .l{background:var(--green);color:#fff}
-.opts button.wrong{border-color:var(--coral);background:#FFF1EC}
-.opts button.wrong .l{background:var(--coral);color:#fff}
-.opts button:disabled{cursor:default}
-.why{margin-top:10px;font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:#FFF8E6;color:#7A5300;font-weight:500}
-.chips{display:flex;gap:8px;margin-top:12px}
-.chips button{flex:1;padding:12px 0;border-radius:14px;border:none;font-weight:800;font-size:15px;background:var(--soft)}
-.chips button:nth-child(1).on{background:#18A566;color:#fff}.chips button:nth-child(2).on{background:#7CC24A;color:#fff}.chips button:nth-child(3).on{background:#FFB020;color:#fff}.chips button:nth-child(4).on{background:#FF7A3D;color:#fff}.chips button:nth-child(5).on{background:#E5304F;color:#fff}
-.chips-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--taupe);margin-top:6px;font-weight:600}
-.yn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.yn button{padding:15px 8px 13px;border-radius:17px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:13.5px;display:flex;flex-direction:column;align-items:center;gap:8px}
-.yn .bub{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.yn .bub svg{width:21px;height:21px}
-.yn .yes .bub{background:var(--mint2);color:var(--green)}
-.yn .no .bub{background:var(--coral2);color:var(--coral)}
-.yn .yes.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 8px 18px rgba(24,165,102,.3)}
-.yn .no.on{background:var(--coral);border-color:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(255,107,74,.3)}
-.yn .on .bub{background:rgba(255,255,255,.25);color:#fff}
-.note{font-size:12px;color:var(--taupe);margin-top:8px;font-weight:600}
-.result{border-radius:20px;padding:16px;margin-top:14px;display:flex;gap:12px;align-items:center}
-.result .ri{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:0 0 44px}
-.result .ri svg{width:22px;height:22px}
-.result b{display:block;font-size:15px;font-weight:800}
-.result span{font-size:12.8px;line-height:1.45;font-weight:500}
-.result.win{background:linear-gradient(135deg,#18A566,#2BC483);color:#fff}
-.result.win .ri{background:rgba(255,255,255,.22)}
-.result.repeat{background:var(--coral2);color:#8A2A12}
-.result.repeat .ri{background:var(--coral);color:#fff}
-.result.pending{background:var(--amber2);color:#6B4700}
-.result.pending .ri{background:var(--amber);color:#fff}
-.sos{width:100%;border:none;border-radius:22px;padding:15px 16px;background:linear-gradient(135deg,#7B0237,#C2185B);color:#fff;font-weight:800;font-size:15.5px;margin-bottom:14px;box-shadow:0 12px 26px rgba(176,18,91,.28);display:flex;align-items:center;gap:14px;text-align:left}
-.sos .bub{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 42px}
-.sos .bub svg{width:21px;height:21px}
-.sos small{display:block;font-weight:500;font-size:12.5px;opacity:.85;margin-top:2px}
-.score-top{display:flex;align-items:flex-end;gap:10px;margin-top:8px}
-.score-top b{font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1}
-.score-top span{font-size:13px;color:var(--taupe);font-weight:700;padding-bottom:5px}
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
-.sgrid div{background:#F5F8F6;border-radius:14px;padding:10px 6px;text-align:center}
-.sgrid b{display:block;font-size:19px;font-weight:800}
-.sgrid span{font-size:10.5px;color:var(--taupe);font-weight:700;line-height:1.25;display:block;margin-top:2px}
-.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.badge{border-radius:16px;padding:12px 6px;text-align:center;background:#F5F8F6;border:1.5px dashed rgba(20,33,28,.14)}
-.badge .bi{width:42px;height:42px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;background:var(--soft);color:#9AA6A1}
-.badge .bi svg{width:20px;height:20px}
-.badge b{display:block;font-size:11.5px;font-weight:800;line-height:1.25}
-.badge span{font-size:10.5px;color:var(--taupe);font-weight:600}
-.badge.got{border-style:solid;border-color:transparent;background:linear-gradient(160deg,#FFF6DD,#FFE7A8)}
-.badge.got .bi{background:linear-gradient(135deg,#F7A928,#E57A00);color:#fff;box-shadow:0 6px 14px rgba(229,122,0,.35)}
-.journey{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:12px}
-.journey button{aspect-ratio:1;border-radius:13px;border:none;background:var(--soft);font-weight:800;font-size:13px;color:#9AA6A1;display:flex;align-items:center;justify-content:center;position:relative}
-.journey button svg{width:14px;height:14px}
-.journey .passed{background:linear-gradient(135deg,#18A566,#2BC483);color:#fff}
-.journey .current{background:#fff;color:var(--berry);outline:3px solid var(--berry);outline-offset:1px;animation:pulse 1.8s ease-in-out infinite}
-.journey .ms{box-shadow:inset 0 0 0 2px #F7A928}
-@keyframes pulse{50%{outline-color:rgba(176,18,91,.35)}}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--taupe);font-weight:600}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:4px;margin-right:5px;vertical-align:-1px}
-details summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14.5px}
-details summary::-webkit-details-marker{display:none}
-details[open] summary .chev{transform:rotate(180deg)}
-.chev{transition:transform .2s}
-.rules{display:grid;gap:14px;margin-top:12px}
-.rules h4{font-size:13px;margin-bottom:6px}
-.rules ul{list-style:none;display:grid;gap:7px}
-.rules li{font-size:13.5px;line-height:1.45;padding-left:22px;position:relative}
-.rules .no li::before{content:'✕';position:absolute;left:0;color:var(--coral);font-weight:800}
-.rules .yes li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:800}
-.how{list-style:none;display:grid;gap:10px;margin-top:12px;counter-reset:s}
-.how li{display:flex;gap:12px;align-items:flex-start;font-size:13.5px;line-height:1.45}
-.how li::before{counter-increment:s;content:counter(s);flex:0 0 26px;height:26px;border-radius:9px;background:var(--mint2);color:var(--green);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px}
-.sheet-bg{position:fixed;inset:0;background:rgba(8,22,18,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20;backdrop-filter:blur(2px)}
-.sheet{background:var(--bg);width:100%;max-width:460px;border-radius:26px 26px 0 0;padding:22px 18px calc(24px + env(safe-area-inset-bottom));max-height:86vh;overflow:auto;animation:up .25s ease}
+.ring .n{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .n b{font-size:24px;font-weight:800;line-height:1}
+.ring .n span{font-size:9.5px;opacity:.75;font-weight:700;letter-spacing:.08em}
+.strip .info{flex:1;min-width:0;position:relative;z-index:1}
+.strip .tag{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--lime)}
+.strip h2{font-size:17px;font-weight:800;margin:3px 0 8px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{position:relative;height:9px;border-radius:9px;background:rgba(255,255,255,.18)}
+.bar .f{position:absolute;inset:0 auto 0 0;border-radius:9px;background:var(--lime);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bar .m{position:absolute;left:70%;top:-4px;bottom:-4px;width:2px;background:var(--card);opacity:.7;border-radius:2px}
+.barl{display:flex;justify-content:space-between;font-size:11px;margin-top:5px;opacity:.85;font-weight:700}
+/* story card */
+.dots{display:flex;gap:6px;margin:12px 2px 10px;flex:0 0 auto}
+.dots button{flex:1;height:6px;border-radius:6px;background:var(--card2);position:relative;overflow:hidden}
+.dots button.done{background:var(--lime)}
+.dots button.bad{background:var(--bad)}
+.dots button.cur{background:#fff}
+.story{flex:1;min-height:0;border-radius:26px;background:var(--card);border:1px solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.05),0 14px 34px rgba(0,0,0,.09);display:flex;flex-direction:column;overflow:hidden;position:relative;touch-action:pan-y}
+.story .head{padding:16px 18px 0;display:flex;align-items:center;justify-content:space-between}
+.story .lbl{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.story .pts{font-size:12px;font-weight:800;padding:5px 10px;border-radius:20px}
+.story .body{flex:1;min-height:0;overflow:auto;padding:12px 18px 6px;display:flex;flex-direction:column}
+.story .foot{padding:10px 18px 18px;flex:0 0 auto}
+.art{width:96px;height:96px;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:54px;margin:4px auto 12px;flex:0 0 auto}
+.story h3{font-size:22px;font-weight:800;letter-spacing:-.025em;text-align:center;line-height:1.2}
+.story p.txt{font-size:15px;line-height:1.55;color:var(--ink2);text-align:center;margin-top:8px}
+.tipline{margin-top:12px;font-size:13px;line-height:1.5;padding:10px 12px;border-radius:14px;background:var(--card2);color:var(--muted);font-weight:600;text-align:center}
+.big{width:100%;border-radius:18px;padding:16px;font-weight:800;font-size:16px;background:var(--grad);color:#fff;box-shadow:0 10px 22px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;gap:8px}
+.big svg{width:19px;height:19px}
+.big.lime{background:var(--lime);color:var(--limeInk);box-shadow:0 10px 22px rgba(200,140,20,.3)}
+.big.ghost{background:var(--card2);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* learning */
+.lt{display:grid;gap:10px}
+.lc{border-radius:18px;padding:12px;display:flex;gap:12px;align-items:center}
+.lc .e{width:56px;height:56px;border-radius:18px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 56px}
+.lc .sw{flex:0 0 auto;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.08);border-radius:18px;padding:8px 10px;font-size:26px}
+.lc .sw i{font-style:normal;font-size:14px;color:var(--muted);font-weight:800}
+.lc b{display:block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:800;margin-bottom:3px}
+.lc p{font-size:13.5px;line-height:1.45}
+.lc.b{background:var(--t-learn)} .lc.b b{color:var(--c-learn)}
+.lc.s{background:var(--t-sf)} .lc.s b{color:var(--c-sf)}
+/* quiz */
+.q{font-size:18px;font-weight:800;text-align:center;letter-spacing:-.02em;line-height:1.3}
+.opts{display:grid;gap:9px;margin-top:14px}
+.opts button{border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:14px;text-align:left;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:11px}
+.opts .l{width:28px;height:28px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;flex:0 0 28px}
+.opts .right{border-color:var(--c-sf);background:var(--t-sf)} .opts .right .l{background:var(--c-sf);color:#fff}
+.opts .wrong{border-color:var(--bad);background:var(--t-bad)} .opts .wrong .l{background:var(--bad);color:#fff}
+.why{margin-top:10px;font-size:13px;line-height:1.5;padding:10px 12px;border-radius:14px;background:var(--t-quiz);color:#FFE3A3;font-weight:600}
+/* cravings */
+.faces{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px}
+.faces button{border-radius:18px;background:var(--card2);padding:12px 0 9px;display:flex;flex-direction:column;align-items:center;gap:4px;border:2px solid transparent}
+.faces button .fe{font-size:28px;line-height:1}
+.faces button span{font-size:11px;font-weight:800;color:var(--muted)}
+.faces button.on{border-color:var(--c-crave);background:var(--t-crave)}
+.help{margin-top:14px;border-radius:18px;padding:12px 14px;background:var(--t-crave)}
+.help h4{font-size:13.5px;color:var(--c-crave);font-weight:800;margin-bottom:6px}
+.help ul{list-style:none;display:grid;gap:5px}
+.help li{font-size:13px;line-height:1.4;padding-left:16px;position:relative}
+.help li::before{content:'';position:absolute;left:2px;top:6px;width:6px;height:6px;border-radius:50%;background:var(--c-crave)}
+.help .snack{margin-top:8px;background:var(--card2);border-radius:12px;padding:8px 10px;font-size:12.5px;font-weight:700}
+.good{margin-top:14px;border-radius:16px;padding:11px 12px;background:var(--t-quiz);color:#FFE3A3;font-size:13px;font-weight:700;text-align:center}
+/* sugar-free */
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.yn button{border-radius:22px;padding:18px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-weight:800;font-size:14.5px;border:2px solid transparent}
+.yn .y{background:var(--t-sf);color:#E5DBFF}.yn .y.on{background:var(--grad);color:#fff}
+.yn .n{background:var(--t-bad);color:#FFC9C9}.yn .n.on{background:var(--bad);color:#fff}
+.yn .e{font-size:38px;line-height:1}
+.small{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;font-weight:600}
+/* result */
+.res .art{width:110px;height:110px;font-size:62px}
+.res h3{font-size:24px}
+.scorebig{font-size:46px;font-weight:800;letter-spacing:-.04em;text-align:center;margin-top:6px}
+.scorebig span{font-size:16px;color:var(--muted);font-weight:700}
+/* meals */
+.vh{flex:0 0 auto;margin:4px 2px 12px}
+.vh .tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--c-sf)}
+.vh h2{font-size:22px;font-weight:800;letter-spacing:-.025em;margin-top:2px}
+.vh p{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.meals{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:0 0 auto}
+.meal{background:var(--card);border:2px solid var(--line)!important;border-radius:22px;padding:13px 12px 11px;text-align:left;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 24px rgba(0,0,0,.07);border:2px solid transparent;position:relative;min-height:150px}
+.meal .me{width:52px;height:52px;border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:30px}
+.meal small{font-size:10.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.meal b{font-size:13.5px;line-height:1.35;font-weight:700}
+.meal em{font-style:normal;font-size:12px;color:var(--muted);font-weight:600;line-height:1.3}
+.meal .ck{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;border:2px solid #4A4360;display:flex;align-items:center;justify-content:center;color:transparent}
+.meal .ck svg{width:14px;height:14px}
+.meal.on{border-color:var(--c-task)!important} .meal.on .ck{background:var(--c-task);border-color:var(--c-task);color:#fff}
+.swapbar{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;display:flex;gap:12px;align-items:center;flex:0 0 auto}
+.swapbar .sw{background:var(--card2);border-radius:16px;padding:8px 10px;font-size:24px;display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.swapbar .sw i{font-style:normal;font-size:13px;color:var(--muted);font-weight:800}
+.swapbar b{display:block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:800;color:var(--c-sf)}
+.swapbar p{font-size:13px;line-height:1.4}
+.mealcount{margin-top:10px;text-align:center;font-size:12.5px;font-weight:700;color:var(--muted)}
+/* progress */
+.scard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 24px rgba(0,0,0,.07);flex:0 0 auto;margin-bottom:10px}
+.stop{display:flex;align-items:flex-end;justify-content:space-between}
+.stop b{font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.stop span{font-size:12px;color:var(--muted);font-weight:700}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.sg div{background:var(--card2);border-radius:14px;padding:8px 4px;text-align:center}
+.sg b{display:block;font-size:17px;font-weight:800}
+.sg span{font-size:10px;color:var(--muted);font-weight:700;line-height:1.2;display:block}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.badge{border-radius:16px;padding:9px 4px;text-align:center;background:var(--card2)}
+.badge .bi{font-size:24px;filter:grayscale(1);opacity:.4}
+.badge b{display:block;font-size:10.5px;font-weight:800;line-height:1.2;margin-top:2px}
+.badge span{font-size:10px;color:var(--muted);font-weight:600}
+.badge.got{background:linear-gradient(160deg,rgba(255,201,77,.28),rgba(255,140,60,.18))} .badge.got .bi{filter:none;opacity:1}
+.jgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}
+.jgrid div{aspect-ratio:1;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:#6F6886}
+.jgrid .ok{background:var(--grad);color:#fff}
+.jgrid .cur{background:var(--card);color:#fff;box-shadow:inset 0 0 0 2.5px var(--c-task)}
+.jgrid div svg{width:11px;height:11px}
+.lb{display:grid;gap:6px;margin-top:8px}
+.lb div{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:var(--card2);font-size:13.5px;font-weight:700}
+.lb div .r{width:26px;text-align:center;font-weight:800;color:var(--muted)}
+.lb div .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb div .pt{font-weight:800}
+.lb div.me{background:var(--grad);color:#fff} .lb div.me .r{color:#FFD36B}
+.lb .gap{background:none;justify-content:center;padding:0;color:var(--muted);font-size:12px}
+.sec{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rulesbtn{width:100%;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 14px;display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 24px rgba(0,0,0,.07);flex:0 0 auto}
+.rulesbtn .e{font-size:22px}
+.rulesbtn span{flex:1;text-align:left}
+.rulesbtn small{font-size:12px;color:var(--muted);font-weight:600;display:block}
+/* nav */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:440px;padding:8px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(12,10,18,0),var(--bg) 30%);z-index:10}
+.nav .in{background:var(--card);border:1px solid var(--line);border-radius:22px;display:grid;grid-template-columns:repeat(3,1fr);padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.14)}
+.nav button{border-radius:16px;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:800;color:var(--muted)}
+.nav button svg{width:20px;height:20px}
+.nav button.on{background:var(--grad);color:#fff}
+.sos{background:linear-gradient(135deg,#E2603A,#FF8A5B);color:#fff;border-radius:20px;padding:7px 11px;font-weight:800;font-size:12px;display:flex;align-items:center;gap:5px;box-shadow:0 6px 14px rgba(226,96,58,.3);flex:0 0 auto}
+.sos svg{width:14px;height:14px}
+/* other screens */
+.center{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;overflow:auto}
+.login h1{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.08}
+.muted{color:var(--muted);font-size:13.5px;line-height:1.55}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:14px;font-size:16px;background:var(--card2);color:var(--ink);font-family:inherit}
+.field input:focus{outline:none;border-color:var(--pri)}
+#l-code{letter-spacing:8px;font-size:22px;text-align:center;font-weight:800}
+.err{background:var(--t-bad);color:#FFC9C9;font-size:13px;padding:10px 12px;border-radius:12px}
+.ok{background:var(--t-sf);color:#E5DBFF;font-size:13px;padding:10px 12px;border-radius:12px}
+.link{color:var(--c-sf);font-weight:700;font-size:13.5px;text-decoration:underline}
+.herobox{background:var(--grad);border-radius:26px;padding:24px 18px;color:#fff;text-align:center}
+.herobox .tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--lime)}
+.herobox h2{font-size:24px;font-weight:800;margin:8px 0 4px;letter-spacing:-.02em}
+.herobox .num{font-size:52px;font-weight:800;letter-spacing:-.04em;margin:8px 0 4px}
+.herobox p{font-size:13.5px;opacity:.85}
+.steps{list-style:none;display:grid;gap:9px;counter-reset:s}
+.steps li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;background:var(--card);border-radius:16px;padding:11px 12px}
+.steps li::before{counter-increment:s;content:counter(s);flex:0 0 24px;height:24px;border-radius:8px;background:var(--grad);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12.5px}
+/* sheets */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:30;backdrop-filter:blur(2px)}
+.sheet{background:var(--card);border-top:1px solid var(--line);width:100%;max-width:440px;border-radius:26px 26px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .25s ease}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-.sheet h3{font-size:21px;margin:4px 0}
-.sos-list{list-style:none;display:grid;gap:10px;margin:14px 0}
-.sos-list li{background:var(--white);border-radius:16px;padding:13px 14px;font-size:14.5px;line-height:1.45;display:flex;gap:10px}
-.sos-list li b{flex:0 0 24px;height:24px;border-radius:8px;background:var(--pink);color:var(--berry);display:flex;align-items:center;justify-content:center;font-size:12px}
-.foot{text-align:center;font-size:12px;color:var(--taupe);margin-top:8px;font-weight:600}
-.foot a{color:var(--teal2);font-weight:800}
-.big{font-size:60px;font-weight:800;letter-spacing:-.05em;line-height:1}
-.demo{background:var(--amber);color:#3A2600;font-size:12px;font-weight:800;padding:8px 10px;border-radius:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.demo button{border:none;background:#3A2600;color:#fff;border-radius:10px;padding:6px 10px;font-size:11.5px;font-weight:800;white-space:nowrap}
-.confetti{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.sheet h3{font-size:21px;font-weight:800;letter-spacing:-.02em;margin:2px 0 10px}
+.sheet .tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--c-crave)}
+.list{list-style:none;display:grid;gap:8px;margin-bottom:14px}
+.list li{background:var(--card);border-radius:16px;padding:12px 13px;font-size:14px;line-height:1.45;display:flex;gap:10px;align-items:flex-start}
+.list li .e{font-size:20px;line-height:1.2}
+.rules2{display:grid;gap:10px;margin-bottom:14px}
+.rules2 div{background:var(--card);border-radius:16px;padding:12px 13px}
+.rules2 h4{font-size:13px;font-weight:800;margin-bottom:6px}
+.rules2 ul{list-style:none;display:grid;gap:5px}
+.rules2 li{font-size:13px;line-height:1.4;padding-left:20px;position:relative}
+.rules2 .no li::before{content:'✕';position:absolute;left:0;color:var(--bad);font-weight:800}
+.rules2 .yes li::before{content:'✓';position:absolute;left:0;color:var(--c-sf);font-weight:800}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}
 .confetti i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:fall 1.7s ease-in forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
-.pop{animation:pop .4s ease}
-@keyframes pop{50%{transform:scale(1.04)}}
+.slide{animation:slide .28s ease}
+@keyframes slide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (max-height:700px){.art{width:76px;height:76px;font-size:42px;border-radius:24px;margin-bottom:8px}.story h3{font-size:19px}.story p.txt{font-size:14px}.ring{width:60px;height:60px;flex-basis:60px}.ring svg{width:60px;height:60px}}
+
+body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),transparent 60%),radial-gradient(700px 500px at -10% 30%,rgba(124,58,237,.16),transparent 60%),var(--bg)}
+.top .who span,.muted{color:var(--muted)}
+.story .head .lbl{text-shadow:0 0 18px currentColor}
+.art{box-shadow:0 0 0 1px rgba(255,255,255,.04),0 10px 30px rgba(0,0,0,.35)}
+.strip,.herobox{box-shadow:0 14px 40px rgba(192,38,211,.35)}
+.stop b,.scorebig{background:linear-gradient(135deg,#fff,#E9D5FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* water */
+.water{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:13px 14px;flex:0 0 auto}
+.water .wh{display:flex;justify-content:space-between;align-items:baseline}
+.water .wh b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--c-learn)}
+.water .wh span{font-size:12.5px;font-weight:800;color:var(--ink2)}
+.glasses{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:10px}
+.glasses button{height:44px;border-radius:12px;background:var(--card2);border:1.5px solid var(--line);position:relative;overflow:hidden}
+.glasses button::after{content:'';position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,#5ADCF6,#2F8CF0);transition:height .35s ease}
+.glasses button.on::after{height:78%}
+.glasses button.on{border-color:rgba(90,220,246,.5);box-shadow:0 0 14px rgba(90,220,246,.25)}
+.water .wn{font-size:12px;color:var(--muted);font-weight:600;margin-top:8px;text-align:center}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
   <div class="top">
-    <div class="brand"><img src="logo.png" alt="">Strong With Sherni</div>
-    <button class="ghost hide" id="logout">Log out</button>
+    <img src="logo.png" alt="">
+    <div class="who"><b id="t-name">Strong With Sherni</b><span id="t-sub">Sugar Break · 21 days, zero added sugar</span></div>
+    <button class="sos hide" id="sos-btn"><span data-ic="bolt"></span>SOS</button>
+    <span class="pill hide" id="t-streak"><span data-ic="fire"></span><span id="t-streak-n">0</span></span>
+    <button class="icon-btn hide" id="logout" title="Log out"><span data-ic="out"></span></button>
   </div>
-  <div class="demo hide" id="demo-bar"><span>Demo preview: code 123456. Nothing is saved.</span><button id="demo-next">Go to tomorrow</button></div>
+  <div class="demo hide" id="demo-bar"><span>Demo: code 123456. Nothing is saved.</span><button id="demo-next">Go to tomorrow</button></div>
 
-  <section id="v-login" class="login hide">
-    <span class="eyebrow">Challenge app</span>
-    <h1>Welcome back,<br>Sherni.</h1>
-    <p class="muted">Tap the "Open my challenge app" button in your welcome email to log in instantly. Or enter your email and 6-digit code below.</p>
+  <!-- LOGIN -->
+  <section class="view center login hide" id="v-login">
+    <div>
+      <div class="sec" style="color:var(--c-sf)">Sugar Break app</div>
+      <h1 style="margin-top:6px">Welcome,<br>Sherni.</h1>
+      <p class="muted" style="margin-top:8px">Tap "Open my challenge app" in your welcome email to log in instantly. Or enter your email and 6-digit code.</p>
+    </div>
     <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
     <div class="field"><label for="l-code">Login code</label><input id="l-code" inputmode="numeric" maxlength="6" placeholder="••••••"></div>
-    <button class="btn" id="l-btn">Log in</button>
+    <button class="big" id="l-btn">Log in</button>
     <div id="l-err" class="err hide"></div>
     <div id="l-ok" class="ok hide"></div>
     <div style="text-align:center"><button class="link" id="l-forgot">Forgot your code?</button></div>
   </section>
 
-  <section id="v-pre" class="hide">
-    <div class="hero" style="text-align:center">
-      <span class="chip" id="pre-name">Sugar Break</span>
-      <h2 style="font-size:25px;margin:10px 0 4px">Hi <span class="first"></span>, you're in!</h2>
-      <p>Day 1 unlocks in</p>
-      <div class="big" id="pre-count" style="margin:12px 0 6px">3 days</div>
-      <p id="pre-date"></p>
-    </div>
-    <div class="card"><span class="eyebrow">How it works</span><ul class="how" id="how-pre"></ul></div>
-    <div class="card"><details open><summary>The rules <span class="chev">▾</span></summary><div class="rules rules-box"></div></details></div>
+  <!-- BEFORE START -->
+  <section class="view center hide" id="v-pre" style="justify-content:flex-start">
+    <div class="herobox"><div class="tag" id="pre-batch">You're in</div><h2>Hi <span class="first"></span>!</h2><p>Your batch starts Day 1 together in</p><div class="num" id="pre-count">3 days</div><p id="pre-date"></p></div>
+    <div class="sec" style="margin-top:4px">Get ready</div>
+    <ul class="steps"><li>Join your batch WhatsApp group (link in your email).</li><li>Clear sweets and sugary drinks out of your kitchen.</li><li>Stock up on fruit, nuts, curd and roasted chana.</li><li>Add this app to your home screen.</li></ul>
+    <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small>What's allowed and what's not</small></span></button>
   </section>
 
-  <section id="v-dash" class="hide">
-    <div class="hero" id="hero">
-      <div class="hero-row">
-        <div class="ring">
-          <svg width="116" height="116"><circle cx="58" cy="58" r="49" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="11"/><circle id="ring-arc" cx="58" cy="58" r="49" fill="none" stroke="#9FE0C2" stroke-width="11" stroke-linecap="round" stroke-dasharray="307.9" stroke-dashoffset="307.9" style="transition:stroke-dashoffset .8s ease"/></svg>
-          <div class="num"><small>Day</small><b id="d-day">1</b><span>of 21</span></div>
-        </div>
-        <div>
-          <span class="chip" id="d-week">Week 1 · Break</span>
-          <h2>Hi <span class="first"></span>!</h2>
-          <p id="d-weeksub"></p>
-        </div>
-      </div>
-      <div class="meta">
-        <div><b id="h-done">0 / 21</b><span>days completed</span></div>
-        <div><b id="h-window">42 days</b><span>left in your window</span></div>
+  <!-- TODAY -->
+  <section class="view hide" id="v-today">
+    <div class="strip">
+      <div class="ring"><svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="29" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle id="ring-arc" cx="35" cy="35" r="29" fill="none" stroke="#FFC94D" stroke-width="8" stroke-linecap="round" stroke-dasharray="182.2" stroke-dashoffset="182.2" style="transition:stroke-dashoffset .8s ease"/></svg><div class="n"><span>DAY</span><b id="d-day">1</b></div></div>
+      <div class="info">
+        <div class="tag" id="d-week">Week 1 · Break</div>
+        <h2 id="d-title">Today's mission</h2>
+        <div class="bar"><div class="f" id="d-fill" style="width:0"></div><div class="m"></div></div>
+        <div class="barl"><span id="d-pts">0 / 100 pts</span><span>70 unlocks tomorrow</span></div>
       </div>
     </div>
-
-    <div class="card" id="mission">
-      <div class="mission-head">
-        <span class="eyebrow" id="m-label">Today's mission · Day 1</span>
-        <h3 id="m-title"></h3>
-        <p class="muted">Score 70+ and stay sugar-free to unlock the next day.</p>
-      </div>
-      <div class="bar"><div class="fill" id="m-fill" style="width:0"></div><div class="mark"><span>70 to unlock</span></div></div>
-      <div class="barlbl"><span>Today's score</span><span><b id="m-pts">0</b> / 100</span></div>
-      <div class="steps" id="steps"></div>
-      <div id="result"></div>
-    </div>
-
-    <button class="sos" id="sos-btn"><span class="bub" data-ic="bolt"></span><span>Craving SOS<small>Tap for quick help right now</small></span></button>
-
-    <div class="card">
-      <span class="eyebrow">Your scorecard</span>
-      <div class="score-top"><b id="sc-pts">0</b><span>/ 2,100 points</span></div>
-      <div class="sgrid">
-        <div><b id="sc-days">0</b><span>days done</span></div>
-        <div><b id="sc-streak">0</b><span>day streak</span></div>
-        <div><b id="sc-rep">0</b><span>repeats</span></div>
-        <div><b id="sc-win">42</b><span>window days left</span></div>
-      </div>
-      <div class="badges" id="badges"></div>
-    </div>
-
-    <div class="card">
-      <div class="row"><span class="eyebrow">Your 21-day journey</span><span class="muted" style="font-size:11.5px;font-weight:600">Tap a green day to look back</span></div>
-      <div class="journey" id="journey"></div>
-      <div class="legend"><span><i style="background:var(--green)"></i>Unlocked</span><span><i style="background:#fff;outline:2px solid var(--berry)"></i>Today</span><span><i style="background:var(--soft)"></i>Locked</span><span><i style="background:#fff;box-shadow:inset 0 0 0 2px #F7A928"></i>Badge day</span></div>
-    </div>
-
-    <div class="card"><details><summary>How it works <span class="chev">▾</span></summary><ul class="how" id="how-dash"></ul></details></div>
-    <div class="card"><details><summary>What's allowed and what's not <span class="chev">▾</span></summary><div class="rules rules-box"></div></details></div>
-    <p class="foot">Need help? <a href="https://wa.me/919036147675" target="_blank" rel="noopener">WhatsApp Coach Sherni</a></p>
+    <div class="dots" id="dots"></div>
+    <div class="story" id="story"></div>
   </section>
 
-  <section id="v-end" class="hide">
-    <div class="hero" style="text-align:center">
-      <span class="chip">Challenge complete</span>
-      <h2 style="font-size:27px;margin:10px 0">You did it, <span class="first"></span>!</h2>
-      <div class="big" id="e-pts">0</div>
-      <p>points out of 2,100</p>
-    </div>
-    <div class="card">
-      <span class="eyebrow">Final scorecard</span>
-      <div class="sgrid">
-        <div><b>21</b><span>days done</span></div>
-        <div><b id="e-streak">0</b><span>best streak</span></div>
-        <div><b id="e-rep">0</b><span>repeats</span></div>
-        <div><b id="e-took">0</b><span>days taken</span></div>
-      </div>
-      <div class="badges" id="e-badges"></div>
-    </div>
-    <div class="card"><p class="muted" style="text-align:center">Your final task: write your own sugar rule for the next month and share it in the group.</p></div>
-    <a class="btn teal" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20I%20finished%20Sugar%20Break.%20I%27d%20love%20to%20know%20about%20my%20finisher%20offer." target="_blank" rel="noopener">Claim my finisher offer</a>
+  <!-- MEALS -->
+  <section class="view hide" id="v-meals" style="overflow:auto">
+    <div class="vh"><div class="tag">Food & water</div><h2 id="m-title">Today's plate</h2><p>Sugar-free meal ideas. Tap a meal when you've eaten it.</p></div>
+    <div class="meals" id="meals"></div>
+    <div class="swapbar" id="m-swap"></div>
+    <div class="mealcount" id="m-count"></div>
+    <div class="water"><div class="wh"><b>💧 Water today</b><span id="w-count">0 / 8 glasses</span></div><div class="glasses" id="glasses"></div><div class="wn" id="w-note">Tap a glass each time you drink one.</div></div>
   </section>
 
-  <section id="v-exp" class="hide">
-    <div class="hero" style="text-align:center">
-      <span class="chip">Window ended</span>
-      <h2 style="font-size:24px;margin:10px 0 6px">Your 42-day window has ended</h2>
-      <p>You unlocked <b id="x-days">0</b> of 21 days. That's real progress, and you can absolutely finish it next time.</p>
+  <!-- PROGRESS -->
+  <section class="view hide" id="v-prog" style="overflow:auto">
+    <div class="scard">
+      <div class="stop"><div><div class="sec">Your score</div><b id="p-pts">0</b></div><span>/ 2,100 points</span></div>
+      <div class="sg"><div><b id="p-days">0</b><span>days done</span></div><div><b id="p-streak">0</b><span>streak</span></div><div><b id="p-rep">0</b><span>repeats</span></div><div><b id="p-win">42</b><span>window left</span></div></div>
     </div>
-    <div class="card">
-      <span class="eyebrow">Your scorecard</span>
-      <div class="score-top"><b id="x-pts">0</b><span>/ 2,100 points</span></div>
-      <div class="badges" id="x-badges"></div>
-    </div>
-    <a class="btn" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20My%20Sugar%20Break%20window%20ended.%20I%27d%20like%20to%20try%20again." target="_blank" rel="noopener">Rejoin the challenge</a>
+    <div class="scard"><div class="row" style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">Batch leaderboard</div><span style="font-size:11.5px;color:var(--muted);font-weight:700" id="p-batch"></span></div><div class="lb" id="p-lb"></div></div>
+    <div class="scard"><div class="sec" style="margin-bottom:8px">Badges</div><div class="badges" id="p-badges"></div></div>
+    <div class="scard"><div class="sec">Your 21 days</div><div class="jgrid" id="p-journey"></div></div>
+    <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small>Zero added sugar for 21 days</small></span></button>
+  </section>
+
+  <!-- END -->
+  <section class="view center hide" id="v-end" style="justify-content:flex-start">
+    <div class="herobox"><div class="tag">Challenge complete</div><div style="font-size:56px;margin-top:6px">🏆</div><h2>You did it, <span class="first"></span>!</h2><div class="num" id="e-pts">0</div><p>points out of 2,100</p></div>
+    <div class="scard" style="margin:0"><div class="sg" style="margin-top:0"><div><b>21</b><span>days done</span></div><div><b id="e-streak">0</b><span>best streak</span></div><div><b id="e-rep">0</b><span>repeats</span></div><div><b id="e-took">0</b><span>days taken</span></div></div></div>
+    <p class="muted" style="text-align:center">Final task: write your own sugar rule for the next month and share it in the group.</p>
+    <a class="big lime" style="text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20I%20finished%20Sugar%20Break.%20I%27d%20love%20to%20know%20about%20my%20finisher%20offer." target="_blank" rel="noopener">Claim my finisher offer</a>
+  </section>
+
+  <!-- EXPIRED -->
+  <section class="view center hide" id="v-exp" style="justify-content:flex-start">
+    <div class="herobox"><div class="tag">Window ended</div><div style="font-size:52px;margin-top:6px">⏳</div><h2>Your 42 days are up</h2><p>You completed <b id="x-days">0</b> of 21 days. That's real progress, and you can finish it next time.</p></div>
+    <div class="scard" style="margin:0"><div class="stop"><div><div class="sec">Your score</div><b id="x-pts">0</b></div><span>/ 2,100 points</span></div></div>
+    <a class="big" style="text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20My%20Sugar%20Break%20window%20ended.%20I%27d%20like%20to%20try%20again." target="_blank" rel="noopener">Rejoin the challenge</a>
   </section>
 </div>
 
-<div class="sheet-bg hide" id="sos-sheet">
-  <div class="sheet">
-    <span class="eyebrow">Craving SOS</span>
-    <h3>This craving will pass.</h3>
-    <p class="muted">Most cravings fade in 10-15 minutes. Pick one of these right now:</p>
-    <ul class="sos-list" id="sos-list"></ul>
-    <button class="btn teal" id="sos-close">I've got this</button>
-  </div>
-</div>
+<div class="nav hide" id="nav"><div class="in">
+  <button data-tab="today" class="on"><span data-ic="home"></span>Today</button>
+  <button data-tab="meals"><span data-ic="plate"></span>Food & Water</button>
+  <button data-tab="prog"><span data-ic="chart"></span>Progress</button>
+</div></div>
 
-<div class="sheet-bg hide" id="day-sheet">
-  <div class="sheet">
-    <span class="eyebrow" id="ds-label">Day 1</span>
-    <h3 id="ds-title"></h3>
-    <p class="muted" id="ds-task"></p>
-    <div class="tip" style="margin-top:12px"><span data-ic="bulb"></span><span id="ds-why"></span></div>
-    <div class="result win" style="margin-top:14px"><div class="ri" data-ic="check"></div><div><b id="ds-pts">100 points</b><span id="ds-date"></span></div></div>
-    <button class="btn" id="ds-close" style="margin-top:16px">Close</button>
-  </div>
-</div>
+<div class="sheet-bg hide" id="sos-sheet"><div class="sheet">
+  <div class="tag">Craving SOS</div><h3>This craving will pass.</h3>
+  <p class="muted" style="margin-bottom:12px">Most cravings fade in 10-15 minutes. Pick one right now:</p>
+  <ul class="list" id="sos-list"></ul>
+  <button class="big" data-close>I've got this</button>
+</div></div>
+<div class="sheet-bg hide" id="rules-sheet"><div class="sheet">
+  <div class="tag" style="color:var(--c-sf)">The rules</div><h3>21 days. Zero added sugar.</h3>
+  <div class="rules2" id="rules"></div>
+  <ul class="list" id="how"></ul>
+  <button class="big" data-close>Got it</button>
+</div></div>
 
 <script>
 const IC = {
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17 19 7"/></svg>',
-  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
-  task:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>',
-  quiz:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.7-2.4 2.3-2.4 3.8"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg>',
-  crave:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
-  sf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
-  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  fire:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.8 2-5 0 2 1 3 2 3 0-3 1-6 1-8z"/></svg>',
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
   bolt:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
-  bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
-  star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>',
-  trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg>',
-  repeat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
-  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  plate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>',
+  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 };
 document.querySelectorAll('[data-ic]').forEach(e => e.innerHTML = IC[e.dataset.ic]);
 
@@ -355,183 +366,240 @@ const LS = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null
 const TKEY = DEMO ? 'sws_demo_token' : 'sws_token';
 const $ = id => document.getElementById(id);
 const DAYMS = 86400000;
-let S = { token: LS.get(TKEY), st: null, open: null };
+let S = { token: LS.get(TKEY), st:null, step:null, tab:'today' };
 const CH = () => (window.SWS_CHALLENGES||{})[S.st && S.st.member && S.st.member.challenge] || window.SWS_CHALLENGES['sugar-break'];
-const BADGES = [ { day:7, name:'Sugar Breaker', ic:'star' }, { day:14, name:'Rebuilder', ic:'bolt' }, { day:21, name:'Sugar-Free Sherni', ic:'trophy' } ];
+const BADGES = [ { day:7, name:'Sugar Breaker', e:'⭐' }, { day:14, name:'Rebuilder', e:'💪' }, { day:21, name:'Sugar-Free Sherni', e:'🏆' } ];
+const STEPS = ['task','learn','quiz','crave','sf'];
 
-/* demo engine: same rules as the real server */
-const D = { offset: 0, attempts: [] };
-const isoAdd = (iso, n) => new Date(new Date(iso+'T00:00:00Z').getTime()+n*DAYMS).toISOString().slice(0,10);
+/* ---------- demo engine (same rules as the server) ---------- */
+const D = { offset:0, attempts:[] };
+const isoAdd = (iso,n) => new Date(new Date(iso+'T00:00:00Z').getTime()+n*DAYMS).toISOString().slice(0,10);
 const realToday = () => new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
 const dToday = () => isoAdd(realToday(), D.offset);
-function dScore(a){ const P=CH().points; let p=0; if(a.sugar_free===true)p+=P.sugarFree; if(a.task_done)p+=P.task; if(a.quiz_correct===true)p+=P.quizRight; else if(a.quiz_correct===false)p+=P.quizWrong; if(a.craving)p+=P.craving; return { points:p, passed:a.sugar_free===true && p>=P.unlock }; }
+function dScore(a){ const P=CH().points; let p=0; if(a.sugar_free===true)p+=P.sugarFree; if(a.task_done)p+=P.task; if(a.quiz_correct===true)p+=P.quizRight; else if(a.quiz_correct===false)p+=P.quizWrong; if(a.learned)p+=P.learn; if(a.craving)p+=P.craving; return { points:p, passed:a.sugar_free===true && p>=P.unlock }; }
 function dProgress(member, attempts, today){
-  const past = attempts.filter(a=>a.attempt_date<today), passedBefore = past.filter(a=>a.passed).length;
-  const ta = attempts.find(a=>a.attempt_date===today)||null, passedTotal = passedBefore+(ta&&ta.passed?1:0);
-  const idx = Math.round((new Date(today+'T00:00:00Z')-new Date(member.start_date+'T00:00:00Z'))/DAYMS);
-  let status='active'; if(idx<0)status='pre'; else if(passedBefore>=21)status='complete'; else if(idx>=42)status='expired';
-  const by = Object.fromEntries(attempts.map(a=>[a.attempt_date,a])); let streak=0, d = ta&&ta.passed?today:isoAdd(today,-1); while(by[d]&&by[d].passed){streak++; d=isoAdd(d,-1);}
-  const pl = attempts.filter(a=>a.passed);
-  return { status, currentDay:Math.min(21,passedBefore+1), todayAttempt:ta, startsIn: idx<0?-idx:0, windowLeft:Math.max(0,42-idx), windowEnd:isoAdd(member.start_date,41),
-    score:{ points:pl.reduce((s,a)=>s+(a.points||0),0), maxPoints:2100, daysCompleted:passedTotal, repeats:past.filter(a=>!a.passed).length, streak } };
+  const past=attempts.filter(a=>a.attempt_date<today), pb=past.filter(a=>a.passed).length;
+  const ta=attempts.find(a=>a.attempt_date===today)||null, pt=pb+(ta&&ta.passed?1:0);
+  const idx=Math.round((new Date(today+'T00:00:00Z')-new Date(member.start_date+'T00:00:00Z'))/DAYMS);
+  let status='active'; if(idx<0)status='pre'; else if(pb>=21)status='complete'; else if(idx>=42)status='expired';
+  const by=Object.fromEntries(attempts.map(a=>[a.attempt_date,a])); let streak=0, d=ta&&ta.passed?today:isoAdd(today,-1); while(by[d]&&by[d].passed){streak++; d=isoAdd(d,-1);}
+  const pl=attempts.filter(a=>a.passed);
+  return { status, currentDay:Math.min(21,pb+1), todayAttempt:ta, startsIn:idx<0?-idx:0, windowLeft:Math.max(0,42-idx), score:{ points:pl.reduce((s,a)=>s+(a.points||0),0), daysCompleted:pt, repeats:past.filter(a=>!a.passed).length, streak } };
 }
 function demoInit(){
-  const startOffset = Number(new URLSearchParams(location.search).get('start') || -6);
-  D.member = { name:'Anshika Ghai', email:'demo@sws.com', challenge:'sugar-break', start_date: isoAdd(realToday(), startOffset) };
-  let day=1; for(let i=0; i< -startOffset && day<=21; i++){ const date=isoAdd(D.member.start_date,i); const a={attempt_date:date, day, sugar_free:i!==3, task_done:true, quiz_answer:0, quiz_correct:i%3!==1, craving: Math.max(1,4-Math.floor(i/2))}; Object.assign(a,dScore(a)); D.attempts.push(a); if(a.passed) day++; }
+  const off = Number(new URLSearchParams(location.search).get('start') || -6);
+  D.member = { name:'Anshika Ghai', email:'demo@sws.com', challenge:'sugar-break', start_date:isoAdd(realToday(), off) };
+  let day=1; for(let i=0;i<-off && day<=21;i++){ const a={attempt_date:isoAdd(D.member.start_date,i), day, sugar_free:i!==3, task_done:true, learned:true, quiz_answer:0, quiz_correct:i%3!==1, craving:Math.max(1,4-Math.floor(i/2))}; Object.assign(a,dScore(a)); D.attempts.push(a); if(a.passed) day++; }
 }
-function demoState(){ return { member:D.member, attempts:D.attempts, today:dToday(), ...dProgress(D.member, D.attempts, dToday()) }; }
+function demoLB(){ const pr=dProgress(D.member, D.attempts, dToday()); const mine=pr.score.points; const others=[['Priya S.',1.25],['Neha K.',1.12],['Ritu M.',1.05],['Ananya R.',0.93],['Sneha P.',0.86],['Kavya J.',0.7],['Meera T.',0.55],['Pooja D.',0.4]].map(([n,f])=>({name:n,points:Math.round(Math.max(60,mine)*f/5)*5,days:0,me:false})); const list=[...others,{name:'Anshika G.',points:mine,days:pr.score.daysCompleted,me:true}].sort((a,b)=>b.points-a.points); list.forEach((x,i)=>x.rank=i+1); const me=list.find(x=>x.me); return {size:list.length, rank:me.rank, top:list.slice(0,10), me}; }
+const demoState = () => ({ member:D.member, attempts:D.attempts, today:dToday(), leaderboard:demoLB(), ...dProgress(D.member, D.attempts, dToday()) });
 
 async function api(body){
   if (DEMO) {
     if (!D.member) demoInit();
-    if (body.action==='login') { if (body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return { token:'demo' }; }
-    if (body.action==='forgot') return { ok:true };
+    if (body.action==='login'){ if(body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return {token:'demo'}; }
+    if (body.action==='forgot') return {ok:true};
     if (body.action==='state') return demoState();
-    if (body.action==='update') {
-      const st = demoState(); if (st.status!=='active') throw new Error('This challenge is not active.');
-      let a = st.todayAttempt; if (!a) { a = { attempt_date: dToday(), day: st.currentDay, sugar_free:null, task_done:false, quiz_answer:null, quiz_correct:null, craving:null }; D.attempts.push(a); }
-      if (typeof body.sugar_free==='boolean') a.sugar_free = body.sugar_free;
-      if (typeof body.task_done==='boolean') a.task_done = body.task_done;
-      if (a.quiz_answer==null && Number.isInteger(body.quiz_answer)) { a.quiz_answer = body.quiz_answer; a.quiz_correct = body.quiz_correct; }
-      if (body.craving) a.craving = body.craving;
-      Object.assign(a, dScore(a)); return demoState();
+    if (body.action==='update'){
+      const st=demoState(); if(st.status!=='active') throw new Error('This challenge is not active.');
+      let a=st.todayAttempt; if(!a){ a={attempt_date:dToday(), day:st.currentDay, sugar_free:null, task_done:false, learned:false, quiz_answer:null, quiz_correct:null, craving:null}; D.attempts.push(a); }
+      ['sugar_free','task_done','learned'].forEach(k=>{ if(typeof body[k]==='boolean') a[k]=body[k]; });
+      if (a.quiz_answer==null && Number.isInteger(body.quiz_answer)) { a.quiz_answer=body.quiz_answer; a.quiz_correct=body.quiz_correct; }
+      if (body.craving) a.craving=body.craving;
+      Object.assign(a,dScore(a)); return demoState();
     }
   }
-  const r = await fetch('/api/challenge', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const r = await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const j = await r.json().catch(()=>({}));
-  if (!r.ok) { const e = new Error(j.error || 'Something went wrong. Please try again.'); e.status = r.status; throw e; }
+  if (!r.ok){ const e=new Error(j.error||'Something went wrong. Please try again.'); e.status=r.status; throw e; }
   return j;
 }
 
-function show(view){ ['v-login','v-pre','v-dash','v-end','v-exp'].forEach(v => $(v).classList.toggle('hide', v!==view)); $('logout').classList.toggle('hide', view==='v-login'); }
-function fmtDate(iso, opts){ return new Date(iso+'T00:00:00Z').toLocaleDateString('en-IN', Object.assign({weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}, opts||{})); }
-function confetti(){ const box=document.createElement('div'); box.className='confetti'; const cols=['#18A566','#9FE0C2','#B0125B','#FFB020','#6C4CF1','#FF6B4A']; for(let i=0;i<70;i++){ const e=document.createElement('i'); e.style.left=Math.random()*100+'%'; e.style.background=cols[i%cols.length]; e.style.animationDelay=(Math.random()*.4)+'s'; e.style.animationDuration=(1.2+Math.random()*1)+'s'; box.appendChild(e);} document.body.appendChild(box); setTimeout(()=>box.remove(),2800); }
-function badgeHTML(done){ return BADGES.map(b=>`<div class="badge ${done>=b.day?'got':''}"><div class="bi">${done>=b.day?IC[b.ic]:IC.lock}</div><b>${b.name}</b><span>Day ${b.day}</span></div>`).join(''); }
-function howHTML(){ const P=CH().points; return [
-  `Each day has a mission with 4 quick taps: task (${P.task} pts), quiz (${P.quizRight} pts), cravings (${P.craving} pts) and the sugar-free check (${P.sugarFree} pts).`,
-  `Score ${P.unlock}+ points and stay sugar-free to unlock the next day. It opens the next morning.`,
-  `Had sugar? No stress. You simply repeat the same day tomorrow.`,
-  `You have ${CH().windowDays} days to unlock all 21 days. Earn badges on Day 7, 14 and 21.` ].map(x=>`<li>${x}</li>`).join(''); }
-function renderRules(){ const r=CH().rules; document.querySelectorAll('.rules-box').forEach(b=>{ b.innerHTML = `<div class="no"><h4>Not allowed</h4><ul>${r.no.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="yes"><h4>Enjoy freely</h4><ul>${r.yes.map(x=>`<li>${x}</li>`).join('')}</ul></div>`; }); $('how-pre').innerHTML = howHTML(); $('how-dash').innerHTML = howHTML(); }
+/* ---------- helpers ---------- */
+const VIEWS=['v-login','v-pre','v-today','v-meals','v-prog','v-end','v-exp'];
+function show(v){ VIEWS.forEach(x=>$(x).classList.toggle('hide',x!==v)); const inApp=['v-today','v-meals','v-prog'].includes(v); $('nav').classList.toggle('hide',!inApp); $('sos-btn').classList.toggle('hide',!inApp); $('logout').classList.toggle('hide',v==='v-login'); $('t-streak').classList.toggle('hide',!inApp); }
+function batchName(iso){ return new Date(iso+'T00:00:00Z').toLocaleDateString('en-IN',{month:'long',timeZone:'UTC'})+' batch'; }
+function fmtDate(iso){ return new Date(iso+'T00:00:00Z').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}); }
+function confetti(){ const box=document.createElement('div'); box.className='confetti'; const cols=['#FFC94D','#8B5CF6','#FF4D8D','#5ADCF6','#C026D3','#FF9466']; for(let i=0;i<80;i++){ const e=document.createElement('i'); e.style.left=Math.random()*100+'%'; e.style.background=cols[i%cols.length]; e.style.animationDelay=(Math.random()*.4)+'s'; e.style.animationDuration=(1.2+Math.random())+'s'; box.appendChild(e);} document.body.appendChild(box); setTimeout(()=>box.remove(),2800); }
+function stepDone(a,id){ return id==='task'?!!a.task_done : id==='learn'?!!a.learned : id==='quiz'?a.quiz_answer!=null : id==='crave'?!!a.craving : a.sugar_free!=null; }
+function nextStep(a){ const n=STEPS.find(id=>!stepDone(a,id)); return n || 'result'; }
+function renderRules(){
+  const r=CH().rules, P=CH().points;
+  $('rules').innerHTML = `<div class="no"><h4>Not allowed</h4><ul>${r.no.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="yes"><h4>Enjoy freely</h4><ul>${r.yes.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+  $('how').innerHTML = [['🎯',`Each day: 5 quick taps. Task ${P.task}, learning ${P.learn}, quiz ${P.quizRight}, cravings ${P.craving}, sugar-free check ${P.sugarFree} points.`],['🔓',`Score ${P.unlock}+ and stay sugar-free to unlock the next day (it opens the next morning).`],['🔁','Had sugar? No stress. You repeat the same day tomorrow.'],['⏳',`You have ${CH().windowDays} days to finish all 21. Badges on Day 7, 14 and 21.`]].map(([e,t])=>`<li><span class="e">${e}</span><span>${t}</span></li>`).join('');
+}
 
+/* ---------- render ---------- */
 function render(){
-  const st = S.st, ch = CH();
-  document.querySelectorAll('.first').forEach(e => e.textContent = (st.member.name||'').split(' ')[0] || 'Sherni');
+  const st=S.st, ch=CH();
+  const first=(st.member.name||'').split(' ')[0]||'Sherni';
+  document.querySelectorAll('.first').forEach(e=>e.textContent=first);
+  $('t-name').textContent = `Hi ${first}!`;
   renderRules();
-  if (st.status==='pre'){ show('v-pre'); $('pre-name').textContent = ch.name; $('pre-count').textContent = st.startsIn===1 ? 'Tomorrow' : st.startsIn+' days'; $('pre-date').textContent = fmtDate(st.member.start_date); return; }
-  const ta = st.todayAttempt;
-  if (st.status==='complete' || (st.currentDay===21 && ta && ta.passed && S.showEnd)) return renderEnd();
-  if (st.status==='expired'){ show('v-exp'); $('x-days').textContent = st.score.daysCompleted; $('x-pts').textContent = st.score.points.toLocaleString('en-IN'); $('x-badges').innerHTML = badgeHTML(st.score.daysCompleted); return; }
-  show('v-dash');
-  const d = st.currentDay, t = ch.tasks[d-1], wk = ch.weeks[Math.min(2, Math.floor((d-1)/7))];
-  $('d-day').textContent = d; $('d-week').textContent = `Week ${wk.n} · ${wk.title}`; $('d-weeksub').textContent = wk.sub.split('·')[1].trim();
-  $('ring-arc').style.strokeDashoffset = 307.9 * (1 - st.score.daysCompleted/21);
-  $('h-done').textContent = `${st.score.daysCompleted} / 21`; $('h-window').textContent = st.windowLeft===1 ? 'Last day' : `${st.windowLeft} days`;
-  const a = ta || {}; const P = ch.points;
-  const repeatOf = st.attempts.filter(x=>x.day===d && x.attempt_date<st.today && !x.passed).length;
-  $('m-label').textContent = `Today's mission · Day ${d}` + (repeatOf ? ` · Try ${repeatOf+1}` : '');
-  $('m-title').textContent = t.title;
-  const pts = a.points || 0; $('m-pts').textContent = pts; $('m-fill').style.width = pts+'%';
-  const vid = t.video ? `<div class="video">${/youtu/.test(t.video)?`<iframe src="${t.video.replace('watch?v=','embed/').replace('youtu.be/','www.youtube.com/embed/')}" allowfullscreen></iframe>`:`<video src="${t.video}" controls playsinline preload="metadata"></video>`}</div>` : '';
-  const steps = [
-    { id:'task', ic:'task', cls:'ic-task', title:'Do today\'s task', sub: a.task_done ? 'Done' : 'Tap to see it', max:P.task, got:a.task_done?P.task:0, done:!!a.task_done,
-      body: `<p>${t.task}</p>${vid}<div class="tip">${IC.bulb}<span>${t.tip}</span></div><button class="act ${a.task_done?'on':''}" data-do="task">${a.task_done?IC.check+' Task done':'I did it'}</button>` },
-    { id:'quiz', ic:'quiz', cls:'ic-quiz', title:'Sugar quiz', sub: a.quiz_answer!=null ? (a.quiz_correct?'Correct!':'Answered') : '1 quick question', max:P.quizRight, got:a.quiz_correct===true?P.quizRight:a.quiz_correct===false?P.quizWrong:0, done:a.quiz_answer!=null,
-      body: `<p style="font-weight:700">${t.quiz.q}</p><div class="opts">${t.quiz.options.map((o,i)=>{ let c=''; if(a.quiz_answer!=null){ if(i===t.quiz.answer)c='right'; else if(i===a.quiz_answer)c='wrong'; } return `<button data-q="${i}" class="${c}" ${a.quiz_answer!=null?'disabled':''}><span class="l">${String.fromCharCode(65+i)}</span>${o}</button>`; }).join('')}</div>${a.quiz_answer!=null?`<div class="why">${a.quiz_correct?'Correct! ':'Good try! '}${t.quiz.why}</div>`:''}` },
-    { id:'crave', ic:'crave', cls:'ic-crave', title:'How were your cravings?', sub: a.craving ? `Level ${a.craving}` : 'Tap a number', max:P.craving, got:a.craving?P.craving:0, done:!!a.craving,
-      body: `<div class="chips">${[1,2,3,4,5].map(n=>`<button data-c="${n}" class="${a.craving===n?'on':''}">${n}</button>`).join('')}</div><div class="chips-legend"><span>Barely any</span><span>Very strong</span></div>` },
-    { id:'sf', ic:'sf', cls:'ic-sf', title:'Sugar-free check', sub: a.sugar_free===true ? 'Sugar-free today' : a.sugar_free===false ? 'Had sugar today' : 'Best done before bed', max:P.sugarFree, got:a.sugar_free===true?P.sugarFree:0, done:a.sugar_free===true, bad:a.sugar_free===false,
-      body: `<p style="font-weight:700">Did you stay completely sugar-free today?</p><div class="yn"><button class="yes ${a.sugar_free===true?'on':''}" data-sf="1"><span class="bub">${IC.check}</span>Yes, sugar-free</button><button class="no ${a.sugar_free===false?'on':''}" data-sf="0"><span class="bub">${IC.x}</span>I had sugar</button></div><div class="note">Be honest, it's your journey. Had sugar? You'll simply repeat this day tomorrow.</div>` }
-  ];
-  if (S.open===null) { const n = steps.find(s=>!s.done && !s.bad); S.open = n ? n.id : ''; }
-  $('steps').innerHTML = steps.map(s=>`<div class="step ${s.done?'done':''} ${s.bad?'bad':''}"><button class="step-h" data-open="${s.id}"><span class="step-ic ${s.cls}">${s.done?IC.check:s.bad?IC.x:IC[s.ic]}</span><span class="step-t"><b>${s.title}</b><span>${s.sub}</span></span><span class="pts">${s.done||s.bad?'+'+s.got:s.max} pts</span></button>${S.open===s.id?`<div class="step-b">${s.body}</div>`:''}</div>`).join('');
-  let res = '';
-  if (a.passed) res = d===21 ? `<div class="result win" style="cursor:pointer"><div class="ri">${IC.trophy}</div><div><b>Day 21 unlocked. You finished!</b><span>Tap here to see your final scorecard.</span></div></div>` : `<div class="result win"><div class="ri">${IC.check}</div><div><b>Day ${d} complete!</b><span>Day ${d+1} unlocks tomorrow morning. See you then.</span></div></div>`;
-  else if (a.sugar_free===false) res = `<div class="result repeat"><div class="ri">${IC.repeat}</div><div><b>You'll repeat Day ${d} tomorrow</b><span>One slip doesn't erase your progress. Your unlocked days are safe.</span></div></div>`;
-  else if (pts>0) res = `<div class="result pending"><div class="ri">${IC.clock}</div><div><b>${a.sugar_free===true ? (P.unlock-pts)+' more points to unlock' : 'Finish with the sugar-free check'}</b><span>${a.sugar_free===true ? 'Complete one more step to unlock tomorrow.' : 'Tap it before bed to lock in your day.'}</span></div></div>`;
-  $('result').innerHTML = res;
-  const rw = $('result').querySelector('.result.win'); if (rw && d===21) rw.onclick = () => { S.showEnd = true; render(); };
-  $('sc-pts').textContent = st.score.points.toLocaleString('en-IN'); $('sc-days').textContent = st.score.daysCompleted; $('sc-streak').textContent = st.score.streak; $('sc-rep').textContent = st.score.repeats; $('sc-win').textContent = st.windowLeft;
-  $('badges').innerHTML = badgeHTML(st.score.daysCompleted);
-  const passedDays = {}; st.attempts.filter(x=>x.passed).forEach(x=>passedDays[x.day]=x);
-  $('journey').innerHTML = Array.from({length:21},(_,i)=>{ const n=i+1; const p=passedDays[n]; const cur = n===d && !a.passed; const ms = [7,14,21].includes(n)?' ms':''; return `<button data-d="${n}" class="${p?'passed':cur?'current':''}${ms}" ${p?'':'disabled'}>${p||cur?n:IC.lock}</button>`; }).join('');
-  $('journey').querySelectorAll('button.passed').forEach(b => b.onclick = () => openDay(Number(b.dataset.d), passedDays));
-  bindSteps();
+  if (st.status==='pre'){ $('t-sub').textContent='Sugar Break · starts soon'; show('v-pre'); $('pre-count').textContent = st.startsIn===1?'Tomorrow':st.startsIn+' days'; $('pre-date').textContent=fmtDate(st.member.start_date); $('pre-batch').textContent = `You're on the list · ${batchName(st.member.start_date)}` + (st.leaderboard&&st.leaderboard.size?` · ${st.leaderboard.size} joined`:''); return; }
+  if (st.status==='complete' || S.showEnd) return renderEnd();
+  if (st.status==='expired'){ show('v-exp'); $('x-days').textContent=st.score.daysCompleted; $('x-pts').textContent=st.score.points.toLocaleString('en-IN'); return; }
+  const d=st.currentDay, a=st.todayAttempt||{};
+  $("t-sub").textContent = `Day ${d} of 21 · Sugar Break`;
+  $('t-streak-n').textContent = st.score.streak;
+  show('v-'+S.tab);
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===S.tab));
+  renderToday(); renderMeals(); renderProgress();
+}
+function renderToday(){
+  const st=S.st, ch=CH(), d=st.currentDay, t=ch.tasks[d-1], a=st.todayAttempt||{}, P=ch.points;
+  const wk=ch.weeks[Math.min(2,Math.floor((d-1)/7))];
+  $('d-day').textContent=d; $('d-week').textContent=`Week ${wk.n} · ${wk.title}`;
+  const repeat = st.attempts.filter(x=>x.day===d && x.attempt_date<st.today && !x.passed).length;
+  $('d-title').textContent = t.title + (repeat?` · try ${repeat+1}`:'');
+  const pts=a.points||0; $('d-fill').style.width=pts+'%'; $('d-pts').textContent=`${pts} / 100 pts`;
+  $('ring-arc').style.strokeDashoffset = 182.2*(1-st.score.daysCompleted/21);
+  if (S.step===null) S.step = nextStep(a);
+  $('dots').innerHTML = STEPS.map(id=>{ let c=''; if(stepDone(a,id)) c = (id==='sf'&&a.sugar_free===false)?'bad':'done'; if(S.step===id) c+=' cur'; return `<button data-step="${id}" class="${c}" aria-label="${id}"></button>`; }).join('');
+  $('dots').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.step=b.dataset.step; renderToday(); });
+  const C = { task:['var(--t-task)','var(--c-task)'], learn:['var(--t-learn)','var(--c-learn)'], quiz:['var(--t-quiz)','var(--c-quiz)'], crave:['var(--t-crave)','var(--c-crave)'], sf:['var(--t-sf)','var(--c-sf)'] };
+  const head = (id,label,max,got,done) => `<div class="head"><span class="lbl" style="color:${C[id][1]}">${label}</span><span class="pts" style="background:${done?C[id][1]:C[id][0]};color:${done?'#fff':C[id][1]}">${done?'+'+got:max} pts</span></div>`;
+  const art = (id,e) => `<div class="art" style="background:${C[id][0]}">${e}</div>`;
+  const nextBtn = `<button class="big ghost" data-next>Next ${IC.arrow}</button>`;
+  let html='';
+  if (S.step==='task'){
+    html = head('task','Step 1 · Today\'s task',P.task,P.task,a.task_done) + `<div class="body">${art('task',t.img.task)}<h3>${t.title}</h3><p class="txt">${t.task}</p><div class="tipline">💡 ${t.tip}</div></div><div class="foot">${a.task_done?nextBtn:`<button class="big" data-act="task">${IC.check} I did it</button>`}</div>`;
+  } else if (S.step==='learn'){
+    html = head('learn','Step 2 · Today\'s learning',P.learn,P.learn,a.learned) + `<div class="body"><div class="lt"><div class="lc b"><span class="e">${t.img.body}</span><div><b>What's happening in your body</b><p>${t.body}</p></div></div><div class="lc s"><span class="sw">${t.img.from}<i>→</i>${t.img.to}</span><div><b>Swap of the day</b><p>${t.swap}</p></div></div></div></div><div class="foot">${a.learned?nextBtn:`<button class="big" data-act="learn">${IC.check} Got it</button>`}</div>`;
+  } else if (S.step==='quiz'){
+    const q=t.quiz, ans=a.quiz_answer;
+    const got = a.quiz_correct===true?P.quizRight:a.quiz_correct===false?P.quizWrong:0;
+    html = head('quiz','Step 3 · Sugar quiz',P.quizRight,got,ans!=null) + `<div class="body"><div class="art" style="background:var(--t-quiz);width:64px;height:64px;font-size:34px;border-radius:22px">🧠</div><div class="q">${q.q}</div><div class="opts">${q.options.map((o,i)=>{ let c=''; if(ans!=null){ if(i===q.answer)c='right'; else if(i===ans)c='wrong'; } return `<button data-q="${i}" class="${c}" ${ans!=null?'disabled':''}><span class="l">${String.fromCharCode(65+i)}</span>${o}</button>`; }).join('')}</div>${ans!=null?`<div class="why">${a.quiz_correct?'Correct! ':'Good try! '}${q.why}</div>`:''}</div><div class="foot">${ans!=null?nextBtn:'<div class="small">Tap an answer. You earn points even if it\'s wrong.</div>'}</div>`;
+  } else if (S.step==='crave'){
+    const F=[['😌','None'],['🙂','Low'],['😐','Some'],['😣','Strong'],['😫','Very']];
+    let extra='';
+    if (a.craving>=4) extra = `<div class="help"><h4>⚡ Strong cravings? Try this now</h4><ul>${ch.sos.slice(0,3).map(x=>`<li>${x}</li>`).join('')}</ul><div class="snack">🍽️ Snack idea: ${ch.cravingSnacks[(d-1)%ch.cravingSnacks.length]}</div></div>`;
+    else if (a.craving===3) extra = `<div class="good">Some cravings are normal right now. Keep water close and your snack ready.</div>`;
+    else if (a.craving) extra = `<div class="good">Low cravings, amazing! Your body is adjusting well. ✨</div>`;
+    html = head('crave','Step 4 · Cravings',P.craving,P.craving,!!a.craving) + `<div class="body"><h3 style="margin-top:6px">How strong were your sugar cravings today?</h3><div class="faces">${F.map((f,i)=>`<button data-c="${i+1}" class="${a.craving===i+1?'on':''}"><span class="fe">${f[0]}</span><span>${f[1]}</span></button>`).join('')}</div>${extra}</div><div class="foot">${a.craving?nextBtn:'<div class="small">Just tap one. Be honest, it helps us help you.</div>'}</div>`;
+  } else if (S.step==='sf'){
+    html = head('sf','Step 5 · Sugar-free check',P.sugarFree,a.sugar_free===true?P.sugarFree:0,a.sugar_free!=null) + `<div class="body">${art('sf','🛡️')}<h3>Did you stay completely sugar-free today?</h3><p class="txt">Best done before bed. No sugar, jaggery, honey, mithai or sweet drinks.</p><div class="yn"><button class="y ${a.sugar_free===true?'on':''}" data-sf="1"><span class="e">💪</span>Yes, sugar-free</button><button class="n ${a.sugar_free===false?'on':''}" data-sf="0"><span class="e">🍬</span>I had sugar</button></div></div><div class="foot">${a.sugar_free!=null?`<button class="big ghost" data-step-go="result">See my day ${IC.arrow}</button>`:'<div class="small">Had sugar? No stress, you\'ll simply repeat this day tomorrow.</div>'}</div>`;
+  } else {
+    // result
+    const left = STEPS.filter(id=>!stepDone(a,id));
+    if (a.passed && d===21) html = `<div class="body res" style="justify-content:center">${art('sf','🏆')}<h3>Day 21 complete!</h3><div class="scorebig">${a.points}<span> / 100</span></div><p class="txt">You finished the whole challenge. You're a Sugar-Free Sherni!</p></div><div class="foot"><button class="big lime" data-end>See my final scorecard</button></div>`;
+    else if (a.passed) html = `<div class="body res" style="justify-content:center">${art('sf','🎉')}<h3>Day ${d} complete!</h3><div class="scorebig">${a.points}<span> / 100</span></div><p class="txt">Day ${d+1} unlocks tomorrow morning. ${[7,14].includes(d)?'You just earned a new badge! ':''}See you then, Sherni.</p></div><div class="foot"><button class="big" data-tabgo="meals">See tomorrow's sugar-free meals idea</button></div>`;
+    else if (a.sugar_free===false) html = `<div class="body res" style="justify-content:center">${art('crave','🔁')}<h3>You'll repeat Day ${d} tomorrow</h3><p class="txt">One slip doesn't erase your progress. Your completed days are safe. Tomorrow is a fresh start.</p></div><div class="foot"><button class="big" data-sos>Get craving help</button></div>`;
+    else html = `<div class="body res" style="justify-content:center">${art('quiz','⏳')}<h3>${left.length} step${left.length>1?'s':''} left today</h3><div class="scorebig">${a.points||0}<span> / 100</span></div><p class="txt">Score 70+ and finish the sugar-free check to unlock tomorrow.</p></div><div class="foot"><button class="big" data-step-go="${left[0]}">Continue ${IC.arrow}</button></div>`;
+  }
+  const box=$('story'); box.innerHTML=html; box.classList.remove('slide'); void box.offsetWidth; box.classList.add('slide');
+  box.querySelectorAll('[data-act="task"]').forEach(b=>b.onclick=()=>update({task_done:true}));
+  box.querySelectorAll('[data-act="learn"]').forEach(b=>b.onclick=()=>update({learned:true}));
+  box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.q; update({quiz_answer:i, quiz_correct:i===t.quiz.answer}, true); });
+  box.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.c; update({craving:n}, n>=3); });
+  box.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>update({sugar_free:b.dataset.sf==='1'}));
+  box.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{ const i=STEPS.indexOf(S.step); const n=STEPS.slice(i+1).find(id=>!stepDone(a,id)) || STEPS.find(id=>!stepDone(a,id)) || 'result'; S.step=n; renderToday(); });
+  box.querySelectorAll('[data-step-go]').forEach(b=>b.onclick=()=>{ S.step=b.dataset.stepGo; renderToday(); });
+  box.querySelectorAll('[data-tabgo]').forEach(b=>b.onclick=()=>setTab(b.dataset.tabgo));
+  box.querySelectorAll('[data-sos]').forEach(b=>b.onclick=openSOS);
+  box.querySelectorAll('[data-end]').forEach(b=>b.onclick=()=>{ S.showEnd=true; render(); });
+}
+function mealKey(){ return `sws_meals_${S.st.member.email}_${S.st.today}`; }
+function renderMeals(){
+  const st=S.st, ch=CH(), d=st.currentDay, t=ch.tasks[d-1];
+  const showTomorrow = st.todayAttempt && st.todayAttempt.passed && d<21;
+  const md = showTomorrow ? d : d-1; // meals index: next day's meals after unlocking today
+  const list = ch.meals[md % ch.meals.length];
+  $('m-title').textContent = showTomorrow ? `Tomorrow's plate · Day ${d+1}` : `Today's plate · Day ${d}`;
+  let eaten = {}; try { eaten = JSON.parse(LS.get(mealKey())||'{}'); } catch(e){}
+  const TINT=['var(--t-quiz)','var(--t-learn)','var(--t-crave)','var(--t-task)'];
+  $('meals').innerHTML = list.map((m,i)=>`<button class="meal ${eaten[i]?'on':''}" data-m="${i}"><span class="ck">${IC.check}</span><span class="me" style="background:${TINT[i]}">${m.img}</span><small>${m.slot}</small><b>${m.name}</b>${m.alt?`<em>${m.alt}</em>`:''}</button>`).join('');
+  $('meals').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ eaten[b.dataset.m]=!eaten[b.dataset.m]; LS.set(mealKey(), JSON.stringify(eaten)); renderMeals(); });
+  const tt = showTomorrow ? ch.tasks[d] : t;
+  $('m-swap').innerHTML = `<span class="sw">${tt.img.from}<i>→</i>${tt.img.to}</span><div><b>Swap of the day</b><p>${tt.swap}</p></div>`;
+  let water = 0; try { water = Number(LS.get(mealKey()+'_w')||0); } catch(e){}
+  $('glasses').innerHTML = Array.from({length:8},(_,i)=>`<button data-w="${i+1}" class="${i<water?'on':''}" aria-label="glass ${i+1}"></button>`).join('');
+  $('glasses').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.w; const nw = n===water ? n-1 : n; LS.set(mealKey()+'_w', String(nw)); if (nw===8 && water<8) confetti(); renderMeals(); });
+  $('w-count').textContent = `${water} / 8 glasses`;
+  $('w-note').textContent = water>=8 ? 'Hydration hero! Water also helps keep sugar cravings away.' : water>=4 ? 'Halfway there, keep sipping!' : 'Tap a glass each time you drink one.';
+  const n = Object.values(eaten).filter(Boolean).length;
+  $('m-count').textContent = n===4 ? 'All 4 sugar-free meals done. Brilliant!' : `${n} of 4 meals ticked today`;
+}
+function renderProgress(){
+  const st=S.st, d=st.currentDay, a=st.todayAttempt||{};
+  $('p-pts').textContent=st.score.points.toLocaleString('en-IN'); $('p-days').textContent=st.score.daysCompleted; $('p-streak').textContent=st.score.streak; $('p-rep').textContent=st.score.repeats; $('p-win').textContent=st.windowLeft;
+  const lb = st.leaderboard || {size:0, top:[]};
+  $('p-batch').textContent = `${batchName(st.member.start_date)} · ${lb.size} Sherni${lb.size===1?'':'s'}`;
+  const medal = r => r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
+  const row = x => `<div class="${x.me?'me':''}"><span class="r">${medal(x.rank)}</span><span class="nm">${x.me?'You':x.name}</span><span class="pt">${x.points.toLocaleString('en-IN')}</span></div>`;
+  let lbh = lb.top.slice(0,5).map(row).join('');
+  if (lb.me && lb.me.rank>5) lbh += `<div class="gap">· · ·</div>` + row(lb.me);
+  $('p-lb').innerHTML = lbh || '<div class="gap">Your batch will appear here</div>';
+  $('p-badges').innerHTML = BADGES.map(b=>`<div class="badge ${st.score.daysCompleted>=b.day?'got':''}"><div class="bi">${b.e}</div><b>${b.name}</b><span>Day ${b.day}</span></div>`).join('');
+  const passed={}; st.attempts.filter(x=>x.passed).forEach(x=>passed[x.day]=1);
+  $('p-journey').innerHTML = Array.from({length:21},(_,i)=>{ const n=i+1; if(passed[n]) return `<div class="ok">${n}</div>`; if(n===d && !a.passed) return `<div class="cur">${n}</div>`; return `<div>${IC.lock}</div>`; }).join('');
 }
 function renderEnd(){
-  const st = S.st; show('v-end');
-  $('e-pts').textContent = st.score.points.toLocaleString('en-IN');
-  const dates = st.attempts.map(a=>a.attempt_date).sort(); const by = Object.fromEntries(st.attempts.map(a=>[a.attempt_date,a]));
-  let best=0,n=0,prev=null; dates.forEach(dt=>{ n = by[dt].passed ? ((prev && isoAdd(prev,1)===dt && by[prev].passed) ? n+1 : 1) : 0; best=Math.max(best,n); prev=dt; });
-  $('e-streak').textContent = best; $('e-rep').textContent = st.attempts.filter(a=>!a.passed).length;
-  const last = st.attempts.filter(a=>a.passed).map(a=>a.attempt_date).sort().pop() || st.today;
-  $('e-took').textContent = Math.round((new Date(last+'T00:00:00Z')-new Date(st.member.start_date+'T00:00:00Z'))/DAYMS)+1;
-  $('e-badges').innerHTML = badgeHTML(21);
-}
-function bindSteps(){
-  $('steps').querySelectorAll('[data-open]').forEach(b => b.onclick = () => { S.open = S.open===b.dataset.open ? '' : b.dataset.open; render(); });
-  $('steps').querySelectorAll('[data-do="task"]').forEach(b => b.onclick = () => update({ task_done: !(S.st.todayAttempt||{}).task_done }));
-  $('steps').querySelectorAll('[data-q]').forEach(b => b.onclick = () => { const i=Number(b.dataset.q); update({ quiz_answer:i, quiz_correct: i===CH().tasks[S.st.currentDay-1].quiz.answer }, true); });
-  $('steps').querySelectorAll('[data-c]').forEach(b => b.onclick = () => update({ craving:Number(b.dataset.c) }));
-  $('steps').querySelectorAll('[data-sf]').forEach(b => b.onclick = () => update({ sugar_free: b.dataset.sf==='1' }));
-}
-let busy = false;
-async function update(patch, stayOpen){
-  if (busy) return; busy = true;
-  const wasPassed = !!(S.st.todayAttempt && S.st.todayAttempt.passed);
-  try { S.st = await api({ action:'update', token:S.token, ...patch }); }
-  catch(e){ busy=false; $('result').innerHTML = `<div class="result repeat"><div class="ri">${IC.x}</div><div><b>Couldn't save</b><span>${e.message}</span></div></div>`; return; }
-  busy = false;
-  const a = S.st.todayAttempt || {};
-  if (!stayOpen) { const isDone = id => id==='task'?a.task_done:id==='quiz'?a.quiz_answer!=null:id==='crave'?!!a.craving:a.sugar_free!=null; S.open = ['task','quiz','crave','sf'].find(id=>!isDone(id)) || ''; }
-  render();
-  if (!wasPassed && a.passed) { confetti(); $('mission').classList.remove('pop'); void $('mission').offsetWidth; $('mission').classList.add('pop'); }
-}
-function openDay(n, passedDays){
-  const t = CH().tasks[n-1], p = passedDays[n];
-  $('ds-label').textContent = `Day ${n} · Unlocked`; $('ds-title').textContent = t.title; $('ds-task').textContent = t.task; $('ds-why').textContent = t.quiz.why;
-  $('ds-pts').textContent = `${p.points} points`; $('ds-date').textContent = 'Completed on ' + fmtDate(p.attempt_date, {weekday:undefined});
-  $('day-sheet').classList.remove('hide');
+  const st=S.st; show('v-end');
+  $('e-pts').textContent=st.score.points.toLocaleString('en-IN');
+  const dates=st.attempts.map(a=>a.attempt_date).sort(), by=Object.fromEntries(st.attempts.map(a=>[a.attempt_date,a]));
+  let best=0,n=0,prev=null; dates.forEach(dt=>{ n = by[dt].passed ? ((prev && isoAdd(prev,1)===dt && by[prev].passed)?n+1:1) : 0; best=Math.max(best,n); prev=dt; });
+  $('e-streak').textContent=best; $('e-rep').textContent=st.attempts.filter(a=>!a.passed).length;
+  const last=st.attempts.filter(a=>a.passed).map(a=>a.attempt_date).sort().pop()||st.today;
+  $('e-took').textContent=Math.round((new Date(last+'T00:00:00Z')-new Date(st.member.start_date+'T00:00:00Z'))/DAYMS)+1;
 }
 
-$('l-btn').onclick = async () => {
-  const email = $('l-email').value.trim(), code = $('l-code').value.trim();
+let busy=false;
+async function update(patch, stay){
+  if (busy) return; busy=true;
+  const was=!!(S.st.todayAttempt&&S.st.todayAttempt.passed);
+  try { S.st = await api({action:'update', token:S.token, ...patch}); }
+  catch(e){ busy=false; alertBox(e.message); return; }
+  busy=false;
+  const a=S.st.todayAttempt||{};
+  if (!stay) { if (patch.sugar_free!==undefined) S.step='result'; else { const i=STEPS.indexOf(S.step); S.step = STEPS.slice(i+1).find(id=>!stepDone(a,id)) || STEPS.find(id=>!stepDone(a,id)) || 'result'; } }
+  render();
+  if (!was && a.passed) confetti();
+}
+function alertBox(msg){ const box=$('story'); if(!box) return; const d=document.createElement('div'); d.className='err'; d.style.margin='0 18px 12px'; d.textContent='Couldn\'t save: '+msg; box.appendChild(d); }
+function setTab(tab){ S.tab=tab; render(); }
+function openSOS(){ const list=[...CH().sos].sort(()=>Math.random()-.5).slice(0,4); const E=['💧','🥚','🚶','🌿','🍎','🪥','💬']; $('sos-list').innerHTML=list.map((x,i)=>`<li><span class="e">${E[i%E.length]}</span><span>${x}</span></li>`).join(''); $('sos-sheet').classList.remove('hide'); }
+
+/* ---------- events ---------- */
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+$('sos-btn').onclick=openSOS;
+document.querySelectorAll('[data-rules]').forEach(b=>b.onclick=()=>$('rules-sheet').classList.remove('hide'));
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.sheet-bg').classList.add('hide'));
+document.querySelectorAll('.sheet-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.add('hide'); }));
+// swipe between steps
+(function(){ let x0=null; const el=$('story'); el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true}); el.addEventListener('touchend',e=>{ if(x0===null) return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)<60) return; const order=[...STEPS,'result']; let i=order.indexOf(S.step); i = dx<0 ? Math.min(order.length-1,i+1) : Math.max(0,i-1); S.step=order[i]; renderToday(); },{passive:true}); })();
+$('l-btn').onclick=async()=>{
+  const email=$('l-email').value.trim(), code=$('l-code').value.trim();
   $('l-err').classList.add('hide'); $('l-ok').classList.add('hide');
-  if (!email || code.length!==6) { $('l-err').textContent = 'Please enter your email and the 6-digit code.'; $('l-err').classList.remove('hide'); return; }
-  $('l-btn').disabled = true; $('l-btn').textContent = 'Logging in…';
-  try { const r = await api({ action:'login', email, code }); S.token = r.token; LS.set(TKEY, r.token); await load(); }
-  catch(e){ $('l-err').textContent = e.message; $('l-err').classList.remove('hide'); }
-  $('l-btn').disabled = false; $('l-btn').textContent = 'Log in';
+  if(!email||code.length!==6){ $('l-err').textContent='Please enter your email and the 6-digit code.'; $('l-err').classList.remove('hide'); return; }
+  $('l-btn').disabled=true; $('l-btn').textContent='Logging in…';
+  try { const r=await api({action:'login',email,code}); S.token=r.token; LS.set(TKEY,r.token); await load(); }
+  catch(e){ $('l-err').textContent=e.message; $('l-err').classList.remove('hide'); }
+  $('l-btn').disabled=false; $('l-btn').textContent='Log in';
 };
-$('l-code').addEventListener('keydown', e => { if (e.key==='Enter') $('l-btn').click(); });
-$('l-forgot').onclick = async () => {
-  const email = $('l-email').value.trim(); $('l-err').classList.add('hide');
-  if (!email) { $('l-err').textContent = 'Type your email above first, then tap "Forgot your code?".'; $('l-err').classList.remove('hide'); return; }
-  try { await api({ action:'forgot', email }); } catch(e){}
-  $('l-ok').textContent = 'If this email is registered, we\'ve sent your login link again. Check your inbox (and spam).'; $('l-ok').classList.remove('hide');
+$('l-code').addEventListener('keydown',e=>{ if(e.key==='Enter') $('l-btn').click(); });
+$('l-forgot').onclick=async()=>{
+  const email=$('l-email').value.trim(); $('l-err').classList.add('hide');
+  if(!email){ $('l-err').textContent='Type your email above first, then tap "Forgot your code?".'; $('l-err').classList.remove('hide'); return; }
+  try{ await api({action:'forgot',email}); }catch(e){}
+  $('l-ok').textContent='If this email is registered, we\'ve sent your login link again. Check your inbox (and spam).'; $('l-ok').classList.remove('hide');
 };
-$('logout').onclick = () => { LS.del(TKEY); S = { token:null, st:null, open:null }; show('v-login'); };
-$('sos-btn').onclick = () => { const list = [...CH().sos].sort(()=>Math.random()-.5).slice(0,4); $('sos-list').innerHTML = list.map((x,i)=>`<li><b>${i+1}</b>${x}</li>`).join(''); $('sos-sheet').classList.remove('hide'); };
-$('sos-close').onclick = () => $('sos-sheet').classList.add('hide');
-$('ds-close').onclick = () => $('day-sheet').classList.add('hide');
-document.querySelectorAll('.sheet-bg').forEach(bg => bg.addEventListener('click', e => { if (e.target===bg) bg.classList.add('hide'); }));
-$('demo-next').onclick = async () => { if (!S.st) return; D.offset++; S.open = null; S.showEnd = false; S.st = await api({action:'state'}); render(); window.scrollTo({top:0,behavior:'smooth'}); };
+$('logout').onclick=()=>{ LS.del(TKEY); S={token:null,st:null,step:null,tab:'today'}; $('t-name').textContent='Strong With Sherni'; $('t-sub').textContent='Sugar Break · 21 days, zero added sugar'; show('v-login'); };
+$('demo-next').onclick=async()=>{ if(!S.st) return; D.offset++; S.step=null; S.showEnd=false; S.tab='today'; S.st=await api({action:'state'}); render(); };
 
 async function load(){
-  try { S.st = await api({ action:'state', token:S.token }); S.open = null; render(); }
-  catch(e){ LS.del(TKEY); S.token=null; show('v-login'); if (e.status!==401 && !DEMO) { $('l-err').textContent = e.message; $('l-err').classList.remove('hide'); } }
+  try { S.st=await api({action:'state',token:S.token}); S.step=null; render(); }
+  catch(e){ LS.del(TKEY); S.token=null; show('v-login'); if(e.status!==401 && !DEMO){ $('l-err').textContent=e.message; $('l-err').classList.remove('hide'); } }
 }
 
-if (DEMO) { $('demo-bar').classList.remove('hide'); $('l-email').value = 'demo@sws.com'; }
+if (DEMO){ $('demo-bar').classList.remove('hide'); $('l-email').value='demo@sws.com'; }
 (function(){
-  const p = new URLSearchParams(location.search).get('login');
-  if (!p) { if (S.token) load(); else show('v-login'); return; }
-  let email='', code='';
-  try { [email, code] = atob(p.replace(/-/g,'+').replace(/_/g,'/')).split(':'); } catch(e){}
-  history.replaceState(null, '', location.pathname + (DEMO ? '?demo' : ''));
-  if (!email || !code) { if (S.token) load(); else show('v-login'); return; }
-  $('l-email').value = email; $('l-code').value = code; show('v-login'); $('l-btn').click();
+  const p=new URLSearchParams(location.search).get('login');
+  if(!p){ if(S.token) load(); else show('v-login'); return; }
+  let email='',code=''; try{ [email,code]=atob(p.replace(/-/g,'+').replace(/_/g,'/')).split(':'); }catch(e){}
+  history.replaceState(null,'',location.pathname+(DEMO?'?demo':''));
+  if(!email||!code){ if(S.token) load(); else show('v-login'); return; }
+  $('l-email').value=email; $('l-code').value=code; show('v-login'); $('l-btn').click();
 })();
 </script>
 </body>
