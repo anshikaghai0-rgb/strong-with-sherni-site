@@ -3,6 +3,22 @@
     {
       "path": "/api/daily-reminders",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/challenge-reminders?slot=morning",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/challenge-reminders?slot=afternoon",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/challenge-reminders?slot=evening",
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/challenge-reminders?slot=standings",
+      "schedule": "30 16 * * *"
     }
   ],
   "redirects": [

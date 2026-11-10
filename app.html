@@ -115,6 +115,18 @@ button:active{transform:scale(.96)}
 .yn .y{background:var(--t-sf);color:#E5DBFF}.yn .y.on{background:var(--grad);color:#fff}
 .yn .n{background:var(--t-bad);color:#FFC9C9}.yn .n.on{background:var(--bad);color:#fff}
 .yn .e{font-size:38px;line-height:1}
+.diet{display:grid;gap:10px;margin:14px 0 4px}
+.diet button{display:flex;align-items:center;gap:14px;text-align:left;padding:16px;border-radius:20px;background:var(--card2);border:2px solid var(--line);color:var(--ink);font-weight:800;font-size:15.5px}
+.diet button.on{border-color:#C026D3;background:rgba(192,38,211,.16)}
+.diet .e{font-size:34px;line-height:1}.diet small{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:3px}
+.prefrow{display:flex;gap:8px;margin:12px 0 0}.prefrow button{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 10px;color:var(--ink);font-weight:800;font-size:12.5px;text-align:left}.prefrow small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px}
+.note{margin:10px 0 0;padding:10px 12px;border-radius:14px;font-size:12.5px;font-weight:700;text-align:center}.note.okn{background:rgba(90,220,246,.14);color:#9BE9FA}.note.bad{background:rgba(255,77,141,.14);color:#FFB3CC}
+.ncard{margin:12px 0 0;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(124,58,237,.22),rgba(255,77,141,.18));border:1px solid rgba(232,121,249,.35);display:flex;align-items:center;gap:12px}
+.ncard .e{font-size:28px}.ncard b{display:block;font-size:14.5px}.ncard small{display:block;color:var(--ink2);font-size:12px;font-weight:600;margin-top:2px;line-height:1.35}
+.ncard button,.ncard a{margin-left:auto;flex:0 0 auto;background:#fff;color:#1a1424;border-radius:12px;padding:9px 12px;font-weight:800;font-size:12.5px;text-decoration:none}
+.ncard.on{background:var(--card);border-color:var(--line)}.ncard.on button{background:var(--card2);color:var(--ink)}
+.codebox{font-size:18px;letter-spacing:5px;font-weight:800;color:var(--gold,#FFC94D)}
+.isteps{list-style:none;padding:0;margin:12px 0;display:grid;gap:8px}.isteps li{background:var(--card2);border-radius:14px;padding:11px 12px;font-size:13.5px;font-weight:600;display:flex;gap:10px;align-items:center}.isteps b{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;font-size:12px;flex:0 0 24px}
 .small{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;font-weight:600}
 /* result */
 .res .art{width:110px;height:110px;font-size:62px}
@@ -274,6 +286,8 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
     <div class="sec" style="margin-top:4px">Get ready</div>
     <ul class="steps"><li>Join your batch WhatsApp group (link in your email).</li><li>Clear sweets and sugary drinks out of your kitchen.</li><li>Stock up on fruit, nuts, curd and roasted chana.</li><li>Add this app to your home screen.</li></ul>
     <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small>What's allowed and what's not</small></span></button>
+    <div class="ncard" data-notif-card style="margin:12px 0 0"><span class="e">🔔</span><div><b>Daily reminders</b><small data-notif-text>Turn on now so you don't miss Day 1.</small></div><button data-notif-btn>Turn on</button></div>
+    <div class="ncard on" style="margin:10px 0 0"><span class="e">💬</span><div><b>Batch WhatsApp group</b><small>Join before Day 1</small></div><a class="wa-link2" href="#" target="_blank" rel="noopener">Join</a></div>
   </section>
 
   <!-- TODAY -->
@@ -293,7 +307,7 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
 
   <!-- MEALS -->
   <section class="view hide" id="v-meals" style="overflow:auto">
-    <div class="vh"><div class="tag">Food & water</div><h2 id="m-title">Today's plate</h2><p>Sugar-free meal ideas. Tap a meal when you've eaten it.</p></div>
+    <div class="vh"><div class="tag">Food & water</div><h2 id="m-title">Today's plate</h2><p>Sugar-free <span id="m-diet">vegetarian</span> meal ideas. Tap a meal when you've eaten it.</p></div>
     <div class="meals" id="meals"></div>
     <div class="swapbar" id="m-swap"></div>
     <div class="mealcount" id="m-count"></div>
@@ -310,6 +324,11 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
     <div class="scard"><div class="sec" style="margin-bottom:8px">Badges</div><div class="badges" id="p-badges"></div></div>
     <div class="scard"><div class="sec">Your 21 days</div><div class="jgrid" id="p-journey"></div></div>
     <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small>Zero added sugar for 21 days</small></span></button>
+    <div class="ncard" data-notif-card><span class="e">🔔</span><div><b>Daily reminders</b><small data-notif-text>Get morning, evening and night nudges on this phone.</small></div><button data-notif-btn>Turn on</button></div>
+    <div class="ncard on"><span class="e">💬</span><div><b>Batch WhatsApp group</b><small>Daily support, tips and cheering</small></div><a id="wa-link" href="#" target="_blank" rel="noopener">Join</a></div>
+    <div class="ncard on"><span class="e">🔑</span><div><b>Your login code</b><small>Use it with your email on another phone</small></div><span class="codebox" id="p-code" style="margin-left:auto"></span></div>
+    <div class="prefrow"><button data-diet-open>🍽️ Food preference<small id="p-diet">Vegetarian · change</small></button><button id="email-me">📩 Email me my login<small>Get your link + code</small></button></div>
+    <div class="note hide" id="email-note"></div>
   </section>
 
   <!-- END -->
@@ -340,6 +359,15 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
   <ul class="list" id="sos-list"></ul>
   <button class="big" data-close>I've got this</button>
 </div></div>
+<div class="sheet-bg hide" id="diet-sheet" data-lock><div class="sheet">
+  <div class="tag">Your food preference</div><h3>What do you eat?</h3>
+  <p class="muted" style="margin-bottom:4px">We'll show only meals that suit you. You can change this anytime in Progress.</p>
+  <div class="diet"><button data-diet="veg"><span class="e">🥦</span><span>Vegetarian<small>No egg, meat or fish</small></span></button><button data-diet="nonveg"><span class="e">🍗</span><span>Non-vegetarian<small>Includes egg, chicken and fish</small></span></button></div>
+</div></div>
+<div class="sheet-bg hide" id="notif-sheet"><div class="sheet">
+  <div class="tag">Daily reminders</div><h3>Never miss a day</h3>
+  <div id="notif-body"></div>
+</div></div>
 <div class="sheet-bg hide" id="rules-sheet"><div class="sheet">
   <div class="tag" style="color:var(--c-sf)">The rules</div><h3>21 days. Zero added sugar.</h3>
   <div class="rules2" id="rules"></div>
@@ -367,7 +395,19 @@ const TKEY = DEMO ? 'sws_demo_token' : 'sws_token';
 const $ = id => document.getElementById(id);
 const DAYMS = 86400000;
 let S = { token: LS.get(TKEY), st:null, step:null, tab:'today' };
-const CH = () => (window.SWS_CHALLENGES||{})[S.st && S.st.member && S.st.member.challenge] || window.SWS_CHALLENGES['sugar-break'];
+const DIET = () => (S.st && S.st.member && S.st.member.diet) || null;
+const _chc = {};
+function dietize(base, diet){
+  const c = JSON.parse(JSON.stringify(base));
+  const ic = n => /chicken/i.test(n)?'🍗':/fish/i.test(n)?'🐟':/egg|omelette/i.test(n)?'🍳':null;
+  c.meals = c.meals.map(day=>day.map(m=>{
+    if (diet==='nonveg' && m.alt){ const n=m.alt.replace(/^or\s+/i,''); return {...m, name:n.charAt(0).toUpperCase()+n.slice(1), img:ic(n)||m.img, alt:''}; }
+    return {...m, alt:''};
+  }));
+  if (diet!=='nonveg' && base.vegText){ const walk=o=>{ for(const k in o){ if(typeof o[k]==='string') base.vegText.forEach(([f,t])=>{ o[k]=o[k].split(f).join(t); }); else if(o[k]&&typeof o[k]==='object') walk(o[k]); } }; walk(c); }
+  return c;
+}
+const CH = () => { const id=(S.st && S.st.member && S.st.member.challenge)||'sugar-break'; const base=(window.SWS_CHALLENGES||{})[id] || window.SWS_CHALLENGES['sugar-break']; const k=id+'|'+(DIET()||'veg'); return _chc[k] || (_chc[k]=dietize(base, DIET()||'veg')); };
 const BADGES = [ { day:7, name:'Sugar Breaker', e:'⭐' }, { day:14, name:'Rebuilder', e:'💪' }, { day:21, name:'Sugar-Free Sherni', e:'🏆' } ];
 const STEPS = ['task','learn','quiz','crave','sf'];
 
@@ -398,7 +438,8 @@ async function api(body){
   if (DEMO) {
     if (!D.member) demoInit();
     if (body.action==='login'){ if(body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return {token:'demo'}; }
-    if (body.action==='forgot') return {ok:true};
+    if (body.action==='forgot' || body.action==='emailme') return {ok:true, sentTo:'demo@sws.com'};
+    if (body.action==='diet'){ D.member.diet=body.diet; return demoState(); }
     if (body.action==='state') return demoState();
     if (body.action==='update'){
       const st=demoState(); if(st.status!=='active') throw new Error('This challenge is not active.');
@@ -429,6 +470,47 @@ function renderRules(){
   $('how').innerHTML = [['🎯',`Each day: 5 quick taps. Task ${P.task}, learning ${P.learn}, quiz ${P.quizRight}, cravings ${P.craving}, sugar-free check ${P.sugarFree} points.`],['🔓',`Score ${P.unlock}+ and stay sugar-free to unlock the next day (it opens the next morning).`],['🔁','Had sugar? No stress. You repeat the same day tomorrow.'],['⏳',`You have ${CH().windowDays} days to finish all 21. Badges on Day 7, 14 and 21.`]].map(([e,t])=>`<li><span class="e">${e}</span><span>${t}</span></li>`).join('');
 }
 
+/* ---------- phone notifications ---------- */
+const PUSH = { ok: 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window, ios: /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1), standalone: (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone===true };
+async function pushStatus(){
+  if (DEMO) return LS.get('sws_demo_push') ? 'on' : 'off';
+  if (!PUSH.ok) return PUSH.ios && !PUSH.standalone ? 'ios-install' : 'unsupported';
+  if (Notification.permission==='denied') return 'denied';
+  try { const reg = await navigator.serviceWorker.getRegistration('/'); const sub = reg && await reg.pushManager.getSubscription(); return sub ? 'on' : 'off'; } catch(e){ return 'off'; }
+}
+const u8 = b => { const s=atob(b.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-b.length%4)%4)); return Uint8Array.from(s,c=>c.charCodeAt(0)); };
+async function enablePush(){
+  if (DEMO){ LS.set('sws_demo_push','1'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm!=='granted') throw new Error(perm==='denied' ? 'Notifications are blocked. Allow them in your phone settings for this app, then try again.' : 'Please tap "Allow" to get reminders.');
+  const reg = await navigator.serviceWorker.register('/sw.js', { scope:'/' });
+  await navigator.serviceWorker.ready;
+  const { publicKey } = await api({ action:'pushkey' });
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:u8(publicKey) });
+  await api({ action:'pushsub', token:S.token, sub: sub.toJSON() });
+}
+async function refreshNotif(){
+  const st = await pushStatus();
+  const T = { on:['Reminders are on ✓','Send test'], off:[null,'Turn on'], 'ios-install':['On iPhone, add this app to your Home Screen first.','How?'], denied:['Notifications are blocked for this app.','Help'], unsupported:['This browser can\'t show notifications. Try Chrome.','Help'] }[st];
+  document.querySelectorAll('[data-notif-card]').forEach(c=>{ c.classList.toggle('on', st==='on'); if(T[0]) c.querySelector('[data-notif-text]').textContent=T[0]; c.querySelector('[data-notif-btn]').textContent=T[1]; c.dataset.st=st; });
+  return st;
+}
+function notifSheet(st){
+  const b=$('notif-body');
+  if (st==='ios-install') b.innerHTML = `<p class="muted">iPhones only show app reminders when the app is on your Home Screen. It takes 10 seconds:</p><ul class="isteps"><li><b>1</b>Tap the Share button (the square with an arrow) at the bottom of Safari</li><li><b>2</b>Scroll and tap "Add to Home Screen", then "Add"</li><li><b>3</b>Open the app from your Home Screen and tap "Turn on" here</li></ul><button class="big" data-close-n>Got it</button>`;
+  else if (st==='denied' || st==='unsupported') b.innerHTML = `<p class="muted">${st==='denied'?'Reminders were blocked on this phone. Open your phone Settings, find this app or your browser, allow Notifications, then come back and tap Turn on.':'This browser can\'t show reminders. Open this app in Chrome (Android) or add it to your Home Screen (iPhone).'}</p><button class="big" data-close-n>Got it</button>`;
+  else b.innerHTML = `<p class="muted" style="margin-bottom:12px">Get a quick nudge on this phone so you never lose your streak:</p><ul class="isteps"><li><b>☀️</b>Morning: your day is open + today's task</li><li><b>🍎</b>Evening: points so far + what's left</li><li><b>🌙</b>Night: finish before bed to unlock tomorrow</li><li><b>🏆</b>10 PM: the batch leaderboard</li></ul><button class="big" data-enable-n>🔔 Turn on reminders</button><button class="big ghost" data-close-n style="margin-top:8px">Not now</button><div class="err hide" id="notif-err" style="margin-top:10px"></div>`;
+  b.querySelectorAll('[data-close-n]').forEach(x=>x.onclick=()=>{ LS.set('sws_notif_asked','1'); $('notif-sheet').classList.add('hide'); });
+  b.querySelectorAll('[data-enable-n]').forEach(x=>x.onclick=async()=>{ x.disabled=true; x.textContent='Turning on…'; try{ await enablePush(); LS.set('sws_notif_asked','1'); $('notif-sheet').classList.add('hide'); await refreshNotif(); } catch(e){ x.disabled=false; x.textContent='🔔 Turn on reminders'; const er=$('notif-err'); er.textContent=e.message; er.classList.remove('hide'); } });
+  $('notif-sheet').classList.remove('hide');
+}
+document.querySelectorAll('[data-notif-btn]').forEach(btn=>btn.onclick=async()=>{
+  const st = btn.closest('[data-notif-card]').dataset.st || await pushStatus();
+  if (st==='on'){ btn.textContent='Sending…'; try{ if(!DEMO) await api({action:'pushtest', token:S.token}); btn.textContent=DEMO?'Demo ✓':'Sent ✓'; }catch(e){ btn.textContent='Retry'; } setTimeout(refreshNotif,2500); return; }
+  notifSheet(st);
+});
+
 /* ---------- render ---------- */
 function render(){
   const st=S.st, ch=CH();
@@ -436,6 +518,12 @@ function render(){
   document.querySelectorAll('.first').forEach(e=>e.textContent=first);
   $('t-name').textContent = `Hi ${first}!`;
   renderRules();
+  const dl = DIET()==='nonveg' ? 'Non-vegetarian' : 'Vegetarian';
+  $('p-diet').textContent = DIET() ? dl+' · change' : 'Not chosen · tap to choose'; $('m-diet').textContent = DIET()==='nonveg'?'non-vegetarian':'vegetarian';
+  if (!DIET()) openDiet();
+  const wa = ch.whatsapp || '#'; $('wa-link').href = wa; document.querySelectorAll('.wa-link2').forEach(a=>a.href=wa);
+  $('p-code').textContent = st.member.access_code || (DEMO ? '123456' : '');
+  refreshNotif().then(stt=>{ if (DIET() && stt!=='on' && !LS.get('sws_notif_asked') && $('notif-sheet').classList.contains('hide') && $('diet-sheet').classList.contains('hide')) setTimeout(()=>notifSheet(stt), 600); });
   if (st.status==='pre'){ $('t-sub').textContent='Sugar Break · starts soon'; show('v-pre'); $('pre-count').textContent = st.startsIn===1?'Tomorrow':st.startsIn+' days'; $('pre-date').textContent=fmtDate(st.member.start_date); $('pre-batch').textContent = `You're on the list · ${batchName(st.member.start_date)}` + (st.leaderboard&&st.leaderboard.size?` · ${st.leaderboard.size} joined`:''); return; }
   if (st.status==='complete' || S.showEnd) return renderEnd();
   if (st.status==='expired'){ show('v-exp'); $('x-days').textContent=st.score.daysCompleted; $('x-pts').textContent=st.score.points.toLocaleString('en-IN'); return; }
@@ -558,14 +646,26 @@ async function update(patch, stay){
 }
 function alertBox(msg){ const box=$('story'); if(!box) return; const d=document.createElement('div'); d.className='err'; d.style.margin='0 18px 12px'; d.textContent='Couldn\'t save: '+msg; box.appendChild(d); }
 function setTab(tab){ S.tab=tab; render(); }
-function openSOS(){ const list=[...CH().sos].sort(()=>Math.random()-.5).slice(0,4); const E=['💧','🥚','🚶','🌿','🍎','🪥','💬']; $('sos-list').innerHTML=list.map((x,i)=>`<li><span class="e">${E[i%E.length]}</span><span>${x}</span></li>`).join(''); $('sos-sheet').classList.remove('hide'); }
+function openSOS(){ const list=[...CH().sos].sort(()=>Math.random()-.5).slice(0,4); const E=['💧','🥜','🚶','🌿','🍎','🪥','💬']; $('sos-list').innerHTML=list.map((x,i)=>`<li><span class="e">${E[i%E.length]}</span><span>${x}</span></li>`).join(''); $('sos-sheet').classList.remove('hide'); }
 
 /* ---------- events ---------- */
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $('sos-btn').onclick=openSOS;
 document.querySelectorAll('[data-rules]').forEach(b=>b.onclick=()=>$('rules-sheet').classList.remove('hide'));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.sheet-bg').classList.add('hide'));
-document.querySelectorAll('.sheet-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.add('hide'); }));
+document.querySelectorAll('.sheet-bg').forEach(bg=>bg.addEventListener('click',e=>{ if(e.target===bg && !(bg.hasAttribute('data-lock') && !DIET())) bg.classList.add('hide'); }));
+function openDiet(){ document.querySelectorAll('[data-diet]').forEach(b=>b.classList.toggle('on', b.dataset.diet===DIET())); $('diet-sheet').classList.remove('hide'); }
+document.querySelectorAll('[data-diet-open]').forEach(b=>b.onclick=openDiet);
+document.querySelectorAll('[data-diet]').forEach(b=>b.onclick=async()=>{
+  if (busy) return; busy=true;
+  try { S.st = await api({action:'diet', token:S.token, diet:b.dataset.diet}); $('diet-sheet').classList.add('hide'); busy=false; render(); }
+  catch(e){ busy=false; b.querySelector('small').textContent='Could not save: '+e.message; }
+});
+$('email-me').onclick=async()=>{
+  const n=$('email-note'); n.className='note okn'; n.textContent='Sending…';
+  try { const r=await api({action:'emailme', token:S.token}); n.textContent='Sent to '+r.sentTo+'. Check your inbox and spam.'; }
+  catch(e){ n.className='note bad'; n.textContent=e.message; }
+};
 // swipe between steps
 (function(){ let x0=null; const el=$('story'); el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true}); el.addEventListener('touchend',e=>{ if(x0===null) return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)<60) return; const order=[...STEPS,'result']; let i=order.indexOf(S.step); i = dx<0 ? Math.min(order.length-1,i+1) : Math.max(0,i-1); S.step=order[i]; renderToday(); },{passive:true}); })();
 $('l-btn').onclick=async()=>{

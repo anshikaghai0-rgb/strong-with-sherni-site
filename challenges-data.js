@@ -9,6 +9,7 @@ window.SWS_CHALLENGES = {
     tagline: '21 days. Zero added sugar.',
     days: 21,
     windowDays: 42,
+    whatsapp: 'https://chat.whatsapp.com/LdOprhlpyJ57FAT1flTFkU',
     points: { sugarFree: 40, task: 25, quizRight: 15, quizWrong: 10, learn: 10, craving: 10, unlock: 70 },
     rules: {
       no: [
@@ -57,6 +58,16 @@ window.SWS_CHALLENGES = {
     ],
     // 7-day sugar-free meal ideas, repeated each week (day 8 uses meals[0] again)
     meals: [[{"slot": "Breakfast", "img": "🍚", "name": "Vegetable poha with peanuts", "alt": "or 2-egg omelette with toast"}, {"slot": "Lunch", "img": "🍛", "name": "Dal, 2 rotis, sabzi and salad", "alt": "or chicken curry with 2 rotis"}, {"slot": "Snack", "img": "🍎", "name": "1 fruit with a few almonds", "alt": ""}, {"slot": "Dinner", "img": "🧀", "name": "Paneer bhurji with roti", "alt": "or egg bhurji with roti"}], [{"slot": "Breakfast", "img": "🥞", "name": "Besan chilla with green chutney", "alt": "or boiled eggs with toast"}, {"slot": "Lunch", "img": "🍛", "name": "Rajma chawal with salad", "alt": "or chicken rice bowl with salad"}, {"slot": "Snack", "img": "🥛", "name": "Plain chaas (buttermilk)", "alt": ""}, {"slot": "Dinner", "img": "🥣", "name": "Moong dal khichdi with curd", "alt": "or chicken soup with a roti"}], [{"slot": "Breakfast", "img": "🥣", "name": "Vegetable upma", "alt": "or egg bhurji with toast"}, {"slot": "Lunch", "img": "🍛", "name": "Chole with roti and onion salad", "alt": "or egg curry with roti"}, {"slot": "Snack", "img": "🥜", "name": "Roasted chana", "alt": ""}, {"slot": "Dinner", "img": "🍲", "name": "Dal tadka, roti and sabzi", "alt": "or fish curry with roti"}], [{"slot": "Breakfast", "img": "🍙", "name": "Idli with sambar", "alt": "or 2 boiled eggs with idli"}, {"slot": "Lunch", "img": "🍚", "name": "Curd rice with sabzi", "alt": "or chicken curry with rice"}, {"slot": "Snack", "img": "🍊", "name": "1 orange or guava", "alt": ""}, {"slot": "Dinner", "img": "🥘", "name": "Mixed veg with paneer and roti", "alt": "or grilled chicken with sabzi"}], [{"slot": "Breakfast", "img": "🫓", "name": "Stuffed paratha (little oil) with curd", "alt": "or omelette paratha"}, {"slot": "Lunch", "img": "🍛", "name": "Kadhi chawal with salad", "alt": "or chicken pulao with raita"}, {"slot": "Snack", "img": "🥜", "name": "A handful of peanuts", "alt": ""}, {"slot": "Dinner", "img": "🍲", "name": "Palak dal with roti", "alt": "or egg curry with roti"}], [{"slot": "Breakfast", "img": "🥣", "name": "Plain curd with fruit", "alt": "or egg sandwich (no sauce)"}, {"slot": "Lunch", "img": "🍛", "name": "Dal, rice, sabzi and salad", "alt": "or fish fry with dal and rice"}, {"slot": "Snack", "img": "🍎", "name": "1 fruit with a few walnuts", "alt": ""}, {"slot": "Dinner", "img": "🧀", "name": "Paneer tikka with sabzi", "alt": "or chicken tikka with sabzi"}], [{"slot": "Breakfast", "img": "🍳", "name": "Dosa with sambar", "alt": "or masala omelette with toast"}, {"slot": "Lunch", "img": "🍚", "name": "Veg pulao with raita", "alt": "or chicken biryani (small portion) with raita"}, {"slot": "Snack", "img": "🥛", "name": "Plain chaas with jeera", "alt": ""}, {"slot": "Dinner", "img": "🍲", "name": "Moong dal, roti and sabzi", "alt": "or chicken curry with roti"}]],
+    // Vegetarian members: these phrases are swapped so no egg/meat/fish appears anywhere in their app.
+    vegText: [
+      ['eggs, chicken, fish', 'paneer, curd, sprouts'],
+      ['eggs, paneer, curd', 'paneer, curd'],
+      ['have boiled eggs or a paneer tikka snack', 'have roasted chana or a paneer tikka snack'],
+      ['Plain boiled eggs', 'Plain roasted chana'],
+      ['A boiled egg or a few paneer cubes', 'A few paneer cubes or a bowl of sprouts'],
+      ['a boiled egg, a handful of nuts', 'a handful of nuts'],
+      ['🥚', '🧀']
+    ],
     cravingSnacks: [
       'A small bowl of plain curd with a few berries',
       'An apple or pear with 5 almonds',

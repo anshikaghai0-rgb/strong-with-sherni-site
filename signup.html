@@ -180,9 +180,17 @@
             document.getElementById('signup-form').style.display = 'none';
             document.getElementById('success-box').style.display = 'block';
             if(result.challenge){
-              document.getElementById('success-text').innerHTML = result.emailSent
-                ? 'Check your email (and spam folder) for your <b>WhatsApp group link</b> and your <b>app login code</b>.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>'
-                : 'Coach Sherni will WhatsApp you your group link and app login code shortly.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>';
+              const btn = (href, bg, label) => `<a href="${href}" target="_blank" rel="noopener" style="display:block;margin:10px auto 0;max-width:320px;background:${bg};color:#fff;padding:14px 18px;border-radius:26px;text-decoration:none;font-weight:700">${label}</a>`;
+              const start = result.startDate ? new Date(result.startDate + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'long' }) : '';
+              document.getElementById('success-text').innerHTML = result.code
+                ? `${start ? 'Your batch starts on <b>' + start + '</b>.<br><br>' : ''}`
+                  + `<b>Step 1:</b> Join your batch WhatsApp group${btn(result.groupLink, '#1F4037', 'Join WhatsApp group')}<br>`
+                  + `<b>Step 2:</b> Open your challenge app${btn(result.appLink, '#7B0237', 'Open my challenge app')}<br>`
+                  + `<b>Your login code</b> (save it):<div style="font-size:30px;letter-spacing:8px;font-weight:700;color:#7B0237;border:1px dashed #7B0237;border-radius:12px;padding:12px;margin:8px auto 0;max-width:260px">${result.code}</div>`
+                  + `<p style="font-size:13px;margin-top:14px">${result.emailSent ? 'We\'ve also emailed all of this to you (check spam too).' : 'Take a screenshot of this page so you have your code.'}</p>`
+                : (result.emailSent
+                  ? 'Check your email (and spam folder) for your <b>WhatsApp group link</b> and your <b>app login code</b>.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>'
+                  : 'Coach Sherni will WhatsApp you your group link and app login code shortly.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>');
             }
           } else {
             showError('Payment succeeded but confirmation failed. Please contact us on WhatsApp with your payment ID: ' + response.razorpay_payment_id);
