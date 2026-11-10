@@ -1,10 +1,16 @@
 import crypto from 'crypto';
+import { vapidKeys, sendPush } from './_push.js';
 
 // Challenge app backend (unlock system). One endpoint, four actions:
 //   login   { email, code }  -> { token }
 //   forgot  { email }        -> emails the login code again
 //   state   { token }        -> progress, today's attempt, scorecard
 //   update  { token, sugar_free?, task_done?, quiz_answer?, quiz_correct?, learned?, craving? }
+//   diet    { token, diet: 'veg' | 'nonveg' } -> saves food preference (meals shown in the app)
+//   emailme { token }        -> emails the member their login link (also a quick email test)
+//   pushkey {}               -> public key for phone notifications
+//   pushsub { token, sub }   -> saves this phone for notifications
+//   pushtest { token }       -> sends a test notification to this member's phones
 //
 // Rules:
 //   - One attempt per calendar day (India time). Today's attempt is always the next locked day.
@@ -92,11 +98,31 @@ function sb(path, opts = {}) {
     headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }
   });
 }
-async function rows(path) {
+export async function rows(path) {
   if (!SB_URL() || !SB_KEY()) throw new Error('Database settings missing in Vercel (CHALLENGE_SUPABASE_URL / CHALLENGE_SUPABASE_KEY).');
   const r = await sb(path);
   if (!r.ok) throw new Error(`Database error ${r.status}: ${(await r.text()).slice(0, 160)}`);
   return r.json();
+}
+
+// Email (same settings as api/verify-payment.js): RESEND_API_KEY (or older CHALLENGE_RESEND_KEY) + EMAIL_FROM.
+export async function sendMail(to, subject, html) {
+  const key = String(process.env.RESEND_API_KEY || '').trim() || String(process.env.CHALLENGE_RESEND_KEY || '').trim();
+  const from = String(process.env.EMAIL_FROM || '').trim() || 'Strong With Sherni <hello@strongwithsherni.com>';
+  if (!key) { console.error('[email] RESEND_API_KEY not set'); return { ok: false, error: 'No email key set in Vercel (RESEND_API_KEY).' }; }
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: [to], subject, html })
+    });
+    const error = r.ok ? null : (await r.text()).slice(0, 300);
+    if (error) console.error(`[email] Resend error ${r.status} sending "${subject}" from ${from}:`, error);
+    return { ok: r.ok, error };
+  } catch (err) { console.error('[email] Could not reach Resend:', err.message); return { ok: false, error: err.message }; }
+}
+export const loginLink = m => `https://www.strongwithsherni.com/app.html?login=${Buffer.from(`${String(m.email).trim().toLowerCase()}:${m.access_code}`).toString('base64url')}`;
+function loginEmailHtml(m) {
+  return `<div style="font-family:Arial,sans-serif;max-width:480px"><p>Hi ${String(m.name || '').split(' ')[0] || 'there'},</p><p>Tap below to open your challenge app:</p><p><a href="${loginLink(m)}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p><p>Your code: <b style="font-size:20px;letter-spacing:4px">${m.access_code}</b></p><p>Coach Sherni</p></div>`;
 }
 
 const shortName = n => { const p = String(n || 'Sherni').trim().split(/\s+/); const f = p[0].charAt(0).toUpperCase() + p[0].slice(1).toLowerCase(); return f + (p[1] ? ' ' + p[1][0].toUpperCase() + '.' : ''); };
@@ -118,7 +144,7 @@ async function leaderboard(member) {
 async function fullState(member) {
   const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=attempt_date,day,sugar_free,task_done,quiz_answer,quiz_correct,learned,craving,points,passed&order=attempt_date.asc`);
   return {
-    member: { name: member.name, email: member.email, challenge: member.challenge, start_date: member.start_date },
+    member: { name: member.name, email: member.email, challenge: member.challenge, start_date: member.start_date, diet: member.diet || null, access_code: member.access_code },
     attempts,
     today: todayIST(),
     leaderboard: await leaderboard(member),
@@ -143,27 +169,11 @@ export default async function handler(req, res) {
     if (action === 'forgot') {
       const email = String(req.body.email || '').trim().toLowerCase();
       const found = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc&limit=1`);
-      // Same email settings as api/verify-payment.js: RESEND_API_KEY (or older CHALLENGE_RESEND_KEY) + EMAIL_FROM.
-      const key = String(process.env.RESEND_API_KEY || '').trim() || String(process.env.CHALLENGE_RESEND_KEY || '').trim();
-      const from = String(process.env.EMAIL_FROM || '').trim() || 'Strong With Sherni <hello@strongwithsherni.com>';
-      if (found.length && !key) console.error('[email] RESEND_API_KEY not set - login code email not sent');
-      if (found.length && key) {
-        const m = found[0];
-        const link = `https://www.strongwithsherni.com/app.html?login=${Buffer.from(`${email}:${m.access_code}`).toString('base64url')}`;
-        const r = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            from,
-            to: [email],
-            subject: `Your Strong With Sherni login code: ${m.access_code}`,
-            html: `<div style="font-family:Arial,sans-serif;max-width:480px"><p>Hi ${String(m.name || '').split(' ')[0]},</p><p>Tap below to open your challenge app:</p><p><a href="${link}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p><p>Your code: <b style="font-size:20px;letter-spacing:4px">${m.access_code}</b></p><p>Coach Sherni</p></div>`
-          })
-        }).catch(err => ({ ok: false, status: 0, text: async () => err.message }));
-        if (!r.ok) console.error(`[email] Resend error ${r.status} sending login code from ${from}:`, await r.text());
-      }
+      if (found.length) await sendMail(email, `Your Strong With Sherni login code: ${found[0].access_code}`, loginEmailHtml(found[0]));
       return res.status(200).json({ ok: true }); // same answer either way
     }
+
+    if (action === 'pushkey') return res.status(200).json({ publicKey: vapidKeys().publicKey });
 
     const memberId = verify(req.body.token);
     if (!memberId) return res.status(401).json({ error: 'Please log in again.' });
@@ -172,6 +182,39 @@ export default async function handler(req, res) {
     if (!member) return res.status(401).json({ error: 'Please log in again.' });
 
     if (action === 'state') return res.status(200).json(await fullState(member));
+
+    if (action === 'diet') {
+      const diet = req.body.diet === 'veg' ? 'veg' : req.body.diet === 'nonveg' ? 'nonveg' : null;
+      if (!diet) return res.status(400).json({ error: 'Please choose vegetarian or non-vegetarian.' });
+      const r = await sb(`challenge_members?id=eq.${member.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ diet }) });
+      if (!r.ok) return res.status(500).json({ error: 'Could not save your food preference. ' + (await r.text()).slice(0, 120) });
+      return res.status(200).json(await fullState({ ...member, diet }));
+    }
+
+    if (action === 'pushsub') {
+      const sub = req.body.sub || {};
+      const endpoint = String(sub.endpoint || ''), p256dh = sub.keys && sub.keys.p256dh, auth = sub.keys && sub.keys.auth;
+      if (!/^https:\/\//.test(endpoint) || !p256dh || !auth) return res.status(400).json({ error: 'This phone could not be set up for notifications.' });
+      const r = await sb('challenge_push?on_conflict=endpoint', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ endpoint, member_id: member.id, p256dh, auth }) });
+      if (!r.ok) return res.status(500).json({ error: 'Could not save notifications. ' + (await r.text()).slice(0, 120) });
+      const first = String(member.name || '').split(' ')[0] || 'Sherni';
+      await sendPush({ endpoint, p256dh, auth }, { title: 'Reminders are on!', body: `Nice, ${first}! You'll get your daily Sugar Break reminders here.`, tag: 'welcome' });
+      return res.status(200).json({ ok: true });
+    }
+
+    if (action === 'pushtest') {
+      const subs = await rows(`challenge_push?member_id=eq.${member.id}&select=endpoint,p256dh,auth`);
+      if (!subs.length) return res.status(400).json({ error: 'Reminders are not turned on for this phone yet.' });
+      let sent = 0;
+      for (const s of subs) { const r = await sendPush(s, { title: 'Test reminder', body: 'This is how your Sugar Break reminders will look.', tag: 'test' }); if (r.ok) sent++; else if (r.gone) await sb(`challenge_push?endpoint=eq.${encodeURIComponent(s.endpoint)}`, { method: 'DELETE' }); }
+      return res.status(200).json({ ok: true, sent });
+    }
+
+    if (action === 'emailme') {
+      const out = await sendMail(member.email, `Your Strong With Sherni login code: ${member.access_code}`, loginEmailHtml(member));
+      if (!out.ok) return res.status(500).json({ error: 'Email could not be sent: ' + out.error });
+      return res.status(200).json({ ok: true, sentTo: member.email });
+    }
 
     if (action === 'update') {
       const today = todayIST();

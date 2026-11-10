@@ -112,7 +112,9 @@ async function handleChallenge(customer, paymentId, sb) {
       html: `<p><b>${customer.name}</b> joined ${challengeName}.</p><p>Email: ${customer.email}<br>Phone: ${customer.phone}<br>Starts: ${startDate}<br>Login code: ${code}</p><p>${mail.ok ? 'Welcome email sent' : 'Welcome email FAILED - send them the code on WhatsApp: ' + (mail.error || '')}</p>`
     });
   }
-  return { challenge: true, emailSent: mail.ok };
+  // Also shown on the payment success screen, so nobody depends only on the email.
+  const appLink = `${SITE}/app.html?login=${Buffer.from(`${String(customer.email).trim().toLowerCase()}:${code}`).toString('base64url')}`;
+  return { challenge: true, emailSent: mail.ok, code, groupLink, appLink, startDate };
 }
 
 export default async function handler(req, res) {
