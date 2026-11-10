@@ -47,18 +47,33 @@ export function welcomeEmailHtml({ name, email, challengeName, code, startDate, 
 </div>`;
 }
 
+// Email settings (Vercel -> Settings -> Environment Variables):
+//   RESEND_API_KEY = API key from the Resend account where strongwithsherni.com is verified.
+//                    (CHALLENGE_RESEND_KEY is still accepted as an older fallback name.)
+//   EMAIL_FROM     = sender, e.g. "Strong With Sherni <hello@strongwithsherni.com>" (domain must be verified in Resend).
+// The same logic is used in api/challenge.js for login-code emails.
+export function emailSettings() {
+  const key = String(process.env.RESEND_API_KEY || '').trim() || String(process.env.CHALLENGE_RESEND_KEY || '').trim();
+  const from = String(process.env.EMAIL_FROM || '').trim() || 'Strong With Sherni <hello@strongwithsherni.com>';
+  return { key, from };
+}
+
 async function sendEmail({ to, subject, html }) {
-  // CHALLENGE_RESEND_KEY = API key from the Resend account where strongwithsherni.com is verified.
-  const own = String(process.env.CHALLENGE_RESEND_KEY || '').trim();
-  const key = own || process.env.RESEND_API_KEY;
-  if (!key) return { ok: false, error: 'RESEND_API_KEY not set' };
-  const from = process.env.EMAIL_FROM || (own ? 'Strong With Sherni <hello@strongwithsherni.com>' : 'Strong With Sherni <onboarding@resend.dev>');
-  const r = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to: [to], subject, html })
-  });
-  return { ok: r.ok, error: r.ok ? null : await r.text() };
+  const { key, from } = emailSettings();
+  if (!key) { console.error('[email] RESEND_API_KEY not set'); return { ok: false, error: 'RESEND_API_KEY not set' }; }
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: [to], subject, html })
+    });
+    const error = r.ok ? null : await r.text();
+    if (error) console.error(`[email] Resend error ${r.status} sending "${subject}" from ${from}:`, error);
+    return { ok: r.ok, error };
+  } catch (err) {
+    console.error('[email] Could not reach Resend:', err.message);
+    return { ok: false, error: err.message };
+  }
 }
 
 async function handleChallenge(customer, paymentId, sb) {

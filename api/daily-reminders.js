@@ -86,9 +86,9 @@ export default async function handler(req, res) {
 
     const mail = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${String(RESEND_API_KEY).trim()}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Strong With Sherni <onboarding@resend.dev>',
+        from: String(process.env.EMAIL_FROM || '').trim() || 'Strong With Sherni <onboarding@resend.dev>',
         to: [REMINDER_EMAIL],
         subject: `Reminders: ${phaseRows.length} phase change(s), ${endingRows.length} ending soon`,
         html

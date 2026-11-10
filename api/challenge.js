@@ -143,19 +143,24 @@ export default async function handler(req, res) {
     if (action === 'forgot') {
       const email = String(req.body.email || '').trim().toLowerCase();
       const found = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc&limit=1`);
-      if (found.length && process.env.RESEND_API_KEY) {
+      // Same email settings as api/verify-payment.js: RESEND_API_KEY (or older CHALLENGE_RESEND_KEY) + EMAIL_FROM.
+      const key = String(process.env.RESEND_API_KEY || '').trim() || String(process.env.CHALLENGE_RESEND_KEY || '').trim();
+      const from = String(process.env.EMAIL_FROM || '').trim() || 'Strong With Sherni <hello@strongwithsherni.com>';
+      if (found.length && !key) console.error('[email] RESEND_API_KEY not set - login code email not sent');
+      if (found.length && key) {
         const m = found[0];
         const link = `https://www.strongwithsherni.com/app.html?login=${Buffer.from(`${email}:${m.access_code}`).toString('base64url')}`;
-        await fetch('https://api.resend.com/emails', {
+        const r = await fetch('https://api.resend.com/emails', {
           method: 'POST',
-          headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: process.env.EMAIL_FROM || 'Strong With Sherni <onboarding@resend.dev>',
+            from,
             to: [email],
             subject: `Your Strong With Sherni login code: ${m.access_code}`,
             html: `<div style="font-family:Arial,sans-serif;max-width:480px"><p>Hi ${String(m.name || '').split(' ')[0]},</p><p>Tap below to open your challenge app:</p><p><a href="${link}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p><p>Your code: <b style="font-size:20px;letter-spacing:4px">${m.access_code}</b></p><p>Coach Sherni</p></div>`
           })
-        });
+        }).catch(err => ({ ok: false, status: 0, text: async () => err.message }));
+        if (!r.ok) console.error(`[email] Resend error ${r.status} sending login code from ${from}:`, await r.text());
       }
       return res.status(200).json({ ok: true }); // same answer either way
     }
