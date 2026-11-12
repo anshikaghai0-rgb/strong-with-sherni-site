@@ -27,12 +27,14 @@ function prettyDate(iso) {
   return new Date(iso + 'T00:00:00Z').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 }
 
-export function welcomeEmailHtml({ name, email, challengeName, code, startDate, groupLink }) {
+// One line under the welcome heading, per challenge.
+const TAGLINES = { 'sugar-break': '21 days. Zero added sugar. You\'ve got this.', '5-am-club': '21 days to own your mornings. You\'ve got this.', 'mindful-eating': '21 days to slow down and enjoy food without guilt.', 'wedding-season-ready': '21 days to glow, feel strong and confident.', 'new-year-kickstart': '30 days to start the year strong. You\'ve got this.' };
+export function welcomeEmailHtml({ name, email, challengeName, code, startDate, groupLink, slug }) {
   const loginLink = `${SITE}/app.html?login=${Buffer.from(`${String(email).trim().toLowerCase()}:${code}`).toString('base64url')}`;
   const first = String(name || '').split(' ')[0] || 'there';
   return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#2D322C;background:#FAF9F3;padding:28px 24px;border-radius:14px">
   <h2 style="font-family:Georgia,serif;color:#7B0237;margin:0 0 6px">Welcome to ${challengeName}, ${first}!</h2>
-  <p style="margin:0 0 18px;color:#6B6459">21 days. Zero added sugar. You've got this.</p>
+  <p style="margin:0 0 18px;color:#6B6459">${TAGLINES[slug] || 'Small habits. Big life. You\'ve got this.'}</p>
   <p style="margin:0 0 6px"><b>Your batch starts:</b> ${prettyDate(startDate)}</p><p style="margin:0 0 6px;color:#6B6459;font-size:14px">Everyone in your batch starts Day 1 together. Your app shows a countdown until then.</p>
   <h3 style="margin:22px 0 8px;font-size:16px">Step 1 &mdash; Join your WhatsApp group</h3>
   <p style="margin:0 0 10px">Your daily tasks, reminders and batch support happen here.</p>
@@ -94,14 +96,20 @@ async function handleChallenge(customer, paymentId, sb) {
   if (!ins.ok) return { warning: 'Payment verified but challenge record failed — please add manually', details: await ins.text() };
 
   // WhatsApp group per challenge. Add new challenges' group links here.
-  const GROUPS = { 'sugar-break': 'https://chat.whatsapp.com/LdOprhlpyJ57FAT1flTFkU' };
+  const GROUPS = {
+    'sugar-break': 'https://chat.whatsapp.com/LdOprhlpyJ57FAT1flTFkU',
+    '5-am-club': 'https://chat.whatsapp.com/Jyx1nPHTWrMJiqSHPdQ2LN',
+    'mindful-eating': 'https://chat.whatsapp.com/DLrZZSG8KvpJvnzrWE03Gg',
+    'wedding-season-ready': 'https://chat.whatsapp.com/K2Vdt0R17FA2cxjxDiyVHZ',
+    'new-year-kickstart': 'https://chat.whatsapp.com/ELyrGbwJmG0IXzdYPB0yz6'
+  };
   const groupLink = GROUPS[slug] ||
     'https://wa.me/919036147675?text=' + encodeURIComponent(`Hi! I just joined the ${challengeName} challenge. Please add me to the group.`);
 
   const mail = await sendEmail({
     to: customer.email,
     subject: `You're in! Your ${challengeName} login code: ${code}`,
-    html: welcomeEmailHtml({ name: customer.name, email: customer.email, challengeName, code, startDate, groupLink })
+    html: welcomeEmailHtml({ name: customer.name, email: customer.email, challengeName, code, startDate, groupLink, slug })
   });
 
   // Let the coach know too (works even before the domain is verified in Resend).

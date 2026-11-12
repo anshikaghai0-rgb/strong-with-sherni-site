@@ -8,6 +8,7 @@ import { vapidKeys, sendPush } from './_push.js';
 //   update  { token, sugar_free?, task_done?, quiz_answer?, quiz_correct?, learned?, craving? }
 //   diet    { token, diet: 'veg' | 'nonveg' } -> saves food preference (meals shown in the app)
 //   emailme { token }        -> emails the member their login link (also a quick email test)
+//   mine    { token }        -> every challenge this email has joined (for the app's home screen)
 //   pushkey {}               -> public key for phone notifications
 //   pushsub { token, sub }   -> saves this phone for notifications
 //   pushtest { token }       -> sends a test notification to this member's phones
@@ -21,6 +22,9 @@ import { vapidKeys, sendPush } from './_push.js';
 
 const DAY = 86400000;
 const TOTAL_DAYS = 21, WINDOW = 42;
+// Challenges that aren't 21 days. The window to finish is always double the length.
+const DAYS_BY_CHALLENGE = { 'new-year-kickstart': 30, 'water-sleep-reset': 7 };
+const daysOf = m => DAYS_BY_CHALLENGE[m && m.challenge] || TOTAL_DAYS;
 const P = { sugarFree: 40, task: 25, quizRight: 15, quizWrong: 10, learn: 10, craving: 10, unlock: 70 };
 const TOKEN_DAYS = 60;
 
@@ -54,16 +58,17 @@ export function scoreOf(a) {
 }
 
 export function progress(member, attempts, today = todayIST()) {
+  const TD = daysOf(member), WIN = TD * 2;
   const past = attempts.filter(a => a.attempt_date < today);
   const passedBefore = past.filter(a => a.passed).length;
   const todayAttempt = attempts.find(a => a.attempt_date === today) || null;
   const passedTotal = passedBefore + (todayAttempt && todayAttempt.passed ? 1 : 0);
   const dayIdx = daysBetween(member.start_date, today); // 0 on start day
-  const windowLeft = WINDOW - dayIdx; // days left including today
+  const windowLeft = WIN - dayIdx; // days left including today
   let status = 'active';
   if (dayIdx < 0) status = 'pre';
-  else if (passedBefore >= TOTAL_DAYS) status = 'complete';
-  else if (dayIdx >= WINDOW) status = 'expired';
+  else if (passedBefore >= TD) status = 'complete';
+  else if (dayIdx >= WIN) status = 'expired';
   // streak: consecutive passed calendar days ending today (if passed) or yesterday
   const byDate = Object.fromEntries(attempts.map(a => [a.attempt_date, a]));
   let streak = 0, d = todayAttempt && todayAttempt.passed ? today : addDays(today, -1);
@@ -71,14 +76,14 @@ export function progress(member, attempts, today = todayIST()) {
   const passedList = attempts.filter(a => a.passed);
   return {
     status,
-    currentDay: Math.min(TOTAL_DAYS, passedBefore + 1),
+    currentDay: Math.min(TD, passedBefore + 1),
     todayAttempt,
     startsIn: dayIdx < 0 ? -dayIdx : 0,
     windowLeft: Math.max(0, windowLeft),
-    windowEnd: addDays(member.start_date, WINDOW - 1),
+    windowEnd: addDays(member.start_date, WIN - 1),
     score: {
       points: passedList.reduce((s, a) => s + (a.points || 0), 0),
-      maxPoints: TOTAL_DAYS * 100,
+      maxPoints: TD * 100,
       daysCompleted: passedTotal,
       repeats: past.filter(a => !a.passed).length,
       streak
@@ -141,13 +146,17 @@ async function leaderboard(member) {
   return { size: list.length, rank: meRow ? meRow.rank : null, top: list.slice(0, 10), me: meRow };
 }
 
-async function fullState(member) {
-  const attempts = await rows(`challenge_attempts?member_id=eq.${member.id}&select=attempt_date,day,sugar_free,task_done,quiz_answer,quiz_correct,learned,craving,points,passed&order=attempt_date.asc`);
+async function fullState(member, known) {
+  // run both lookups at the same time (faster); after a save we already know the attempts
+  const [attempts, lb] = await Promise.all([
+    known || rows(`challenge_attempts?member_id=eq.${member.id}&select=attempt_date,day,sugar_free,task_done,quiz_answer,quiz_correct,learned,craving,points,passed&order=attempt_date.asc`),
+    leaderboard(member)
+  ]);
   return {
     member: { name: member.name, email: member.email, challenge: member.challenge, start_date: member.start_date, diet: member.diet || null, access_code: member.access_code },
     attempts,
     today: todayIST(),
-    leaderboard: await leaderboard(member),
+    leaderboard: lb,
     ...progress(member, attempts)
   };
 }
@@ -182,6 +191,19 @@ export default async function handler(req, res) {
     if (!member) return res.status(401).json({ error: 'Please log in again.' });
 
     if (action === 'state') return res.status(200).json(await fullState(member));
+
+    if (action === 'mine') {
+      const list = await rows(`challenge_members?email=eq.${encodeURIComponent(String(member.email).trim().toLowerCase())}&select=id,name,challenge,start_date,created_at&order=created_at.desc`);
+      const ids = list.map(m => m.id);
+      const atts = ids.length ? await rows(`challenge_attempts?member_id=in.(${ids.join(',')})&select=member_id,attempt_date,day,sugar_free,passed,points`) : [];
+      const seen = new Set(); const out = [];
+      for (const m of list) {
+        if (seen.has(m.challenge)) continue; seen.add(m.challenge); // newest membership per challenge
+        const pr = progress(m, atts.filter(a => a.member_id === m.id));
+        out.push({ token: sign(m.id), challenge: m.challenge, start_date: m.start_date, status: pr.status, currentDay: pr.currentDay, startsIn: pr.startsIn, daysCompleted: pr.score.daysCompleted, passedToday: !!(pr.todayAttempt && pr.todayAttempt.passed) });
+      }
+      return res.status(200).json({ name: member.name, list: out });
+    }
 
     if (action === 'diet') {
       const diet = req.body.diet === 'veg' ? 'veg' : req.body.diet === 'nonveg' ? 'nonveg' : null;
@@ -239,7 +261,9 @@ export default async function handler(req, res) {
         method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(row)
       });
       if (!r.ok) return res.status(500).json({ error: 'Could not save. Please try again.', details: await r.text() });
-      return res.status(200).json(await fullState(member));
+      const pick = ({ attempt_date, day, sugar_free, task_done, quiz_answer, quiz_correct, learned, craving, points, passed }) => ({ attempt_date, day, sugar_free, task_done, quiz_answer, quiz_correct, learned, craving, points, passed });
+      const known = [...attempts.filter(a => a.attempt_date !== today).map(pick), pick(row)].sort((x, y) => x.attempt_date < y.attempt_date ? -1 : 1);
+      return res.status(200).json(await fullState(member, known));
     }
 
     return res.status(400).json({ error: 'Unknown action' });
