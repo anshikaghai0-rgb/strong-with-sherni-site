@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sherni Challenge">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="challenges-data.js"></script>
 <style>
@@ -127,6 +128,12 @@ button:active{transform:scale(.96)}
 .ncard.on{background:var(--card);border-color:var(--line)}.ncard.on button{background:var(--card2);color:var(--ink)}
 .codebox{font-size:18px;letter-spacing:5px;font-weight:800;color:var(--gold,#FFC94D)}
 .isteps{list-style:none;padding:0;margin:12px 0;display:grid;gap:8px}.isteps li{background:var(--card2);border-radius:14px;padding:11px 12px;font-size:13.5px;font-weight:600;display:flex;gap:10px;align-items:center}.isteps b{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;font-size:12px;flex:0 0 24px}
+.hcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border-radius:24px;padding:16px;color:#fff;margin-bottom:12px;border:0;position:relative;overflow:hidden}
+.hcard .hi{font-size:34px;width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 58px}
+.hcard b{display:block;font-size:17px;font-weight:800}.hcard small{display:block;font-size:12.5px;font-weight:600;opacity:.92;margin-top:2px;line-height:1.35}
+.hcard .go{margin-left:auto;background:#fff;color:#1a1424;border-radius:14px;padding:9px 13px;font-weight:800;font-size:12.5px;flex:0 0 auto;text-decoration:none}
+.hcard.more{background:var(--card);border:1px solid var(--line)}.hcard.more .hi{background:var(--card2)}.hcard.more .go{background:var(--card2);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#2A2238;color:#fff;border:1px solid rgba(255,255,255,.12);padding:10px 14px;border-radius:14px;font-size:13px;font-weight:700;z-index:60;max-width:88%;text-align:center}
 .small{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;font-weight:600}
 /* result */
 .res .art{width:110px;height:110px;font-size:62px}
@@ -162,7 +169,7 @@ button:active{transform:scale(.96)}
 .sg div{background:var(--card2);border-radius:14px;padding:8px 4px;text-align:center}
 .sg b{display:block;font-size:17px;font-weight:800}
 .sg span{font-size:10px;color:var(--muted);font-weight:700;line-height:1.2;display:block}
-.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:7px}
 .badge{border-radius:16px;padding:9px 4px;text-align:center;background:var(--card2)}
 .badge .bi{font-size:24px;filter:grayscale(1);opacity:.4}
 .badge b{display:block;font-size:10.5px;font-weight:800;line-height:1.2;margin-top:2px}
@@ -261,6 +268,7 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
     <div class="who"><b id="t-name">Strong With Sherni</b><span id="t-sub">Sugar Break · 21 days, zero added sugar</span></div>
     <button class="sos hide" id="sos-btn"><span data-ic="bolt"></span>SOS</button>
     <span class="pill hide" id="t-streak"><span data-ic="fire"></span><span id="t-streak-n">0</span></span>
+    <button class="icon-btn hide" id="home-btn" title="My challenges"><span data-ic="grid"></span></button>
     <button class="icon-btn hide" id="logout" title="Log out"><span data-ic="out"></span></button>
   </div>
   <div class="demo hide" id="demo-bar"><span>Demo: code 123456. Nothing is saved.</span><button id="demo-next">Go to tomorrow</button></div>
@@ -268,7 +276,7 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
   <!-- LOGIN -->
   <section class="view center login hide" id="v-login">
     <div>
-      <div class="sec" style="color:var(--c-sf)">Sugar Break app</div>
+      <div class="sec" style="color:var(--c-sf)">Strong With Sherni challenges</div>
       <h1 style="margin-top:6px">Welcome,<br>Sherni.</h1>
       <p class="muted" style="margin-top:8px">Tap "Open my challenge app" in your welcome email to log in instantly. Or enter your email and 6-digit code.</p>
     </div>
@@ -280,12 +288,21 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
     <div style="text-align:center"><button class="link" id="l-forgot">Forgot your code?</button></div>
   </section>
 
+  <!-- HOME: challenge picker -->
+  <section class="view hide" id="v-home" style="overflow:auto">
+    <div class="vh"><div class="tag">Strong With Sherni</div><h2>Hi <span id="h-first">Sherni</span>!</h2><p>Your challenges. Tap one to open it.</p></div>
+    <div id="home-list"></div>
+    <div class="sec" id="home-more-h" style="margin:8px 0 10px">More challenges</div>
+    <div id="home-more"></div>
+    <a class="link" href="https://www.strongwithsherni.com/challenges.html" target="_blank" rel="noopener" style="display:block;text-align:center;margin:6px 0 20px">See all challenges</a>
+  </section>
+
   <!-- BEFORE START -->
   <section class="view center hide" id="v-pre" style="justify-content:flex-start">
     <div class="herobox"><div class="tag" id="pre-batch">You're in</div><h2>Hi <span class="first"></span>!</h2><p>Your batch starts Day 1 together in</p><div class="num" id="pre-count">3 days</div><p id="pre-date"></p></div>
     <div class="sec" style="margin-top:4px">Get ready</div>
-    <ul class="steps"><li>Join your batch WhatsApp group (link in your email).</li><li>Clear sweets and sugary drinks out of your kitchen.</li><li>Stock up on fruit, nuts, curd and roasted chana.</li><li>Add this app to your home screen.</li></ul>
-    <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small>What's allowed and what's not</small></span></button>
+    <ul class="steps" id="pre-steps"></ul>
+    <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small class="rsub">What's allowed and what's not</small></span></button>
     <div class="ncard" data-notif-card style="margin:12px 0 0"><span class="e">🔔</span><div><b>Daily reminders</b><small data-notif-text>Turn on now so you don't miss Day 1.</small></div><button data-notif-btn>Turn on</button></div>
     <div class="ncard on" style="margin:10px 0 0"><span class="e">💬</span><div><b>Batch WhatsApp group</b><small>Join before Day 1</small></div><a class="wa-link2" href="#" target="_blank" rel="noopener">Join</a></div>
   </section>
@@ -307,7 +324,7 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
 
   <!-- MEALS -->
   <section class="view hide" id="v-meals" style="overflow:auto">
-    <div class="vh"><div class="tag">Food & water</div><h2 id="m-title">Today's plate</h2><p>Sugar-free <span id="m-diet">vegetarian</span> meal ideas. Tap a meal when you've eaten it.</p></div>
+    <div class="vh"><div class="tag" id="m-tag">Food & water</div><h2 id="m-title">Today's plate</h2><p id="m-sub">Sugar-free <span id="m-diet">vegetarian</span> meal ideas. Tap a meal when you've eaten it.</p></div>
     <div class="meals" id="meals"></div>
     <div class="swapbar" id="m-swap"></div>
     <div class="mealcount" id="m-count"></div>
@@ -317,47 +334,47 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
   <!-- PROGRESS -->
   <section class="view hide" id="v-prog" style="overflow:auto">
     <div class="scard">
-      <div class="stop"><div><div class="sec">Your score</div><b id="p-pts">0</b></div><span>/ 2,100 points</span></div>
+      <div class="stop"><div><div class="sec">Your score</div><b id="p-pts">0</b></div><span class="ptot">/ 2,100 points</span></div>
       <div class="sg"><div><b id="p-days">0</b><span>days done</span></div><div><b id="p-streak">0</b><span>streak</span></div><div><b id="p-rep">0</b><span>repeats</span></div><div><b id="p-win">42</b><span>window left</span></div></div>
     </div>
     <div class="scard"><div class="row" style="display:flex;justify-content:space-between;align-items:baseline"><div class="sec">Batch leaderboard</div><span style="font-size:11.5px;color:var(--muted);font-weight:700" id="p-batch"></span></div><div class="lb" id="p-lb"></div></div>
     <div class="scard"><div class="sec" style="margin-bottom:8px">Badges</div><div class="badges" id="p-badges"></div></div>
-    <div class="scard"><div class="sec">Your 21 days</div><div class="jgrid" id="p-journey"></div></div>
-    <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small>Zero added sugar for 21 days</small></span></button>
+    <div class="scard"><div class="sec" id="p-jtitle">Your 21 days</div><div class="jgrid" id="p-journey"></div></div>
+    <button class="rulesbtn" data-rules><span class="e">📋</span><span>The rules<small class="rsub">Zero added sugar for 21 days</small></span></button>
     <div class="ncard" data-notif-card><span class="e">🔔</span><div><b>Daily reminders</b><small data-notif-text>Get morning, evening and night nudges on this phone.</small></div><button data-notif-btn>Turn on</button></div>
     <div class="ncard on"><span class="e">💬</span><div><b>Batch WhatsApp group</b><small>Daily support, tips and cheering</small></div><a id="wa-link" href="#" target="_blank" rel="noopener">Join</a></div>
     <div class="ncard on"><span class="e">🔑</span><div><b>Your login code</b><small>Use it with your email on another phone</small></div><span class="codebox" id="p-code" style="margin-left:auto"></span></div>
-    <div class="prefrow"><button data-diet-open>🍽️ Food preference<small id="p-diet">Vegetarian · change</small></button><button id="email-me">📩 Email me my login<small>Get your link + code</small></button></div>
+    <div class="prefrow"><button data-diet-open id="diet-btn">🍽️ Food preference<small id="p-diet">Vegetarian · change</small></button><button id="email-me">📩 Email me my login<small>Get your link + code</small></button></div>
     <div class="note hide" id="email-note"></div>
   </section>
 
   <!-- END -->
   <section class="view center hide" id="v-end" style="justify-content:flex-start">
-    <div class="herobox"><div class="tag">Challenge complete</div><div style="font-size:56px;margin-top:6px">🏆</div><h2>You did it, <span class="first"></span>!</h2><div class="num" id="e-pts">0</div><p>points out of 2,100</p></div>
-    <div class="scard" style="margin:0"><div class="sg" style="margin-top:0"><div><b>21</b><span>days done</span></div><div><b id="e-streak">0</b><span>best streak</span></div><div><b id="e-rep">0</b><span>repeats</span></div><div><b id="e-took">0</b><span>days taken</span></div></div></div>
-    <p class="muted" style="text-align:center">Final task: write your own sugar rule for the next month and share it in the group.</p>
-    <a class="big lime" style="text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20I%20finished%20Sugar%20Break.%20I%27d%20love%20to%20know%20about%20my%20finisher%20offer." target="_blank" rel="noopener">Claim my finisher offer</a>
+    <div class="herobox"><div class="tag">Challenge complete</div><div style="font-size:56px;margin-top:6px">🏆</div><h2>You did it, <span class="first"></span>!</h2><div class="num" id="e-pts">0</div><p>points out of <span class="ptotn">2,100</span></p></div>
+    <div class="scard" style="margin:0"><div class="sg" style="margin-top:0"><div><b class="ndays">21</b><span>days done</span></div><div><b id="e-streak">0</b><span>best streak</span></div><div><b id="e-rep">0</b><span>repeats</span></div><div><b id="e-took">0</b><span>days taken</span></div></div></div>
+    <p class="muted" style="text-align:center" id="e-final">Final task: write your own sugar rule for the next month and share it in the group.</p>
+    <a class="big lime" id="e-wa" style="text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20I%20finished%20Sugar%20Break.%20I%27d%20love%20to%20know%20about%20my%20finisher%20offer." target="_blank" rel="noopener">Claim my finisher offer</a>
   </section>
 
   <!-- EXPIRED -->
   <section class="view center hide" id="v-exp" style="justify-content:flex-start">
-    <div class="herobox"><div class="tag">Window ended</div><div style="font-size:52px;margin-top:6px">⏳</div><h2>Your 42 days are up</h2><p>You completed <b id="x-days">0</b> of 21 days. That's real progress, and you can finish it next time.</p></div>
-    <div class="scard" style="margin:0"><div class="stop"><div><div class="sec">Your score</div><b id="x-pts">0</b></div><span>/ 2,100 points</span></div></div>
-    <a class="big" style="text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20My%20Sugar%20Break%20window%20ended.%20I%27d%20like%20to%20try%20again." target="_blank" rel="noopener">Rejoin the challenge</a>
+    <div class="herobox"><div class="tag">Window ended</div><div style="font-size:52px;margin-top:6px">⏳</div><h2>Your <span class="nwin">42</span> days are up</h2><p>You completed <b id="x-days">0</b> of <span class="ndays">21</span> days. That's real progress, and you can finish it next time.</p></div>
+    <div class="scard" style="margin:0"><div class="stop"><div><div class="sec">Your score</div><b id="x-pts">0</b></div><span class="ptot">/ 2,100 points</span></div></div>
+    <a class="big" id="x-wa" style="text-decoration:none" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20My%20Sugar%20Break%20window%20ended.%20I%27d%20like%20to%20try%20again." target="_blank" rel="noopener">Rejoin the challenge</a>
   </section>
 </div>
 
 <div class="nav hide" id="nav"><div class="in">
   <button data-tab="today" class="on"><span data-ic="home"></span>Today</button>
-  <button data-tab="meals"><span data-ic="plate"></span>Food & Water</button>
+  <button data-tab="meals"><span data-ic="plate"></span><span id="nav-t2">Food & Water</span></button>
   <button data-tab="prog"><span data-ic="chart"></span>Progress</button>
 </div></div>
 
 <div class="sheet-bg hide" id="sos-sheet"><div class="sheet">
-  <div class="tag">Craving SOS</div><h3>This craving will pass.</h3>
-  <p class="muted" style="margin-bottom:12px">Most cravings fade in 10-15 minutes. Pick one right now:</p>
+  <div class="tag" id="sos-tag">Craving SOS</div><h3 id="sos-title">This craving will pass.</h3>
+  <p class="muted" style="margin-bottom:12px" id="sos-text">Most cravings fade in 10-15 minutes. Pick one right now:</p>
   <ul class="list" id="sos-list"></ul>
-  <button class="big" data-close>I've got this</button>
+  <button class="big" data-close id="sos-close">I've got this</button>
 </div></div>
 <div class="sheet-bg hide" id="diet-sheet" data-lock><div class="sheet">
   <div class="tag">Your food preference</div><h3>What do you eat?</h3>
@@ -369,7 +386,7 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
   <div id="notif-body"></div>
 </div></div>
 <div class="sheet-bg hide" id="rules-sheet"><div class="sheet">
-  <div class="tag" style="color:var(--c-sf)">The rules</div><h3>21 days. Zero added sugar.</h3>
+  <div class="tag" style="color:var(--c-sf)">The rules</div><h3 id="rules-title">21 days. Zero added sugar.</h3>
   <div class="rules2" id="rules"></div>
   <ul class="list" id="how"></ul>
   <button class="big" data-close>Got it</button>
@@ -385,22 +402,27 @@ const IC = {
   plate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>',
   chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',
   arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 };
 document.querySelectorAll('[data-ic]').forEach(e => e.innerHTML = IC[e.dataset.ic]);
 
+if (location.hostname==='strongwithsherni.com') location.replace('https://www.strongwithsherni.com'+location.pathname+location.search);
 const DEMO = new URLSearchParams(location.search).has('demo');
 const LS = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
 const TKEY = DEMO ? 'sws_demo_token' : 'sws_token';
 const $ = id => document.getElementById(id);
 const DAYMS = 86400000;
-let S = { token: LS.get(TKEY), st:null, step:null, tab:'today' };
+const CKEY = DEMO ? 'sws_demo_cred' : 'sws_cred';     // remembered email+code, so nobody has to log in again
+const CURKEY = DEMO ? 'sws_demo_cur' : 'sws_cur';     // last opened challenge token
+let S = { token: LS.get(TKEY), cur: LS.get(CURKEY), st:null, step:null, tab:'today', mine:null };
+try { S.mine = JSON.parse(LS.get(DEMO?'sws_demo_mine':'sws_mine')||'null'); } catch(e){}
 const DIET = () => (S.st && S.st.member && S.st.member.diet) || null;
 const _chc = {};
 function dietize(base, diet){
   const c = JSON.parse(JSON.stringify(base));
   const ic = n => /chicken/i.test(n)?'🍗':/fish/i.test(n)?'🐟':/egg|omelette/i.test(n)?'🍳':null;
-  c.meals = c.meals.map(day=>day.map(m=>{
+  if (c.meals) c.meals = c.meals.map(day=>day.map(m=>{
     if (diet==='nonveg' && m.alt){ const n=m.alt.replace(/^or\s+/i,''); return {...m, name:n.charAt(0).toUpperCase()+n.slice(1), img:ic(n)||m.img, alt:''}; }
     return {...m, alt:''};
   }));
@@ -408,11 +430,31 @@ function dietize(base, diet){
   return c;
 }
 const CH = () => { const id=(S.st && S.st.member && S.st.member.challenge)||'sugar-break'; const base=(window.SWS_CHALLENGES||{})[id] || window.SWS_CHALLENGES['sugar-break']; const k=id+'|'+(DIET()||'veg'); return _chc[k] || (_chc[k]=dietize(base, DIET()||'veg')); };
-const BADGES = [ { day:7, name:'Sugar Breaker', e:'⭐' }, { day:14, name:'Rebuilder', e:'💪' }, { day:21, name:'Sugar-Free Sherni', e:'🏆' } ];
+const UI_SUGAR = {
+  short:'Sugar Break', icon:'🍬', sub:'21 days, zero added sugar', cardGrad:'linear-gradient(135deg,#7C3AED,#C026D3 60%,#FF4D8D)',
+  preSteps:['Join your batch WhatsApp group.','Clear sweets and sugary drinks out of your kitchen.','Stock up on fruit, nuts, curd and roasted chana.','Add this app to your home screen.'],
+  rulesTitle:'21 days. Zero added sugar.', rulesSub:'Zero added sugar for 21 days', rulesNo:'Not allowed', rulesYes:'Enjoy freely',
+  quiz:'Sugar quiz', bodyTitle:"What's happening in your body", swapTitle:'Swap of the day',
+  rate:{ label:'Cravings', q:'How strong were your sugar cravings today?', faces:[['😌','None'],['🙂','Low'],['😐','Some'],['😣','Strong'],['😫','Very']], lowIsBad:false,
+    bad:'⚡ Strong cravings? Try this now', mid:'Some cravings are normal right now. Keep water close and your snack ready.', good:'Low cravings, amazing! Your body is adjusting well. ✨' },
+  main:{ label:'Sugar-free check', icon:'🛡️', q:'Did you stay completely sugar-free today?', note:'Best done before bed. No sugar, jaggery, honey, mithai or sweet drinks.',
+    yes:['💪','Yes, sugar-free'], no:['🍬','I had sugar'], foot:"Had sugar? No stress, you'll simply repeat this day tomorrow.",
+    failText:"One slip doesn't erase your progress. Your completed days are safe. Tomorrow is a fresh start.", failBtn:'Get craving help', short:'sugar-free check' },
+  tab2:{ label:'Food & Water', tag:'Food & water', title:'plate', all:'All 4 sugar-free meals done. Brilliant!', of:'meals ticked today', next:"See tomorrow's sugar-free meals idea" },
+  water:'Water also helps keep sugar cravings away.',
+  sos:{ btn:'SOS', tag:'Craving SOS', title:'This craving will pass.', text:'Most cravings fade in 10-15 minutes. Pick one right now:', close:"I've got this" },
+  badges:[ { day:7, name:'Sugar Breaker', e:'⭐' }, { day:14, name:'Rebuilder', e:'💪' }, { day:21, name:'Sugar-Free Sherni', e:'🏆' } ],
+  endFinal:'Final task: write your own sugar rule for the next month and share it in the group.',
+  dayDone:"You finished the whole challenge. You're a Sugar-Free Sherni!"
+};
+const uiOf = ch => { const u=(ch&&ch.ui)||{}; return {...UI_SUGAR, ...u, rate:{...UI_SUGAR.rate,...(u.rate||{})}, main:{...UI_SUGAR.main,...(u.main||{})}, tab2:{...UI_SUGAR.tab2,...(u.tab2||{})}, sos:{...UI_SUGAR.sos,...(u.sos||{})}}; };
+const U = () => uiOf(CH());
+const ND = () => CH().days || 21, NW = () => CH().windowDays || 42;
 const STEPS = ['task','learn','quiz','crave','sf'];
 
 /* ---------- demo engine (same rules as the server) ---------- */
-const D = { offset:0, attempts:[] };
+const DD = {}; let D = { offset:0, attempts:[] }; let DEMO_OFF = 0;
+function demoUse(cid){ if(!DD[cid]){ DD[cid]={ offset:0, attempts:[] }; D=DD[cid]; D.cid=cid; demoInit(cid); } D=DD[cid]; D.offset=DEMO_OFF; }
 const isoAdd = (iso,n) => new Date(new Date(iso+'T00:00:00Z').getTime()+n*DAYMS).toISOString().slice(0,10);
 const realToday = () => new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
 const dToday = () => isoAdd(realToday(), D.offset);
@@ -421,23 +463,24 @@ function dProgress(member, attempts, today){
   const past=attempts.filter(a=>a.attempt_date<today), pb=past.filter(a=>a.passed).length;
   const ta=attempts.find(a=>a.attempt_date===today)||null, pt=pb+(ta&&ta.passed?1:0);
   const idx=Math.round((new Date(today+'T00:00:00Z')-new Date(member.start_date+'T00:00:00Z'))/DAYMS);
-  let status='active'; if(idx<0)status='pre'; else if(pb>=21)status='complete'; else if(idx>=42)status='expired';
+  const nd=ND(), nw=NW(); let status='active'; if(idx<0)status='pre'; else if(pb>=nd)status='complete'; else if(idx>=nw)status='expired';
   const by=Object.fromEntries(attempts.map(a=>[a.attempt_date,a])); let streak=0, d=ta&&ta.passed?today:isoAdd(today,-1); while(by[d]&&by[d].passed){streak++; d=isoAdd(d,-1);}
   const pl=attempts.filter(a=>a.passed);
-  return { status, currentDay:Math.min(21,pb+1), todayAttempt:ta, startsIn:idx<0?-idx:0, windowLeft:Math.max(0,42-idx), score:{ points:pl.reduce((s,a)=>s+(a.points||0),0), daysCompleted:pt, repeats:past.filter(a=>!a.passed).length, streak } };
+  return { status, currentDay:Math.min(nd,pb+1), todayAttempt:ta, startsIn:idx<0?-idx:0, windowLeft:Math.max(0,nw-idx), score:{ points:pl.reduce((s,a)=>s+(a.points||0),0), daysCompleted:pt, repeats:past.filter(a=>!a.passed).length, streak } };
 }
-function demoInit(){
-  const off = Number(new URLSearchParams(location.search).get('start') || -6);
-  D.member = { name:'Anshika Ghai', email:'demo@sws.com', challenge:'sugar-break', start_date:isoAdd(realToday(), off) };
-  let day=1; for(let i=0;i<-off && day<=21;i++){ const a={attempt_date:isoAdd(D.member.start_date,i), day, sugar_free:i!==3, task_done:true, learned:true, quiz_answer:0, quiz_correct:i%3!==1, craving:Math.max(1,4-Math.floor(i/2))}; Object.assign(a,dScore(a)); D.attempts.push(a); if(a.passed) day++; }
+function demoInit(cid){
+  const off = cid==='sugar-break' ? Number(new URLSearchParams(location.search).get('start') || -6) : -3;
+  D.member = { name:'Anshika Ghai', email:'demo@sws.com', challenge:cid, start_date:isoAdd(realToday(), off) };
+  let day=1; for(let i=0;i<-off && day<=(window.SWS_CHALLENGES[cid].days||21);i++){ const a={attempt_date:isoAdd(D.member.start_date,i), day, sugar_free:i!==3, task_done:true, learned:true, quiz_answer:0, quiz_correct:i%3!==1, craving:Math.max(1,4-Math.floor(i/2))}; Object.assign(a,dScore(a)); D.attempts.push(a); if(a.passed) day++; }
 }
 function demoLB(){ const pr=dProgress(D.member, D.attempts, dToday()); const mine=pr.score.points; const others=[['Priya S.',1.25],['Neha K.',1.12],['Ritu M.',1.05],['Ananya R.',0.93],['Sneha P.',0.86],['Kavya J.',0.7],['Meera T.',0.55],['Pooja D.',0.4]].map(([n,f])=>({name:n,points:Math.round(Math.max(60,mine)*f/5)*5,days:0,me:false})); const list=[...others,{name:'Anshika G.',points:mine,days:pr.score.daysCompleted,me:true}].sort((a,b)=>b.points-a.points); list.forEach((x,i)=>x.rank=i+1); const me=list.find(x=>x.me); return {size:list.length, rank:me.rank, top:list.slice(0,10), me}; }
 const demoState = () => ({ member:D.member, attempts:D.attempts, today:dToday(), leaderboard:demoLB(), ...dProgress(D.member, D.attempts, dToday()) });
 
 async function api(body){
   if (DEMO) {
-    if (!D.member) demoInit();
-    if (body.action==='login'){ if(body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return {token:'demo'}; }
+    if (body.action==='login'){ if(body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return {token:'demo:sugar-break'}; }
+    if (body.action==='mine'){ return { name:'Anshika Ghai', list:Object.keys(window.SWS_CHALLENGES).map(cid=>{ demoUse(cid); const pr=dProgress(D.member,D.attempts,dToday()); return { token:'demo:'+cid, challenge:cid, start_date:D.member.start_date, status:pr.status, currentDay:pr.currentDay, startsIn:pr.startsIn, daysCompleted:pr.score.daysCompleted, passedToday:!!(pr.todayAttempt&&pr.todayAttempt.passed) }; }) }; }
+    demoUse(String(body.token||'demo:sugar-break').split(':')[1]||'sugar-break');
     if (body.action==='forgot' || body.action==='emailme') return {ok:true, sentTo:'demo@sws.com'};
     if (body.action==='diet'){ D.member.diet=body.diet; return demoState(); }
     if (body.action==='state') return demoState();
@@ -450,15 +493,18 @@ async function api(body){
       Object.assign(a,dScore(a)); return demoState();
     }
   }
-  const r = await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  let r;
+  try { r = await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+  catch(e){ await new Promise(ok=>setTimeout(ok,1200)); r = await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
   const j = await r.json().catch(()=>({}));
   if (!r.ok){ const e=new Error(j.error||'Something went wrong. Please try again.'); e.status=r.status; throw e; }
   return j;
 }
 
 /* ---------- helpers ---------- */
-const VIEWS=['v-login','v-pre','v-today','v-meals','v-prog','v-end','v-exp'];
-function show(v){ VIEWS.forEach(x=>$(x).classList.toggle('hide',x!==v)); const inApp=['v-today','v-meals','v-prog'].includes(v); $('nav').classList.toggle('hide',!inApp); $('sos-btn').classList.toggle('hide',!inApp); $('logout').classList.toggle('hide',v==='v-login'); $('t-streak').classList.toggle('hide',!inApp); }
+const VIEWS=['v-login','v-home','v-pre','v-today','v-meals','v-prog','v-end','v-exp'];
+function show(v){ VIEWS.forEach(x=>$(x).classList.toggle('hide',x!==v)); const inApp=['v-today','v-meals','v-prog'].includes(v); $('nav').classList.toggle('hide',!inApp); $('sos-btn').classList.toggle('hide',!inApp); $('logout').classList.toggle('hide',v==='v-login'); $('home-btn').classList.toggle('hide',v==='v-login'||v==='v-home'); $('t-streak').classList.toggle('hide',!inApp); }
+function toast(msg,ms){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),ms||2600); }
 function batchName(iso){ return new Date(iso+'T00:00:00Z').toLocaleDateString('en-IN',{month:'long',timeZone:'UTC'})+' batch'; }
 function fmtDate(iso){ return new Date(iso+'T00:00:00Z').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}); }
 function confetti(){ const box=document.createElement('div'); box.className='confetti'; const cols=['#FFC94D','#8B5CF6','#FF4D8D','#5ADCF6','#C026D3','#FF9466']; for(let i=0;i<80;i++){ const e=document.createElement('i'); e.style.left=Math.random()*100+'%'; e.style.background=cols[i%cols.length]; e.style.animationDelay=(Math.random()*.4)+'s'; e.style.animationDuration=(1.2+Math.random())+'s'; box.appendChild(e);} document.body.appendChild(box); setTimeout(()=>box.remove(),2800); }
@@ -466,8 +512,9 @@ function stepDone(a,id){ return id==='task'?!!a.task_done : id==='learn'?!!a.lea
 function nextStep(a){ const n=STEPS.find(id=>!stepDone(a,id)); return n || 'result'; }
 function renderRules(){
   const r=CH().rules, P=CH().points;
-  $('rules').innerHTML = `<div class="no"><h4>Not allowed</h4><ul>${r.no.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="yes"><h4>Enjoy freely</h4><ul>${r.yes.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
-  $('how').innerHTML = [['🎯',`Each day: 5 quick taps. Task ${P.task}, learning ${P.learn}, quiz ${P.quizRight}, cravings ${P.craving}, sugar-free check ${P.sugarFree} points.`],['🔓',`Score ${P.unlock}+ and stay sugar-free to unlock the next day (it opens the next morning).`],['🔁','Had sugar? No stress. You repeat the same day tomorrow.'],['⏳',`You have ${CH().windowDays} days to finish all 21. Badges on Day 7, 14 and 21.`]].map(([e,t])=>`<li><span class="e">${e}</span><span>${t}</span></li>`).join('');
+  const u=U(); $('rules-title').textContent=u.rulesTitle;
+  $('rules').innerHTML = `<div class="no"><h4>${u.rulesNo}</h4><ul>${r.no.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="yes"><h4>${u.rulesYes}</h4><ul>${r.yes.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+  $('how').innerHTML = [['🎯',`Each day: 5 quick taps. Task ${P.task}, learning ${P.learn}, quiz ${P.quizRight}, ${u.rate.label.toLowerCase()} ${P.craving}, ${u.main.short} ${P.sugarFree} points.`],['🔓',`Score ${P.unlock}+ and pass the ${u.main.short} to unlock the next day (it opens the next morning).`],['🔁',u.main.foot],['⏳',`You have ${CH().windowDays} days to finish all ${ND()}. Badges on Day ${u.badges.map(b=>b.day).join(', ').replace(/, (\d+)$/,' and $1')}.`]].map(([e,t])=>`<li><span class="e">${e}</span><span>${t}</span></li>`).join('');
 }
 
 /* ---------- phone notifications ---------- */
@@ -518,17 +565,31 @@ function render(){
   document.querySelectorAll('.first').forEach(e=>e.textContent=first);
   $('t-name').textContent = `Hi ${first}!`;
   renderRules();
-  const dl = DIET()==='nonveg' ? 'Non-vegetarian' : 'Vegetarian';
-  $('p-diet').textContent = DIET() ? dl+' · change' : 'Not chosen · tap to choose'; $('m-diet').textContent = DIET()==='nonveg'?'non-vegetarian':'vegetarian';
-  if (!DIET()) openDiet();
-  const wa = ch.whatsapp || '#'; $('wa-link').href = wa; document.querySelectorAll('.wa-link2').forEach(a=>a.href=wa);
+  const u=U(); const hasMeals=!!ch.meals;
+  document.querySelectorAll('.rsub').forEach(e=>e.textContent=u.rulesSub);
+  const tot=(ND()*100).toLocaleString('en-IN');
+  document.querySelectorAll('.ptot').forEach(e=>e.textContent='/ '+tot+' points'); document.querySelectorAll('.ptotn').forEach(e=>e.textContent=tot);
+  document.querySelectorAll('.ndays').forEach(e=>e.textContent=ND()); document.querySelectorAll('.nwin').forEach(e=>e.textContent=NW());
+  $('p-jtitle').textContent=`Your ${ND()} days`;
+  $('pre-steps').innerHTML = u.preSteps.map(x=>`<li>${x}</li>`).join('');
+  $('nav-t2').textContent=u.tab2.label; $('e-final').textContent=u.endFinal;
+  $('e-wa').href='https://wa.me/919036147675?text='+encodeURIComponent(`Hi Coach Sherni! I finished ${u.short}. I'd love to know about my finisher offer.`);
+  $('x-wa').href='https://wa.me/919036147675?text='+encodeURIComponent(`Hi Coach Sherni! My ${u.short} window ended. I'd like to try again.`);
+  $('sos-tag').textContent=u.sos.tag; $('sos-title').textContent=u.sos.title; $('sos-text').textContent=u.sos.text; $('sos-close').textContent=u.sos.close;
+  $('diet-btn').classList.toggle('hide',!hasMeals);
+  if (hasMeals){
+    const dl = DIET()==='nonveg' ? 'Non-vegetarian' : 'Vegetarian';
+    $('p-diet').textContent = DIET() ? dl+' · change' : 'Not chosen · tap to choose';
+    if (!DIET()) openDiet();
+  }
+  const wa = ch.whatsapp || ('https://wa.me/919036147675?text='+encodeURIComponent(`Hi! I joined ${u.short}. Please add me to the WhatsApp group.`)); $('wa-link').href = wa; document.querySelectorAll('.wa-link2').forEach(a=>a.href=wa);
   $('p-code').textContent = st.member.access_code || (DEMO ? '123456' : '');
-  refreshNotif().then(stt=>{ if (DIET() && stt!=='on' && !LS.get('sws_notif_asked') && $('notif-sheet').classList.contains('hide') && $('diet-sheet').classList.contains('hide')) setTimeout(()=>notifSheet(stt), 600); });
-  if (st.status==='pre'){ $('t-sub').textContent='Sugar Break · starts soon'; show('v-pre'); $('pre-count').textContent = st.startsIn===1?'Tomorrow':st.startsIn+' days'; $('pre-date').textContent=fmtDate(st.member.start_date); $('pre-batch').textContent = `You're on the list · ${batchName(st.member.start_date)}` + (st.leaderboard&&st.leaderboard.size?` · ${st.leaderboard.size} joined`:''); return; }
+  refreshNotif().then(stt=>{ if ((DIET()||!hasMeals) && stt!=='on' && !LS.get('sws_notif_asked') && $('notif-sheet').classList.contains('hide') && $('diet-sheet').classList.contains('hide')) setTimeout(()=>notifSheet(stt), 600); });
+  if (st.status==='pre'){ $('t-sub').textContent=u.short+' · starts soon'; show('v-pre'); $('pre-count').textContent = st.startsIn===1?'Tomorrow':st.startsIn+' days'; $('pre-date').textContent=fmtDate(st.member.start_date); $('pre-batch').textContent = `You're on the list · ${batchName(st.member.start_date)}` + (st.leaderboard&&st.leaderboard.size?` · ${st.leaderboard.size} joined`:''); return; }
   if (st.status==='complete' || S.showEnd) return renderEnd();
   if (st.status==='expired'){ show('v-exp'); $('x-days').textContent=st.score.daysCompleted; $('x-pts').textContent=st.score.points.toLocaleString('en-IN'); return; }
   const d=st.currentDay, a=st.todayAttempt||{};
-  $("t-sub").textContent = `Day ${d} of 21 · Sugar Break`;
+  $("t-sub").textContent = `Day ${d} of ${ND()} · ${u.short}`;
   $('t-streak-n').textContent = st.score.streak;
   show('v-'+S.tab);
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===S.tab));
@@ -536,12 +597,12 @@ function render(){
 }
 function renderToday(){
   const st=S.st, ch=CH(), d=st.currentDay, t=ch.tasks[d-1], a=st.todayAttempt||{}, P=ch.points;
-  const wk=ch.weeks[Math.min(2,Math.floor((d-1)/7))];
+  const wk=ch.weeks[Math.min(ch.weeks.length-1,Math.floor((d-1)/7))];
   $('d-day').textContent=d; $('d-week').textContent=`Week ${wk.n} · ${wk.title}`;
   const repeat = st.attempts.filter(x=>x.day===d && x.attempt_date<st.today && !x.passed).length;
   $('d-title').textContent = t.title + (repeat?` · try ${repeat+1}`:'');
   const pts=a.points||0; $('d-fill').style.width=pts+'%'; $('d-pts').textContent=`${pts} / 100 pts`;
-  $('ring-arc').style.strokeDashoffset = 182.2*(1-st.score.daysCompleted/21);
+  $('ring-arc').style.strokeDashoffset = 182.2*(1-st.score.daysCompleted/ND());
   if (S.step===null) S.step = nextStep(a);
   $('dots').innerHTML = STEPS.map(id=>{ let c=''; if(stepDone(a,id)) c = (id==='sf'&&a.sugar_free===false)?'bad':'done'; if(S.step===id) c+=' cur'; return `<button data-step="${id}" class="${c}" aria-label="${id}"></button>`; }).join('');
   $('dots').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.step=b.dataset.step; renderToday(); });
@@ -553,33 +614,34 @@ function renderToday(){
   if (S.step==='task'){
     html = head('task','Step 1 · Today\'s task',P.task,P.task,a.task_done) + `<div class="body">${art('task',t.img.task)}<h3>${t.title}</h3><p class="txt">${t.task}</p><div class="tipline">💡 ${t.tip}</div></div><div class="foot">${a.task_done?nextBtn:`<button class="big" data-act="task">${IC.check} I did it</button>`}</div>`;
   } else if (S.step==='learn'){
-    html = head('learn','Step 2 · Today\'s learning',P.learn,P.learn,a.learned) + `<div class="body"><div class="lt"><div class="lc b"><span class="e">${t.img.body}</span><div><b>What's happening in your body</b><p>${t.body}</p></div></div><div class="lc s"><span class="sw">${t.img.from}<i>→</i>${t.img.to}</span><div><b>Swap of the day</b><p>${t.swap}</p></div></div></div></div><div class="foot">${a.learned?nextBtn:`<button class="big" data-act="learn">${IC.check} Got it</button>`}</div>`;
+    html = head('learn','Step 2 · Today\'s learning',P.learn,P.learn,a.learned) + `<div class="body"><div class="lt"><div class="lc b"><span class="e">${t.img.body}</span><div><b>${U().bodyTitle}</b><p>${t.body}</p></div></div><div class="lc s"><span class="sw">${t.img.from}<i>→</i>${t.img.to}</span><div><b>${U().swapTitle}</b><p>${t.swap}</p></div></div></div></div><div class="foot">${a.learned?nextBtn:`<button class="big" data-act="learn">${IC.check} Got it</button>`}</div>`;
   } else if (S.step==='quiz'){
     const q=t.quiz, ans=a.quiz_answer;
     const got = a.quiz_correct===true?P.quizRight:a.quiz_correct===false?P.quizWrong:0;
-    html = head('quiz','Step 3 · Sugar quiz',P.quizRight,got,ans!=null) + `<div class="body"><div class="art" style="background:var(--t-quiz);width:64px;height:64px;font-size:34px;border-radius:22px">🧠</div><div class="q">${q.q}</div><div class="opts">${q.options.map((o,i)=>{ let c=''; if(ans!=null){ if(i===q.answer)c='right'; else if(i===ans)c='wrong'; } return `<button data-q="${i}" class="${c}" ${ans!=null?'disabled':''}><span class="l">${String.fromCharCode(65+i)}</span>${o}</button>`; }).join('')}</div>${ans!=null?`<div class="why">${a.quiz_correct?'Correct! ':'Good try! '}${q.why}</div>`:''}</div><div class="foot">${ans!=null?nextBtn:'<div class="small">Tap an answer. You earn points even if it\'s wrong.</div>'}</div>`;
+    html = head('quiz','Step 3 · '+U().quiz,P.quizRight,got,ans!=null) + `<div class="body"><div class="art" style="background:var(--t-quiz);width:64px;height:64px;font-size:34px;border-radius:22px">🧠</div><div class="q">${q.q}</div><div class="opts">${q.options.map((o,i)=>{ let c=''; if(ans!=null){ if(i===q.answer)c='right'; else if(i===ans)c='wrong'; } return `<button data-q="${i}" class="${c}" ${ans!=null?'disabled':''}><span class="l">${String.fromCharCode(65+i)}</span>${o}</button>`; }).join('')}</div>${ans!=null?`<div class="why">${a.quiz_correct?'Correct! ':'Good try! '}${q.why}</div>`:''}</div><div class="foot">${ans!=null?nextBtn:'<div class="small">Tap an answer. You earn points even if it\'s wrong.</div>'}</div>`;
   } else if (S.step==='crave'){
-    const F=[['😌','None'],['🙂','Low'],['😐','Some'],['😣','Strong'],['😫','Very']];
+    const R=U().rate, F=R.faces; const v=a.craving, bad=v&&(R.lowIsBad?v<=2:v>=4), mid=v===3;
     let extra='';
-    if (a.craving>=4) extra = `<div class="help"><h4>⚡ Strong cravings? Try this now</h4><ul>${ch.sos.slice(0,3).map(x=>`<li>${x}</li>`).join('')}</ul><div class="snack">🍽️ Snack idea: ${ch.cravingSnacks[(d-1)%ch.cravingSnacks.length]}</div></div>`;
-    else if (a.craving===3) extra = `<div class="good">Some cravings are normal right now. Keep water close and your snack ready.</div>`;
-    else if (a.craving) extra = `<div class="good">Low cravings, amazing! Your body is adjusting well. ✨</div>`;
-    html = head('crave','Step 4 · Cravings',P.craving,P.craving,!!a.craving) + `<div class="body"><h3 style="margin-top:6px">How strong were your sugar cravings today?</h3><div class="faces">${F.map((f,i)=>`<button data-c="${i+1}" class="${a.craving===i+1?'on':''}"><span class="fe">${f[0]}</span><span>${f[1]}</span></button>`).join('')}</div>${extra}</div><div class="foot">${a.craving?nextBtn:'<div class="small">Just tap one. Be honest, it helps us help you.</div>'}</div>`;
+    if (bad) extra = `<div class="help"><h4>${R.bad}</h4><ul>${(R.lowIsBad?(ch.lowTips||ch.sos):ch.sos).slice(0,3).map(x=>`<li>${x}</li>`).join('')}</ul>${ch.cravingSnacks?`<div class="snack">🍽️ Snack idea: ${ch.cravingSnacks[(d-1)%ch.cravingSnacks.length]}</div>`:''}</div>`;
+    else if (mid) extra = `<div class="good">${R.mid}</div>`;
+    else if (v) extra = `<div class="good">${R.good}</div>`;
+    html = head('crave','Step 4 · '+R.label,P.craving,P.craving,!!a.craving) + `<div class="body"><h3 style="margin-top:6px">${R.q}</h3><div class="faces">${F.map((f,i)=>`<button data-c="${i+1}" class="${a.craving===i+1?'on':''}"><span class="fe">${f[0]}</span><span>${f[1]}</span></button>`).join('')}</div>${extra}</div><div class="foot">${a.craving?nextBtn:'<div class="small">Just tap one. Be honest, it helps us help you.</div>'}</div>`;
   } else if (S.step==='sf'){
-    html = head('sf','Step 5 · Sugar-free check',P.sugarFree,a.sugar_free===true?P.sugarFree:0,a.sugar_free!=null) + `<div class="body">${art('sf','🛡️')}<h3>Did you stay completely sugar-free today?</h3><p class="txt">Best done before bed. No sugar, jaggery, honey, mithai or sweet drinks.</p><div class="yn"><button class="y ${a.sugar_free===true?'on':''}" data-sf="1"><span class="e">💪</span>Yes, sugar-free</button><button class="n ${a.sugar_free===false?'on':''}" data-sf="0"><span class="e">🍬</span>I had sugar</button></div></div><div class="foot">${a.sugar_free!=null?`<button class="big ghost" data-step-go="result">See my day ${IC.arrow}</button>`:'<div class="small">Had sugar? No stress, you\'ll simply repeat this day tomorrow.</div>'}</div>`;
+    const M=U().main;
+    html = head('sf','Step 5 · '+M.label,P.sugarFree,a.sugar_free===true?P.sugarFree:0,a.sugar_free!=null) + `<div class="body">${art('sf',M.icon)}<h3>${M.q}</h3><p class="txt">${M.note}</p><div class="yn"><button class="y ${a.sugar_free===true?'on':''}" data-sf="1"><span class="e">${M.yes[0]}</span>${M.yes[1]}</button><button class="n ${a.sugar_free===false?'on':''}" data-sf="0"><span class="e">${M.no[0]}</span>${M.no[1]}</button></div></div><div class="foot">${a.sugar_free!=null?`<button class="big ghost" data-step-go="result">See my day ${IC.arrow}</button>`:`<div class="small">${M.foot}</div>`}</div>`;
   } else {
     // result
     const left = STEPS.filter(id=>!stepDone(a,id));
-    if (a.passed && d===21) html = `<div class="body res" style="justify-content:center">${art('sf','🏆')}<h3>Day 21 complete!</h3><div class="scorebig">${a.points}<span> / 100</span></div><p class="txt">You finished the whole challenge. You're a Sugar-Free Sherni!</p></div><div class="foot"><button class="big lime" data-end>See my final scorecard</button></div>`;
-    else if (a.passed) html = `<div class="body res" style="justify-content:center">${art('sf','🎉')}<h3>Day ${d} complete!</h3><div class="scorebig">${a.points}<span> / 100</span></div><p class="txt">Day ${d+1} unlocks tomorrow morning. ${[7,14].includes(d)?'You just earned a new badge! ':''}See you then, Sherni.</p></div><div class="foot"><button class="big" data-tabgo="meals">See tomorrow's sugar-free meals idea</button></div>`;
-    else if (a.sugar_free===false) html = `<div class="body res" style="justify-content:center">${art('crave','🔁')}<h3>You'll repeat Day ${d} tomorrow</h3><p class="txt">One slip doesn't erase your progress. Your completed days are safe. Tomorrow is a fresh start.</p></div><div class="foot"><button class="big" data-sos>Get craving help</button></div>`;
-    else html = `<div class="body res" style="justify-content:center">${art('quiz','⏳')}<h3>${left.length} step${left.length>1?'s':''} left today</h3><div class="scorebig">${a.points||0}<span> / 100</span></div><p class="txt">Score 70+ and finish the sugar-free check to unlock tomorrow.</p></div><div class="foot"><button class="big" data-step-go="${left[0]}">Continue ${IC.arrow}</button></div>`;
+    if (a.passed && d===ND()) html = `<div class="body res" style="justify-content:center">${art('sf','🏆')}<h3>Day ${d} complete!</h3><div class="scorebig">${a.points}<span> / 100</span></div><p class="txt">${U().dayDone}</p></div><div class="foot"><button class="big lime" data-end>See my final scorecard</button></div>`;
+    else if (a.passed) html = `<div class="body res" style="justify-content:center">${art('sf','🎉')}<h3>Day ${d} complete!</h3><div class="scorebig">${a.points}<span> / 100</span></div><p class="txt">Day ${d+1} unlocks tomorrow morning. ${[7,14].includes(d)?'You just earned a new badge! ':''}See you then, Sherni.</p></div><div class="foot"><button class="big" data-tabgo="meals">${U().tab2.next}</button></div>`;
+    else if (a.sugar_free===false) html = `<div class="body res" style="justify-content:center">${art('crave','🔁')}<h3>You'll repeat Day ${d} tomorrow</h3><p class="txt">${U().main.failText}</p></div><div class="foot"><button class="big" data-sos>${U().main.failBtn}</button></div>`;
+    else html = `<div class="body res" style="justify-content:center">${art('quiz','⏳')}<h3>${left.length} step${left.length>1?'s':''} left today</h3><div class="scorebig">${a.points||0}<span> / 100</span></div><p class="txt">Score 70+ and finish the ${U().main.short} to unlock tomorrow.</p></div><div class="foot"><button class="big" data-step-go="${left[0]}">Continue ${IC.arrow}</button></div>`;
   }
-  const box=$('story'); box.innerHTML=html; box.classList.remove('slide'); void box.offsetWidth; box.classList.add('slide');
+  const box=$('story'); box.innerHTML=html; if(!QUIET){ box.classList.remove('slide'); void box.offsetWidth; box.classList.add('slide'); }
   box.querySelectorAll('[data-act="task"]').forEach(b=>b.onclick=()=>update({task_done:true}));
   box.querySelectorAll('[data-act="learn"]').forEach(b=>b.onclick=()=>update({learned:true}));
   box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.q; update({quiz_answer:i, quiz_correct:i===t.quiz.answer}, true); });
-  box.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.c; update({craving:n}, n>=3); });
+  box.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.c, R=U().rate; update({craving:n}, R.lowIsBad?n<=3:n>=3); });
   box.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>update({sugar_free:b.dataset.sf==='1'}));
   box.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{ const i=STEPS.indexOf(S.step); const n=STEPS.slice(i+1).find(id=>!stepDone(a,id)) || STEPS.find(id=>!stepDone(a,id)) || 'result'; S.step=n; renderToday(); });
   box.querySelectorAll('[data-step-go]').forEach(b=>b.onclick=()=>{ S.step=b.dataset.stepGo; renderToday(); });
@@ -587,26 +649,29 @@ function renderToday(){
   box.querySelectorAll('[data-sos]').forEach(b=>b.onclick=openSOS);
   box.querySelectorAll('[data-end]').forEach(b=>b.onclick=()=>{ S.showEnd=true; render(); });
 }
-function mealKey(){ return `sws_meals_${S.st.member.email}_${S.st.today}`; }
+function mealKey(){ return `sws_meals_${S.st.member.email}_${S.st.member.challenge}_${S.st.today}`; }
 function renderMeals(){
   const st=S.st, ch=CH(), d=st.currentDay, t=ch.tasks[d-1];
-  const showTomorrow = st.todayAttempt && st.todayAttempt.passed && d<21;
+  const showTomorrow = st.todayAttempt && st.todayAttempt.passed && d<ND();
   const md = showTomorrow ? d : d-1; // meals index: next day's meals after unlocking today
-  const list = ch.meals[md % ch.meals.length];
-  $('m-title').textContent = showTomorrow ? `Tomorrow's plate · Day ${d+1}` : `Today's plate · Day ${d}`;
+  const u=U(); const isMeals=!!ch.meals;
+  const list = isMeals ? ch.meals[md % ch.meals.length] : ch.routine;
+  $('m-tag').textContent = u.tab2.tag;
+  if (isMeals){ $('m-title').textContent = showTomorrow ? `Tomorrow's plate · Day ${d+1}` : `Today's plate · Day ${d}`; $('m-sub').innerHTML = `Sugar-free <span id="m-diet">${DIET()==='nonveg'?'non-vegetarian':'vegetarian'}</span> meal ideas. Tap a meal when you've eaten it.`; }
+  else { $('m-title').textContent = `${u.tab2.title} · Day ${showTomorrow?d+1:d}`; $('m-sub').textContent = u.tab2.sub; }
   let eaten = {}; try { eaten = JSON.parse(LS.get(mealKey())||'{}'); } catch(e){}
   const TINT=['var(--t-quiz)','var(--t-learn)','var(--t-crave)','var(--t-task)'];
   $('meals').innerHTML = list.map((m,i)=>`<button class="meal ${eaten[i]?'on':''}" data-m="${i}"><span class="ck">${IC.check}</span><span class="me" style="background:${TINT[i]}">${m.img}</span><small>${m.slot}</small><b>${m.name}</b>${m.alt?`<em>${m.alt}</em>`:''}</button>`).join('');
   $('meals').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ eaten[b.dataset.m]=!eaten[b.dataset.m]; LS.set(mealKey(), JSON.stringify(eaten)); renderMeals(); });
   const tt = showTomorrow ? ch.tasks[d] : t;
-  $('m-swap').innerHTML = `<span class="sw">${tt.img.from}<i>→</i>${tt.img.to}</span><div><b>Swap of the day</b><p>${tt.swap}</p></div>`;
+  $('m-swap').innerHTML = `<span class="sw">${tt.img.from}<i>→</i>${tt.img.to}</span><div><b>${u.swapTitle}</b><p>${tt.swap}</p></div>`;
   let water = 0; try { water = Number(LS.get(mealKey()+'_w')||0); } catch(e){}
   $('glasses').innerHTML = Array.from({length:8},(_,i)=>`<button data-w="${i+1}" class="${i<water?'on':''}" aria-label="glass ${i+1}"></button>`).join('');
   $('glasses').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{ const n=+b.dataset.w; const nw = n===water ? n-1 : n; LS.set(mealKey()+'_w', String(nw)); if (nw===8 && water<8) confetti(); renderMeals(); });
   $('w-count').textContent = `${water} / 8 glasses`;
-  $('w-note').textContent = water>=8 ? 'Hydration hero! Water also helps keep sugar cravings away.' : water>=4 ? 'Halfway there, keep sipping!' : 'Tap a glass each time you drink one.';
+  $('w-note').textContent = water>=8 ? 'Hydration hero! '+u.water : water>=4 ? 'Halfway there, keep sipping!' : 'Tap a glass each time you drink one.';
   const n = Object.values(eaten).filter(Boolean).length;
-  $('m-count').textContent = n===4 ? 'All 4 sugar-free meals done. Brilliant!' : `${n} of 4 meals ticked today`;
+  $('m-count').textContent = n===list.length ? u.tab2.all : `${n} of ${list.length} ${u.tab2.of}`;
 }
 function renderProgress(){
   const st=S.st, d=st.currentDay, a=st.todayAttempt||{};
@@ -618,9 +683,9 @@ function renderProgress(){
   let lbh = lb.top.slice(0,5).map(row).join('');
   if (lb.me && lb.me.rank>5) lbh += `<div class="gap">· · ·</div>` + row(lb.me);
   $('p-lb').innerHTML = lbh || '<div class="gap">Your batch will appear here</div>';
-  $('p-badges').innerHTML = BADGES.map(b=>`<div class="badge ${st.score.daysCompleted>=b.day?'got':''}"><div class="bi">${b.e}</div><b>${b.name}</b><span>Day ${b.day}</span></div>`).join('');
+  $('p-badges').innerHTML = U().badges.map(b=>`<div class="badge ${st.score.daysCompleted>=b.day?'got':''}"><div class="bi">${b.e}</div><b>${b.name}</b><span>Day ${b.day}</span></div>`).join('');
   const passed={}; st.attempts.filter(x=>x.passed).forEach(x=>passed[x.day]=1);
-  $('p-journey').innerHTML = Array.from({length:21},(_,i)=>{ const n=i+1; if(passed[n]) return `<div class="ok">${n}</div>`; if(n===d && !a.passed) return `<div class="cur">${n}</div>`; return `<div>${IC.lock}</div>`; }).join('');
+  $('p-journey').innerHTML = Array.from({length:ND()},(_,i)=>{ const n=i+1; if(passed[n]) return `<div class="ok">${n}</div>`; if(n===d && !a.passed) return `<div class="cur">${n}</div>`; return `<div>${IC.lock}</div>`; }).join('');
 }
 function renderEnd(){
   const st=S.st; show('v-end');
@@ -632,17 +697,32 @@ function renderEnd(){
   $('e-took').textContent=Math.round((new Date(last+'T00:00:00Z')-new Date(st.member.start_date+'T00:00:00Z'))/DAYMS)+1;
 }
 
-let busy=false;
-async function update(patch, stay){
-  if (busy) return; busy=true;
+let busy=false, Q=Promise.resolve(), pending=0, QUIET=false;
+// Taps update the screen instantly; saving happens in the background.
+function applyLocal(patch){
+  const st=S.st; let a=st.todayAttempt;
+  if(!a){ a={attempt_date:st.today, day:st.currentDay, sugar_free:null, task_done:false, learned:false, quiz_answer:null, quiz_correct:null, craving:null, points:0, passed:false}; st.attempts=[...st.attempts, a]; }
+  else { a={...a}; st.attempts=st.attempts.map(x=>x.attempt_date===a.attempt_date?a:x); }
+  ['sugar_free','task_done','learned'].forEach(k=>{ if(typeof patch[k]==='boolean') a[k]=patch[k]; });
+  if (a.quiz_answer==null && Number.isInteger(patch.quiz_answer)) { a.quiz_answer=patch.quiz_answer; a.quiz_correct=patch.quiz_correct; }
+  if (patch.craving) a.craving=patch.craving;
+  Object.assign(a,dScore(a));
+  const pr=dProgress(st.member, st.attempts, st.today);
+  Object.assign(st, { todayAttempt:a, score:pr.score });
+}
+function update(patch, stay){
   const was=!!(S.st.todayAttempt&&S.st.todayAttempt.passed);
-  try { S.st = await api({action:'update', token:S.token, ...patch}); }
-  catch(e){ busy=false; alertBox(e.message); return; }
-  busy=false;
+  applyLocal(patch);
   const a=S.st.todayAttempt||{};
   if (!stay) { if (patch.sugar_free!==undefined) S.step='result'; else { const i=STEPS.indexOf(S.step); S.step = STEPS.slice(i+1).find(id=>!stepDone(a,id)) || STEPS.find(id=>!stepDone(a,id)) || 'result'; } }
   render();
   if (!was && a.passed) confetti();
+  pending++; const token=S.token;
+  Q = Q.then(async()=>{
+    try { const fresh = await api({action:'update', token, ...patch}); LS.set('sws_st_'+token, JSON.stringify(fresh)); if (token===S.token && pending===1){ S.st=fresh; QUIET=true; render(); QUIET=false; } }
+    catch(e){ toast('Could not save. Check your internet, we\'ll reload your day.'); if (token===S.token) setTimeout(()=>load(true),1500); }
+    finally { pending--; }
+  });
 }
 function alertBox(msg){ const box=$('story'); if(!box) return; const d=document.createElement('div'); d.className='err'; d.style.margin='0 18px 12px'; d.textContent='Couldn\'t save: '+msg; box.appendChild(d); }
 function setTab(tab){ S.tab=tab; render(); }
@@ -673,7 +753,7 @@ $('l-btn').onclick=async()=>{
   $('l-err').classList.add('hide'); $('l-ok').classList.add('hide');
   if(!email||code.length!==6){ $('l-err').textContent='Please enter your email and the 6-digit code.'; $('l-err').classList.remove('hide'); return; }
   $('l-btn').disabled=true; $('l-btn').textContent='Logging in…';
-  try { const r=await api({action:'login',email,code}); S.token=r.token; LS.set(TKEY,r.token); await load(); }
+  try { const r=await api({action:'login',email,code}); S.token=r.token; LS.set(TKEY,r.token); LS.set(CKEY,btoa(email+':'+code)); await openHome(); }
   catch(e){ $('l-err').textContent=e.message; $('l-err').classList.remove('hide'); }
   $('l-btn').disabled=false; $('l-btn').textContent='Log in';
 };
@@ -684,21 +764,51 @@ $('l-forgot').onclick=async()=>{
   try{ await api({action:'forgot',email}); }catch(e){}
   $('l-ok').textContent='If this email is registered, we\'ve sent your login link again. Check your inbox (and spam).'; $('l-ok').classList.remove('hide');
 };
-$('logout').onclick=()=>{ LS.del(TKEY); S={token:null,st:null,step:null,tab:'today'}; $('t-name').textContent='Strong With Sherni'; $('t-sub').textContent='Sugar Break · 21 days, zero added sugar'; show('v-login'); };
-$('demo-next').onclick=async()=>{ if(!S.st) return; D.offset++; S.step=null; S.showEnd=false; S.tab='today'; S.st=await api({action:'state'}); render(); };
+$('home-btn').onclick=()=>openHome();
+$('logout').onclick=()=>{ [TKEY,CKEY,CURKEY,DEMO?'sws_demo_mine':'sws_mine'].forEach(k=>LS.del(k)); S={token:null,st:null,step:null,tab:'today',mine:null}; $('t-name').textContent='Strong With Sherni'; $('t-sub').textContent='Sugar Break · 21 days, zero added sugar'; show('v-login'); };
+$('demo-next').onclick=async()=>{ DEMO_OFF++; S.step=null; S.showEnd=false; S.tab='today'; if(S.st){ S.st=await api({action:'state',token:S.token}); render(); } else openHome(); };
 
-async function load(){
-  try { S.st=await api({action:'state',token:S.token}); S.step=null; render(); }
-  catch(e){ LS.del(TKEY); S.token=null; show('v-login'); if(e.status!==401 && !DEMO){ $('l-err').textContent=e.message; $('l-err').classList.remove('hide'); } }
+// If the saved login stops working, log in again silently with the remembered email + code.
+async function relogin(){
+  const c=LS.get(CKEY); if(!c) return false;
+  try { const [email,code]=atob(c).split(':'); const r=await api({action:'login',email,code}); S.token=r.token; LS.set(TKEY,r.token); return true; } catch(e){ return false; }
+}
+function homeCards(){
+  const C=window.SWS_CHALLENGES, mine=(S.mine&&S.mine.list)||[], joined=new Set(mine.map(m=>m.challenge));
+  $('h-first').textContent = ((S.mine&&S.mine.name)||'Sherni').split(' ')[0];
+  const line = m => m.status==='pre' ? (m.startsIn===1?'Starts tomorrow':`Starts in ${m.startsIn} days`) : m.status==='complete' ? 'Completed 🏆' : m.status==='expired' ? 'Window ended' : `Day ${m.currentDay} of ${(window.SWS_CHALLENGES[m.challenge]||{}).days||21}${m.passedToday?' · done today ✓':''}`;
+  $('home-list').innerHTML = mine.length ? mine.map(m=>{ const u=uiOf(C[m.challenge]); return `<button class="hcard" data-open="${m.token}" data-cid="${m.challenge}" style="background:${u.cardGrad}"><span class="hi">${u.icon}</span><span><b>${u.short}</b><small>${line(m)}</small></span><span class="go">Open</span></button>`; }).join('') : '<div class="gap" style="text-align:center;color:var(--muted);margin:8px 0 16px">Loading your challenges…</div>';
+  const more = Object.keys(C).filter(k=>!joined.has(k));
+  $('home-more-h').classList.toggle('hide',!more.length);
+  $('home-more').innerHTML = more.map(k=>{ const u=uiOf(C[k]); return `<a class="hcard more" href="https://www.strongwithsherni.com/${C[k].page||'challenges.html'}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)"><span class="hi">${u.icon}</span><span><b>${u.short}</b><small>${u.sub}</small></span><span class="go">Join</span></a>`; }).join('');
+  $('home-list').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openChallenge(b.dataset.open));
+}
+async function openHome(){
+  S.st=null; $('t-name').textContent='Strong With Sherni'; $('t-sub').textContent='Your challenges';
+  show('v-home'); homeCards();
+  try { S.mine = await api({action:'mine', token:S.token}); LS.set(DEMO?'sws_demo_mine':'sws_mine', JSON.stringify(S.mine)); homeCards(); }
+  catch(e){ if (e.status===401 && await relogin()) return openHome(); if (e.status===401){ LS.del(TKEY); show('v-login'); } else if(!S.mine) toast('No internet? Pull down to refresh.'); }
+}
+function openChallenge(tok){
+  S.token=tok; S.cur=tok; LS.set(CURKEY,tok); S.step=null; S.tab='today'; S.showEnd=false;
+  const cached = LS.get('sws_st_'+tok); if (cached){ try{ S.st=JSON.parse(cached); render(); }catch(e){} }
+  load();
+}
+async function load(silent){
+  try { const st=await api({action:'state',token:S.token}); S.st=st; LS.set('sws_st_'+S.token, JSON.stringify(st)); if(!silent) S.step=null; render(); }
+  catch(e){
+    if (e.status===401){ if (await relogin()) return openHome(); LS.del(TKEY); S.token=null; show('v-login'); return; }
+    if (!S.st){ toast(e.message||'Could not load. Check your internet.'); openHome(); }
+  }
 }
 
 if (DEMO){ $('demo-bar').classList.remove('hide'); $('l-email').value='demo@sws.com'; }
 (function(){
   const p=new URLSearchParams(location.search).get('login');
-  if(!p){ if(S.token) load(); else show('v-login'); return; }
+  if(!p){ if(S.token) openHome(); else if(LS.get(CKEY)) relogin().then(ok=>ok?openHome():show('v-login')); else show('v-login'); return; }
   let email='',code=''; try{ [email,code]=atob(p.replace(/-/g,'+').replace(/_/g,'/')).split(':'); }catch(e){}
   history.replaceState(null,'',location.pathname+(DEMO?'?demo':''));
-  if(!email||!code){ if(S.token) load(); else show('v-login'); return; }
+  if(!email||!code){ if(S.token) openHome(); else show('v-login'); return; }
   $('l-email').value=email; $('l-code').value=code; show('v-login'); $('l-btn').click();
 })();
 </script>
