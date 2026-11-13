@@ -232,6 +232,7 @@
     <a href="challenges.html" class="active">Challenges</a>
     <a href="nutrition.html">Nutrition</a>
     <a href="blog.html">Blog</a>
+    <a href="app.html">Member Login</a>
     <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20know%20more." target="_blank" rel="noopener">Contact</a>
     <a href="https://wa.me/919036147675?text=Hi!%20I%27d%20like%20to%20book%20a%20free%20consultation." class="nav-cta-mobile" target="_blank" rel="noopener">Book a Call</a>
   </div>
@@ -381,6 +382,19 @@
     var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in-view'); io.unobserve(en.target); } }); }, {threshold:0.12});
     els.forEach(function(e){ io.observe(e); });
   });
+</script>
+<script>
+/* Referral links: ?ref=CODE gives ₹50 off (the server checks the code at payment). */
+(function(){
+  var p=new URLSearchParams(location.search), ref=(p.get('ref')||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  try{ if(ref) localStorage.setItem('sws_ref',ref); }catch(e){}
+  if(!ref) return;
+  document.querySelectorAll('a[href*="signup.html"]').forEach(function(a){ a.href=a.href+(a.href.indexOf('?')>-1?'&':'?')+'ref='+encodeURIComponent(ref); });
+  document.querySelectorAll('.pr').forEach(function(el){ var m=el.firstChild&&el.firstChild.nodeValue&&el.firstChild.nodeValue.match(/₹\s*([\d,]+)/); if(!m) return; var full=+m[1].replace(/,/g,''); el.firstChild.nodeValue=''; el.insertAdjacentHTML('afterbegin','<s style="opacity:.55;font-size:.7em;margin-right:6px">₹'+full+'</s>₹'+(full-50)); });
+  document.querySelectorAll('a.btn[href*="signup.html"]').forEach(function(a){ a.innerHTML=a.innerHTML.replace(/₹\s*([\d,]+)/,function(_,n){ return '₹'+(+n.replace(/,/g,'')-50); }); });
+  var b=document.createElement('div'); b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#1F4037;color:#fff;text-align:center;font:600 14px/1.3 system-ui,sans-serif;padding:10px 14px';
+  b.textContent='🎁 Your friend sent you ₹50 off. Applied when you join (new members)'; document.body.appendChild(b); document.body.style.paddingTop='40px';
+})();
 </script>
 </body>
 </html>

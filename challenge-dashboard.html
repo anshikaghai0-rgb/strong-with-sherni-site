@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Challenge Dashboard — Strong With Sherni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF7F2;--card:#fff;--ink:#2D2420;--muted:#857A70;--line:#EDE4DA;--maroon:#7B0237;--green:#1F4037;--gold:#B7791F;--pink:#FCE7EF;--mint:#E3F1EA;--sand:#FBF1DE;--sky:#E6EEF9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 'Work Sans',system-ui,sans-serif}
+button,input,select{font:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-family:'Cormorant Garamond',serif;font-size:34px;line-height:1;margin:0;color:var(--maroon)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+select,input[type=search],input[type=password]{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;color:var(--ink);outline:none}
+select:focus,input:focus{border-color:var(--maroon)}
+.btn{background:var(--maroon);color:#fff;border:0;border-radius:12px;padding:9px 14px;font-weight:600;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.demo{background:var(--sand);border:1px solid #F1DDB5;color:#7A5212;border-radius:12px;padding:9px 14px;font-weight:600;font-size:13px;margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.kpi small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.kpi b{display:block;font-size:26px;font-weight:700;margin-top:4px;letter-spacing:-.5px}
+.kpi em{font-style:normal;font-size:12px;color:var(--muted)}
+.kpi.m b{color:var(--maroon)}.kpi.g b{color:var(--green)}.kpi.o b{color:var(--gold)}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.tab{background:none;border:0;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--maroon);border-color:var(--maroon)}
+.tab span{display:inline-block;background:var(--line);color:var(--ink);border-radius:10px;font-size:11px;padding:1px 7px;margin-left:5px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bar input[type=search]{flex:1;min-width:180px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:11px 14px;background:#FDFBF8;border-bottom:1px solid var(--line)}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.nm b{display:block;font-weight:600}.nm small{color:var(--muted);font-size:12px}
+.tag{display:inline-block;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.t-paid{background:var(--sky);color:#264A7A}.t-ref{background:var(--pink);color:var(--maroon)}.t-free{background:var(--mint);color:var(--green)}
+.t-l2{background:var(--ink);color:#fff;margin-left:4px;font-size:10.5px;padding:2px 6px}
+.st-pre{color:var(--muted)}.st-done{color:var(--green);font-weight:600}.st-exp{color:#A33}
+.prog{display:flex;align-items:center;gap:8px;min-width:130px}.prog i{flex:1;height:6px;border-radius:4px;background:var(--line);overflow:hidden}.prog i u{display:block;height:100%;background:linear-gradient(90deg,var(--maroon),#E0457B)}
+.prog span{font-size:12px;color:var(--muted);white-space:nowrap}
+.muted{color:var(--muted)}
+.wa{display:inline-block;background:#25D366;color:#fff;border-radius:10px;padding:6px 10px;font-weight:600;font-size:12px;text-decoration:none;white-space:nowrap}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.help{color:var(--muted);font-size:13px;margin:0 0 12px}
+.friends{display:flex;flex-wrap:wrap;gap:5px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
+#login{max-width:360px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px}
+#login h1{margin-bottom:6px}#login input{width:100%;margin:14px 0 10px}#login .btn{width:100%}
+.err{color:#A33;font-weight:600;font-size:13px;min-height:18px}
+.hide{display:none!important}
+
+.hero{background:radial-gradient(120% 140% at 0% 0%,#A3124F 0%,#7B0237 45%,#4A0122 100%);color:#fff;border-radius:24px;padding:24px 24px 22px;margin-bottom:18px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero h1{color:#fff;font-size:38px}.hero .eyebrow{color:#F6C9A9}.hero p{margin:6px 0 0;color:#F3D6E1;font-size:13.5px}
+.hero header{margin:0;position:relative;z-index:1}
+.hero select{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:#fff}.hero select option{color:#2D2420}
+.hero .btn.ghost{background:#fff;color:var(--maroon);border:0}
+.kpi{position:relative;transition:transform .15s,box-shadow .15s}.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(74,1,34,.08)}
+.kpi .ic{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg)}
+.kpi.m .ic{background:var(--pink)}.kpi.g .ic{background:var(--mint)}.kpi.o .ic{background:var(--sand)}
+.glance{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:18px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.box h3{margin:0 0 12px;font-size:14px;font-weight:700}.box h3 small{font-weight:500;color:var(--muted);margin-left:6px}
+.crow{display:grid;grid-template-columns:150px 1fr 34px;gap:10px;align-items:center;margin:9px 0;font-size:13px;font-weight:600}
+.stack{display:flex;height:12px;border-radius:7px;overflow:hidden;background:var(--line)}
+.stack i{display:block;height:100%}.l1{background:#E8A0BC}.l2{background:#B5306A}.l3{background:#4A0122}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px}.legend b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px}.mrow:last-child{border:0}
+.mrow b{font-size:15px}
+.av{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;color:#fff;flex:0 0 34px}
+.nm{white-space:nowrap}.nm>div{display:inline-block;vertical-align:middle;margin-left:10px;white-space:normal}.av{vertical-align:middle}
+@media (max-width:860px){.glance{grid-template-columns:1fr}.crow{grid-template-columns:110px 1fr 28px}}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:700px){
+  .kpi .ic{display:none}
+  .kpis{grid-template-columns:repeat(2,1fr)}.kpi b{font-size:22px}
+  thead{display:none}table,tbody,tr,td{display:block;width:100%}
+  tr{padding:12px 14px;border-bottom:1px solid var(--line)}td{border:0;padding:3px 0}
+  td[data-l]::before{content:attr(data-l);display:inline-block;width:96px;color:var(--muted);font-size:12px;font-weight:600}
+  .prog{display:inline-flex;min-width:0;width:calc(100% - 100px)}
+}
+</style>
+</head>
+<body>
+<div id="login" class="hide">
+  <div class="eyebrow">Strong With Sherni</div>
+  <h1>Challenge Dashboard</h1>
+  <p class="muted" style="margin:0">Members, rejoins, referrals and free level passes.</p>
+  <form id="lf"><input type="password" id="pw" placeholder="Dashboard password" autocomplete="current-password"><button class="btn">Open dashboard</button></form>
+  <div class="err" id="lerr"></div>
+</div>
+
+<div class="wrap hide" id="app">
+  <div class="demo hide" id="demo">Demo with sample data. Real names and numbers appear once it's connected to your members.</div>
+  <div class="hero"><header>
+    <div><div class="eyebrow">Strong With Sherni</div><h1>Challenge Dashboard</h1><p id="hero-sub">Everything updates on its own from your sign-ups.</p></div>
+    <div class="filters">
+      <select id="f-batch"></select>
+      <select id="f-ch"></select>
+      <button class="btn ghost" id="csv">Export CSV</button>
+    </div>
+  </header></div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="glance">
+    <div class="box"><h3>Members by challenge<small>Level 1, 2 and 3</small></h3><div id="g-ch"></div>
+      <div class="legend"><span><b class="l1"></b>Level 1</span><span><b class="l2"></b>Level 2</span><span><b class="l3"></b>Level 3</span></div></div>
+    <div class="box"><h3>Money<small>for this view</small></h3><div id="g-money"></div></div>
+  </section>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-t="members">Members<span id="n-members"></span></button>
+    <button class="tab" data-t="rejoin">Rejoining<span id="n-rejoin"></span></button>
+    <button class="tab" data-t="refs">Referrals<span id="n-refs"></span></button>
+    <button class="tab" data-t="l2">Ready for next level<span id="n-l2"></span></button>
+    <button class="tab" data-t="groups">WhatsApp groups</button>
+  </nav>
+
+  <div id="v-members">
+    <div class="bar">
+      <button class="chip on" data-p="all">All</button>
+      <button class="chip" data-p="paid">Paid full price</button>
+      <button class="chip" data-p="ref">₹50 off</button>
+      <button class="chip" data-p="free">Free level (referral)</button>
+      <input type="search" id="q" placeholder="Search name, email or phone">
+    </div>
+    <div class="panel"><table><thead><tr><th>Name</th><th>Challenge</th><th>Batch</th><th>Progress</th><th>Paid</th><th>Referred by</th></tr></thead><tbody id="tb-members"></tbody></table></div>
+  </div>
+
+  <div id="v-rejoin" class="hide">
+    <p class="help">People who have joined more than once: another batch, another challenge or a higher level.</p>
+    <div class="panel"><table><thead><tr><th>Name</th><th>Times joined</th><th>Their challenges (oldest first)</th><th>Total paid</th></tr></thead><tbody id="tb-rejoin"></tbody></table></div>
+  </div>
+
+  <div id="v-refs" class="hide">
+    <p class="help">Who brought friends. Each friend who joins = one free next level for the person who referred them.</p>
+    <div class="panel"><table><thead><tr><th>Referred by</th><th>Code</th><th>Friends who joined (₹50 off)</th><th>Free levels</th></tr></thead><tbody id="tb-refs"></tbody></table></div>
+  </div>
+
+  <div id="v-groups" class="hide">
+    <p class="help">Each challenge has a separate group for every level.</p>
+    <div class="panel"><table><thead><tr><th>Challenge</th><th>Level 1</th><th>Level 2</th><th>Level 3</th></tr></thead><tbody id="tb-groups"></tbody></table></div>
+  </div>
+
+  <div id="v-l2" class="hide">
+    <p class="help">Finished a level but haven't joined the next one yet. Your easiest sales: send them a message.</p>
+    <div class="panel"><table><thead><tr><th>Name</th><th>Finished</th><th>Next step</th><th></th></tr></thead><tbody id="tb-l2"></tbody></table></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const NAMES={'sugar-break':'Sugar Break','5-am-club':'5 AM Club','mindful-eating':'Mindful Eating','wedding-season-ready':'Wedding Season Ready','new-year-kickstart':'New Year Kickstart'};
+const PRICES={'sugar-break':299,'5-am-club':299,'mindful-eating':479,'wedding-season-ready':599,'new-year-kickstart':299};
+const DAYS={'new-year-kickstart':30};
+const GROUPS={'sugar-break':['LdOprhlpyJ57FAT1flTFkU','Govt9yZGVojHTlFlZnyh8d','HTNBEMWxfV3CfffsvnGlkX'],'5-am-club':['Jyx1nPHTWrMJiqSHPdQ2LN','KFe6M5PvVxh9g3qsWY7MJv','DEDZGbqVhSnFnlZGbQWMXE'],'mindful-eating':['DLrZZSG8KvpJvnzrWE03Gg','DD0b05ZtifL5lhGOmLzkuG','CGAAXB5F9Ox55OGp3CXctt'],'wedding-season-ready':['K2Vdt0R17FA2cxjxDiyVHZ','E4cyA1yCrMGHUJGTSZtd5a','CmJR6NMEjcQ4mqDN2rwHEu'],'new-year-kickstart':['ELyrGbwJmG0IXzdYPB0yz6','LOHz4RgfkP1AKsecSIq6Cn','HVxXVUykMV92lC3EC8n2DR']};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const monthOf=iso=>new Date(iso+'T00:00:00').toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+const baseOf=c=>String(c).replace(/-level-\d+$/,''), levelOf=c=>{const m=String(c).match(/-level-(\d+)$/);return m?+m[1]:1;};
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800);};
+let ALL=[], S={tab:'members',pay:'all',q:'',batch:'all',ch:'all'};
+
+/* ---------- sample data for the demo ---------- */
+function demoData(){
+  const first=['Priya','Neha','Ritu','Ananya','Sneha','Kavya','Meera','Pooja','Aditi','Isha','Riya','Tanvi','Divya','Shreya','Nikita','Anjali','Swati','Komal','Pallavi','Megha','Sakshi','Bhavna','Rashmi','Simran','Jyoti','Kritika','Payal','Aarti'];
+  const last=['Sharma','Kapoor','Mehta','Rao','Iyer','Nair','Reddy','Gupta','Singh','Joshi','Menon','Shetty','Das','Patel'];
+  let seed=7; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647; const pick=a=>a[Math.floor(rnd()*a.length)];
+  const people=first.map((f,i)=>({name:f+' '+last[i%last.length],email:f.toLowerCase()+'@mail.com',phone:'98'+String(45000000+i*137911).slice(0,8),code:f.toUpperCase().slice(0,6)+(300+i*7)}));
+  const m=[]; let id=0; const add=(p,ch,start,status,day,pay,ref)=>{const base=baseOf(ch), total=DAYS[base]||21; m.push({id:'m'+(++id),name:p.name,email:p.email,phone:p.phone,challenge:ch,start_date:start,status,daysDone:status==='complete'?total:status==='pre'?0:day,total,refCode:p.code,payType:pay,amount:pay==='free'?0:pay==='ref'?PRICES[base]-50:PRICES[base],referredBy:ref?{code:ref.code,name:ref.name}:null,created:start});};
+  const chs=Object.keys(NAMES);
+  // November batch (running / finished)
+  people.slice(0,16).forEach((p,i)=>{ const ch=i<7?'sugar-break':i<10?'5-am-club':i<12?'mindful-eating':i<14?'wedding-season-ready':'sugar-break'; const done=i%3===0; add(p,ch,'2026-11-01',done?'complete':(i%5===4?'expired':'active'),done?21:8+Math.floor(rnd()*5),'paid'); });
+  // December batch: referrals + rejoins + free Level 2
+  const R=(a,b)=>people[a];
+  add(people[16],'sugar-break','2026-12-01','pre',0,'ref',people[0]);
+  add(people[17],'sugar-break','2026-12-01','pre',0,'ref',people[0]);
+  add(people[18],'5-am-club','2026-12-01','pre',0,'ref',people[9]);
+  add(people[19],'wedding-season-ready','2026-12-01','pre',0,'ref',people[12]);
+  add(people[20],'sugar-break','2026-12-01','pre',0,'ref',people[3]);
+  add(people[22],'sugar-break','2026-12-01','pre',0,'ref',people[4]);
+  add(people[0],'sugar-break-level-2','2026-12-01','pre',0,'free');          // claimed free L2
+  add(people[3],'mindful-eating','2026-12-01','pre',0,'paid');              // rejoined, new challenge
+  add(people[6],'sugar-break-level-2','2026-12-01','pre',0,'paid');         // paid for L2
+  add(people[9],'5-am-club-level-2','2026-12-01','pre',0,'free');
+  add(people[1],'5-am-club','2026-12-01','pre',0,'paid');                   // rejoined
+  add(people[4],'sugar-break-level-2','2026-10-01','complete',21,'paid');   // finished L2 in Oct
+  add(people[4],'sugar-break-level-3','2026-12-01','pre',0,'free');          // free Level 3
+  add(people[13],'wedding-season-ready-level-2','2026-10-01','complete',21,'paid');
+  people.slice(23).forEach(p=>add(p,pick(chs),'2026-12-01','pre',0,'paid'));
+  return m;
+}
+
+/* ---------- loading ---------- */
+const DEMO = /[?&#]demo/.test(location.search+location.hash) || location.protocol==='blob:' || !/strongwithsherni\.com|localhost/.test(location.host);
+async function load(pw){
+  if (DEMO){ ALL=demoData(); $('demo').classList.remove('hide'); return true; }
+  const r=await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'dashboard',password:pw})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error||'Could not load.');
+  ALL=j.members; return true;
+}
+async function start(pw){
+  try{ await load(pw); try{ if(!DEMO) sessionStorage.setItem('sws_dash',pw); }catch(e){} $('login').classList.add('hide'); $('app').classList.remove('hide'); setupFilters(); render(); renderGroups(); }
+  catch(e){ $('login').classList.remove('hide'); $('lerr').textContent=e.message; try{sessionStorage.removeItem('sws_dash')}catch(_){} }
+}
+$('lf').onsubmit=e=>{e.preventDefault(); $('lerr').textContent=''; start($('pw').value);};
+
+/* ---------- filters ---------- */
+function setupFilters(){
+  const batches=[...new Set(ALL.map(m=>m.start_date))].sort().reverse();
+  $('f-batch').innerHTML='<option value="all">All batches</option>'+batches.map(b=>`<option value="${b}">${monthOf(b)} batch</option>`).join('');
+  $('f-ch').innerHTML='<option value="all">All challenges</option>'+Object.keys(NAMES).map(k=>`<option value="${k}">${NAMES[k]}</option>`).join('');
+  $('f-batch').onchange=e=>{S.batch=e.target.value;render();}; $('f-ch').onchange=e=>{S.ch=e.target.value;render();};
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));['members','rejoin','refs','l2','groups'].forEach(t=>$('v-'+t).classList.toggle('hide',t!==S.tab));});
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.pay=b.dataset.p;document.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));render();});
+$('q').oninput=e=>{S.q=e.target.value.toLowerCase();render();};
+
+/* ---------- helpers ---------- */
+const chLabel=c=>`${esc(NAMES[baseOf(c)]||c)}${levelOf(c)>1?`<span class="tag t-l2">LEVEL ${levelOf(c)}</span>`:''}`;
+const payTag=m=>m.payType==='free'?'<span class="tag t-free">🎁 Free level</span>':m.payType==='ref'?`<span class="tag t-ref">${inr(m.amount)} · ₹50 off</span>`:`<span class="tag t-paid">${inr(m.amount)}</span>`;
+function progress(m){
+  if(m.status==='pre') return `<span class="st-pre">Starts ${new Date(m.start_date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span>`;
+  if(m.status==='complete') return '<span class="st-done">✓ Completed</span>';
+  if(m.status==='expired') return `<span class="st-exp">Window ended · ${m.daysDone}/${m.total}</span>`;
+  return `<div class="prog"><i><u style="width:${Math.round(m.daysDone/m.total*100)}%"></u></i><span>Day ${m.daysDone}/${m.total}</span></div>`;
+}
+const waLink=(phone,text)=>{let p=String(phone||'').replace(/\D/g,''); if(p.length===10)p='91'+p; return p?`https://wa.me/${p}?text=${encodeURIComponent(text)}`:'';};
+const AVC=['#B5306A','#1F4037','#B7791F','#3B5BA5','#7B0237','#5B7F6B','#9C4F96'];
+const avatar=n=>{const t=String(n||'?').trim().split(/\s+/), i=(t[0][0]+(t[1]?t[1][0]:'')).toUpperCase(); let h=0; for(const c of String(n))h=(h*31+c.charCodeAt(0))>>>0; return `<span class="av" style="background:${AVC[h%AVC.length]}">${esc(i)}</span>`;};
+const personKey=m=>{const d=String(m.phone||'').replace(/\D/g,'').slice(-10); return d.length===10?d:String(m.email||'').toLowerCase();};
+const inView=m=>(S.batch==='all'||m.start_date===S.batch)&&(S.ch==='all'||baseOf(m.challenge)===S.ch);
+
+/* ---------- render ---------- */
+function render(){
+  const V=ALL.filter(inView);
+  const byEmail={}; ALL.forEach(m=>{const k=personKey(m); (byEmail[k]=byEmail[k]||[]).push(m);});
+  const rejoiners=Object.values(byEmail).filter(l=>l.length>1 && l.some(inView));
+  const refd=V.filter(m=>m.payType==='ref'), free=V.filter(m=>m.payType==='free');
+  // free passes earned but not claimed yet
+  const earned=ALL.filter(m=>m.payType==='ref'&&m.referredBy).length, claimed=ALL.filter(m=>m.payType==='free').length;
+  const revenue=V.reduce((s,m)=>s+(m.amount||0),0), discount=refd.length*50;
+  $('kpis').innerHTML=[
+    ['Members',V.length,`${new Set(V.map(personKey)).size} people`,'','👥'],
+    ['Revenue',inr(revenue),'after discounts','m','💰'],
+    ['Rejoined',rejoiners.length,'joined 2+ times','g','🔁'],
+    ['₹50 off used',refd.length,`${inr(discount)} given`,'o','🎟️'],
+    ['Free levels claimed',free.length,'from referrals','g','🎁'],
+    ['Free levels waiting',Math.max(0,earned-claimed),'earned, not claimed','o','⏳']
+  ].map(([l,v,s,c,ic])=>`<div class="kpi ${c}"><span class="ic">${ic}</span><small>${l}</small><b>${v}</b><em>${s}</em></div>`).join('');
+  // At a glance
+  const maxN=Math.max(1,...Object.keys(NAMES).map(b=>V.filter(m=>baseOf(m.challenge)===b).length));
+  $('g-ch').innerHTML=Object.keys(NAMES).map(b=>{const L=[1,2,3].map(n=>V.filter(m=>baseOf(m.challenge)===b&&levelOf(m.challenge)===n).length), t=L[0]+L[1]+L[2];
+    return `<div class="crow"><span>${NAMES[b]}</span><div class="stack" style="width:${Math.max(4,t/maxN*100)}%">${L.map((n,i)=>n?`<i class="l${i+1}" style="width:${n/Math.max(t,1)*100}%" title="Level ${i+1}: ${n}"></i>`:'').join('')}</div><b style="text-align:right">${t}</b></div>`;}).join('');
+  const full=V.filter(m=>m.payType==='paid');
+  $('g-money').innerHTML=[['Full price',`${full.length} × `,inr(full.reduce((s,m)=>s+m.amount,0))],['With ₹50 off',`${refd.length} × `,inr(refd.reduce((s,m)=>s+m.amount,0))],['Free levels',`${free.length} × `,'₹0'],['Total collected','',inr(revenue)]]
+    .map(([l,n,v],i)=>`<div class="mrow"><span>${l}</span><span><span class="muted">${n}</span><b style="${i===3?'color:var(--maroon)':''}">${v}</b></span></div>`).join('');
+
+  // Members
+  let M=V.filter(m=>S.pay==='all'||m.payType===S.pay);
+  if(S.q) M=M.filter(m=>(m.name+' '+m.email+' '+m.phone).toLowerCase().includes(S.q));
+  M.sort((a,b)=>b.start_date.localeCompare(a.start_date)||a.name.localeCompare(b.name));
+  $('n-members').textContent=V.length;
+  $('tb-members').innerHTML=M.length?M.map(m=>`<tr><td class="nm">${avatar(m.name)}<div><b>${esc(m.name)}</b><small>${esc(m.email)} · ${esc(m.phone||'')}</small></div></td><td data-l="Challenge">${chLabel(m.challenge)}</td><td data-l="Batch">${monthOf(m.start_date)}</td><td data-l="Progress">${progress(m)}</td><td data-l="Paid">${payTag(m)}</td><td data-l="Referred by">${m.referredBy?esc(m.referredBy.name):'<span class="muted">—</span>'}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No members match.</td></tr>';
+
+  // Rejoining
+  $('n-rejoin').textContent=rejoiners.length;
+  $('tb-rejoin').innerHTML=rejoiners.length?rejoiners.sort((a,b)=>b.length-a.length).map(l=>{l=[...l].sort((a,b)=>a.start_date.localeCompare(b.start_date)); return `<tr><td class="nm">${avatar(l[0].name)}<div><b>${esc(l[0].name)}</b><small>${esc(l[0].email)}</small></div></td><td data-l="Times joined"><b>${l.length}×</b></td><td data-l="Challenges"><div class="friends">${l.map(m=>`<span class="tag ${m.payType==='free'?'t-free':m.payType==='ref'?'t-ref':'t-paid'}">${esc(NAMES[baseOf(m.challenge)])}${levelOf(m.challenge)>1?' L'+levelOf(m.challenge):''} · ${monthOf(m.start_date)}</span>`).join('')}</div></td><td data-l="Total paid">${inr(l.reduce((s,m)=>s+m.amount,0))}</td></tr>`;}).join(''):'<tr><td colspan="4" class="empty">Nobody has rejoined yet.</td></tr>';
+
+  // Referrals
+  const refMap={}; ALL.filter(m=>m.referredBy).forEach(m=>{const k=m.referredBy.code; (refMap[k]=refMap[k]||{code:k,name:m.referredBy.name,friends:[]}).friends.push(m);});
+  const refs=Object.values(refMap).filter(r=>r.friends.some(inView)).sort((a,b)=>b.friends.length-a.friends.length);
+  $('n-refs').textContent=refs.length;
+  $('tb-refs').innerHTML=refs.length?refs.map(r=>{const owner=ALL.filter(m=>m.refCode===r.code), used=owner.filter(m=>m.payType==='free').length, n=r.friends.length;
+    return `<tr><td class="nm">${avatar(r.name)}<div><b>${esc(r.name)}</b><small>${esc((owner[0]||{}).email||'')}</small></div></td><td data-l="Code"><span class="muted">${esc(r.code)}</span></td><td data-l="Friends"><div class="friends">${r.friends.map(f=>`<span class="tag t-ref">${esc(f.name.split(' ')[0])} · ${esc(NAMES[baseOf(f.challenge)])}</span>`).join('')}</div></td><td data-l="Free levels">${used?`<span class="tag t-free">${used} claimed</span> `:''}${n-used>0?`<span class="tag" style="background:var(--sand);color:#7A5212">${n-used} waiting</span>`:''}</td></tr>`;}).join(''):'<tr><td colspan="4" class="empty">No referrals yet.</td></tr>';
+
+  // Ready for next level: finished a level (1 or 2), not yet in the next one
+  const ready=ALL.filter(m=>{const n=levelOf(m.challenge); if(n>=3||m.status!=='complete'||!inView(m)) return false; const nx=baseOf(m.challenge)+'-level-'+(n+1); return !ALL.some(x=>personKey(x)===personKey(m)&&x.challenge===nx);});
+  $('n-l2').textContent=ready.length;
+  $('tb-l2').innerHTML=ready.length?ready.map(m=>{const n=NAMES[baseOf(m.challenge)], lv=levelOf(m.challenge), wa=waLink(m.phone,`Hi ${m.name.split(' ')[0]}! Coach Sherni here. Congratulations on finishing ${n} Level ${lv}! 🎉 You've unlocked ${n} Level ${lv+1}. The next batch starts on the 1st. Want me to send you the link?`);
+    return `<tr><td class="nm">${avatar(m.name)}<div><b>${esc(m.name)}</b><small>${esc(m.phone||m.email)}</small></div></td><td data-l="Finished">${esc(n)} Level ${lv} · ${monthOf(m.start_date)}</td><td data-l="Next step">Invite to ${esc(n)} Level ${lv+1}</td><td>${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>`:''}</td></tr>`;}).join(''):'<tr><td colspan="4" class="empty">Nobody is waiting for their next level right now.</td></tr>';
+}
+
+/* ---------- groups ---------- */
+function renderGroups(){
+  $('tb-groups').innerHTML=Object.keys(GROUPS).map(b=>`<tr><td><b>${NAMES[b]}</b></td>${GROUPS[b].map((g,i)=>{const n=ALL.filter(m=>baseOf(m.challenge)===b&&levelOf(m.challenge)===i+1&&(m.status==='pre'||m.status==='active')).length; return `<td data-l="Level ${i+1}"><a class="wa" href="https://chat.whatsapp.com/${g}" target="_blank" rel="noopener">Open group</a> <span class="muted" style="font-size:12px">${n} in it now</span></td>`;}).join('')}</tr>`).join('');
+}
+
+/* ---------- export ---------- */
+$('csv').onclick=async()=>{
+  const rows=[['Name','Email','Phone','Challenge','Level','Batch','Status','Days done','Paid (₹)','Payment type','Referred by','Their referral code']]
+    .concat(ALL.filter(inView).map(m=>[m.name,m.email,m.phone,NAMES[baseOf(m.challenge)],levelOf(m.challenge),m.start_date,m.status,m.daysDone,m.amount,{paid:'Full price',ref:'₹50 off (referral)',free:'Free level (referral reward)'}[m.payType],m.referredBy?m.referredBy.name:'',m.refCode||'']));
+  const csv=rows.map(r=>r.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'})); a.download='sws-challenge-members.csv'; a.click(); }catch(e){}
+  try{ await navigator.clipboard.writeText(csv); toast('Copied. Paste into Google Sheets or Excel.'); }catch(e){ toast('Downloaded sws-challenge-members.csv'); }
+};
+
+/* ---------- start ---------- */
+(function(){ if(DEMO) return start(''); let pw=''; try{pw=sessionStorage.getItem('sws_dash')||'';}catch(e){} if(pw) start(pw); else $('login').classList.remove('hide'); })();
+</script>
+</body>
+</html>

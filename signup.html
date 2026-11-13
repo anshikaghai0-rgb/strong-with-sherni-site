@@ -105,11 +105,35 @@
   const params = new URLSearchParams(window.location.search);
   const planName = params.get('plan') || 'Coaching Program';
   const planDuration = params.get('duration') || '';
-  const planPrice = Number(params.get('price')) || 0;
+  const urlPrice = Number(params.get('price')) || 0;
+  const isChallenge = /challenge/i.test(planName);
+  const isLevel2 = /level [2-9]/i.test(planName); // Level 2 or 3
+  // Referral code: from this link, or remembered from the challenge page the friend opened first.
+  let refCode = (params.get('ref') || '').trim().toUpperCase();
+  try { if (refCode) localStorage.setItem('sws_ref', refCode); else refCode = isChallenge && !isLevel2 ? (localStorage.getItem('sws_ref') || '') : ''; } catch(e) {}
 
   document.getElementById('plan-name').textContent = planName;
   document.getElementById('plan-duration').textContent = planDuration;
-  document.getElementById('plan-price').innerHTML = `₹${planPrice.toLocaleString('en-IN')} <span>one-time</span>`;
+  function showPrice(price, full, note){
+    document.getElementById('plan-price').innerHTML = (full && full > price ? `<s style="font-size:22px;color:#9a8f86;margin-right:8px">₹${full.toLocaleString('en-IN')}</s>` : '')
+      + `₹${Number(price).toLocaleString('en-IN')} <span>one-time</span>` + (note ? `<div style="font-family:'Work Sans',sans-serif;font-size:14px;font-weight:600;color:#1F4037;margin-top:8px">${note}</div>` : '');
+  }
+  if (urlPrice) showPrice(urlPrice);
+  // Ask the server for the real price (it decides prices and the referral discount).
+  async function quote(email){
+    try {
+      const r = await fetch('/api/create-order', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ quote:true, planName, duration: planDuration, email: email || '', phone: document.getElementById('f-phone').value.trim(), ref: refCode }) });
+      const q = await r.json();
+      if (!r.ok) { if (q.error) showError(q.error); return null; }
+      const note = q.discount ? `🎁 ₹${q.discount} off with ${q.referrer ? q.referrer + "'s" : 'your friend\'s'} referral link` : (q.needsLevel ? `🔓 For members who finished Level ${q.needsLevel}. Use the same email you joined with.` : (q.refNote || ''));
+      showPrice(q.price, q.full, note);
+      if (q.locked) showError(q.locked); else document.getElementById('error-msg').style.display = 'none';
+      return q;
+    } catch(e) { return null; }
+  }
+  quote();
+  // Re-check the price once we know who is buying (Level 2/3 unlock, and referral discount is for new members only).
+  if (isLevel2 || refCode) ['f-email','f-phone'].forEach(id => document.getElementById(id).addEventListener('change', () => quote(document.getElementById('f-email').value.trim())));
 
   // IMPORTANT: replace with your actual Razorpay Key ID (safe to expose publicly, this is NOT the secret key)
   const RAZORPAY_KEY_ID = "rzp_live_TaH9SdrvliaZXd";
@@ -141,12 +165,12 @@
       const orderRes = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: planPrice * 100, planName })
+        body: JSON.stringify({ planName, duration: planDuration, email, phone, ref: refCode })
       });
       const order = await orderRes.json();
 
       if(!order.id){
-        showError('Could not start payment. Please try again or contact us on WhatsApp.');
+        showError(order.error || 'Could not start payment. Please try again or contact us on WhatsApp.');
         payBtn.disabled = false;
         payBtn.textContent = 'Pay & Confirm Enrollment';
         return;
@@ -187,6 +211,7 @@
                   + `<b>Step 1:</b> Join your batch WhatsApp group${btn(result.groupLink, '#1F4037', 'Join WhatsApp group')}<br>`
                   + `<b>Step 2:</b> Open your challenge app${btn(result.appLink, '#7B0237', 'Open my challenge app')}<br>`
                   + `<b>Your login code</b> (save it):<div style="font-size:30px;letter-spacing:8px;font-weight:700;color:#7B0237;border:1px dashed #7B0237;border-radius:12px;padding:12px;margin:8px auto 0;max-width:260px">${result.code}</div>`
+                  + (result.refCode ? `<p style="font-size:14px;margin-top:16px">🎁 <b>Bring a friend:</b> new friends get ₹50 off any challenge and you get your next level free. Your link is in your email and in the app.</p>` : '')
                   + `<p style="font-size:13px;margin-top:14px">${result.emailSent ? 'We\'ve also emailed all of this to you (check spam too).' : 'Take a screenshot of this page so you have your code.'}</p>`
                 : (result.emailSent
                   ? 'Check your email (and spam folder) for your <b>WhatsApp group link</b> and your <b>app login code</b>.<br><br><a href="app.html" style="color:#7B0237;font-weight:700;text-decoration:underline">Open the challenge app</a>'

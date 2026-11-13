@@ -128,6 +128,23 @@ button:active{transform:scale(.96)}
 .ncard.on{background:var(--card);border-color:var(--line)}.ncard.on button{background:var(--card2);color:var(--ink)}
 .codebox{font-size:18px;letter-spacing:5px;font-weight:800;color:var(--gold,#FFC94D)}
 .isteps{list-style:none;padding:0;margin:12px 0;display:grid;gap:8px}.isteps li{background:var(--card2);border-radius:14px;padding:11px 12px;font-size:13.5px;font-weight:600;display:flex;gap:10px;align-items:center}.isteps b{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--grad);color:#fff;align-items:center;justify-content:center;font-size:12px;flex:0 0 24px}
+.lvl{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:13px 14px;margin-bottom:10px;color:var(--ink);text-decoration:none}
+.lvl .hi{font-size:26px;width:46px;height:46px;border-radius:14px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex:0 0 46px}
+.lvl b{display:block;font-size:14.5px;font-weight:800}.lvl small{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;line-height:1.35}
+.lvl .go{margin-left:auto;flex:0 0 auto;border-radius:12px;padding:8px 12px;font-weight:800;font-size:12px;background:linear-gradient(135deg,#7C3AED,#FF4D8D);color:#fff;border:0;text-decoration:none}
+.lvl.locked{opacity:.7}.lvl.locked .go{background:var(--card2);color:var(--muted)}
+.refc{border-radius:24px;padding:18px 16px;margin:6px 0 16px;background:linear-gradient(160deg,#1F4037,#0F2A23);border:1px solid rgba(255,255,255,.08);color:#fff}
+.refc h3{margin:0;font-size:18px;font-weight:800}.refc p{margin:6px 0 0;font-size:13px;line-height:1.45;color:#CFE6DC;font-weight:600}
+.refc .code{display:inline-block;margin-top:10px;font-weight:800;letter-spacing:2px;background:rgba(255,255,255,.12);border-radius:10px;padding:6px 10px;font-size:13px}
+.refc .sh{display:flex;gap:8px;margin-top:10px}.refc .sh a,.refc .sh button{flex:1;text-align:center;border-radius:14px;padding:11px 8px;font-weight:800;font-size:12.5px;border:0;text-decoration:none}
+.refc .wa{background:#25D366;color:#fff}.refc .cp{background:rgba(255,255,255,.14);color:#fff}
+.refc .rw{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;margin-top:8px;font-size:12.5px;font-weight:700}
+.refc .rw span{flex:1;line-height:1.35}.refc .rw button{border:0;border-radius:12px;padding:8px 12px;font-weight:800;font-size:12px;background:#FFD54A;color:#1a1424}.refc .rw em{font-style:normal;color:#CFE6DC;font-size:11.5px}
+.refc .pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.refc .pick button{flex:0 0 auto;border:1px solid rgba(255,255,255,.18);background:transparent;color:#CFE6DC;border-radius:20px;padding:7px 11px;font-weight:700;font-size:12px}.refc .pick button.on{background:#fff;color:#1F4037;border-color:#fff}
+.refc .stat{margin-top:12px;font-size:12.5px;font-weight:700;color:#CFE6DC}
+.big.ghost2{background:transparent;border:1.5px solid var(--line);color:var(--ink);box-shadow:none;margin-top:10px}
+.wag{display:flex;align-items:center;gap:8px;margin:-6px 6px 14px;padding:9px 14px;border-radius:0 0 16px 16px;background:var(--card);border:1px solid var(--line);border-top:0;color:var(--ink);font-size:12.5px;font-weight:700;text-decoration:none}
+.wag span{margin-left:auto;background:#25D366;color:#fff;border-radius:10px;padding:5px 10px;font-size:11.5px}
 .hcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border-radius:24px;padding:16px;color:#fff;margin-bottom:12px;border:0;position:relative;overflow:hidden}
 .hcard .hi{font-size:34px;width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 58px}
 .hcard b{display:block;font-size:17px;font-weight:800}.hcard small{display:block;font-size:12.5px;font-weight:600;opacity:.92;margin-top:2px;line-height:1.35}
@@ -278,20 +295,24 @@ body{background:radial-gradient(900px 500px at 80% -10%,rgba(192,38,211,.18),tra
     <div>
       <div class="sec" style="color:var(--c-sf)">Strong With Sherni challenges</div>
       <h1 style="margin-top:6px">Welcome,<br>Sherni.</h1>
-      <p class="muted" style="margin-top:8px">Tap "Open my challenge app" in your welcome email to log in instantly. Or enter your email and 6-digit code.</p>
+      <p class="muted" style="margin-top:8px">Enter your email and the 6-digit code from your welcome email. Lost it? Type your email and tap <b>Email me my login link</b>.</p>
     </div>
     <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
     <div class="field"><label for="l-code">Login code</label><input id="l-code" inputmode="numeric" maxlength="6" placeholder="••••••"></div>
     <button class="big" id="l-btn">Log in</button>
     <div id="l-err" class="err hide"></div>
     <div id="l-ok" class="ok hide"></div>
-    <div style="text-align:center"><button class="link" id="l-forgot">Forgot your code?</button></div>
+    <button class="big ghost2" id="l-forgot">📩 Email me my login link</button>
+    <div style="text-align:center"><a class="link" href="https://wa.me/919036147675?text=Hi%20Coach%20Sherni!%20I%20can%27t%20log%20in%20to%20my%20challenge%20app.%20My%20email%20is%3A%20" target="_blank" rel="noopener">💬 Still stuck? Message Coach Sherni</a></div>
   </section>
 
   <!-- HOME: challenge picker -->
   <section class="view hide" id="v-home" style="overflow:auto">
     <div class="vh"><div class="tag">Strong With Sherni</div><h2>Hi <span id="h-first">Sherni</span>!</h2><p>Your challenges. Tap one to open it.</p></div>
     <div id="home-list"></div>
+    <div class="sec hide" id="home-lv-h" style="margin:8px 0 10px">Level up</div>
+    <div id="home-levels"></div>
+    <div id="home-ref"></div>
     <div class="sec" id="home-more-h" style="margin:8px 0 10px">More challenges</div>
     <div id="home-more"></div>
     <a class="link" href="https://www.strongwithsherni.com/challenges.html" target="_blank" rel="noopener" style="display:block;text-align:center;margin:6px 0 20px">See all challenges</a>
@@ -453,7 +474,7 @@ const ND = () => CH().days || 21, NW = () => CH().windowDays || 42;
 const STEPS = ['task','learn','quiz','crave','sf'];
 
 /* ---------- demo engine (same rules as the server) ---------- */
-const DD = {}; let D = { offset:0, attempts:[] }; let DEMO_OFF = 0;
+const DD = {}; let D = { offset:0, attempts:[] }; let DEMO_OFF = 0; const DEMO_LV = [], DEMO_USED = [];
 function demoUse(cid){ if(!DD[cid]){ DD[cid]={ offset:0, attempts:[] }; D=DD[cid]; D.cid=cid; demoInit(cid); } D=DD[cid]; D.offset=DEMO_OFF; }
 const isoAdd = (iso,n) => new Date(new Date(iso+'T00:00:00Z').getTime()+n*DAYMS).toISOString().slice(0,10);
 const realToday = () => new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
@@ -479,7 +500,17 @@ const demoState = () => ({ member:D.member, attempts:D.attempts, today:dToday(),
 async function api(body){
   if (DEMO) {
     if (body.action==='login'){ if(body.code!=='123456') throw new Error('That email and code don\'t match. (Demo code: 123456)'); return {token:'demo:sugar-break'}; }
-    if (body.action==='mine'){ return { name:'Anshika Ghai', list:Object.keys(window.SWS_CHALLENGES).map(cid=>{ demoUse(cid); const pr=dProgress(D.member,D.attempts,dToday()); return { token:'demo:'+cid, challenge:cid, start_date:D.member.start_date, status:pr.status, currentDay:pr.currentDay, startsIn:pr.startsIn, daysCompleted:pr.score.daysCompleted, passedToday:!!(pr.todayAttempt&&pr.todayAttempt.passed) }; }) }; }
+    if (body.action==='mine'){
+      const C=window.SWS_CHALLENGES, ids=Object.keys(C).filter(k=>(C[k].level||1)===1).concat(DEMO_LV);
+      const list=ids.map(cid=>{ demoUse(cid); const pr=dProgress(D.member,D.attempts,dToday()); return { token:'demo:'+cid, challenge:cid, level:C[cid].level||1, start_date:D.member.start_date, status:pr.status, currentDay:pr.currentDay, startsIn:pr.startsIn, daysCompleted:pr.score.daysCompleted, passedToday:!!(pr.todayAttempt&&pr.todayAttempt.passed) }; });
+      const st=c=>(list.find(m=>m.challenge===c)||{});
+      const levels=Object.keys(C).filter(k=>(C[k].level||1)===1).map(b=>{ const done=[], open=[], cur={}; for(let n=1;n<=3;n++){ const c=n>1?b+'-level-'+n:b, m=st(c); if((b==='sugar-break'&&n===1)||m.status==='complete') done.push(n); else if(m.status==='pre'||m.status==='active'){ open.push(n); cur[n]={status:m.status,day:m.currentDay}; } } const highest=done.length?Math.max(...done):0; return { base:b, l1Joined:true, done, open, cur, highest, next:Math.min(3,highest+1) }; });
+      const lvOf=b=>levels.find(l=>l.base===b);
+      const rewards=[{friend:'f1',name:'Neha',base:'sugar-break'},{friend:'f2',name:'Priya',base:'5-am-club'}].map(r=>{ const l=lvOf(r.base), lvl=Math.min(3,l.highest+1); return {...r, level:lvl, reward:C[r.base].name+(lvl>1?' Level '+lvl:''), status: DEMO_USED.includes(r.friend)?'used': l.open.includes(lvl)?'wait':'ready'}; });
+      const links=Object.keys(C).filter(k=>(C[k].level||1)===1).map(b=>({base:b, name:C[b].name, url:'https://www.strongwithsherni.com/'+C[b].page+'?ref=ANSHIKA482'}));
+      return { name:'Anshika Ghai', list, levels, ref:{ code:'ANSHIKA482', links, friends:2, rewards } };
+    }
+    if (body.action==='claim'){ const base=body.friend==='f1'?'sugar-break':'5-am-club'; DEMO_USED.push(body.friend); const cid=base+'-level-2'; DEMO_LV.push(cid); const n=new Date(realToday()); demoUse(cid); D.member.start_date=n.getUTCMonth()===11?`${n.getUTCFullYear()+1}-01-01`:`${n.getUTCFullYear()}-${String(n.getUTCMonth()+2).padStart(2,'0')}-01`; D.attempts=[]; return { ok:true, startDate:D.member.start_date, challenge:window.SWS_CHALLENGES[cid].name }; }
     demoUse(String(body.token||'demo:sugar-break').split(':')[1]||'sugar-break');
     if (body.action==='forgot' || body.action==='emailme') return {ok:true, sentTo:'demo@sws.com'};
     if (body.action==='diet'){ D.member.diet=body.diet; return demoState(); }
@@ -753,19 +784,19 @@ $('l-btn').onclick=async()=>{
   $('l-err').classList.add('hide'); $('l-ok').classList.add('hide');
   if(!email||code.length!==6){ $('l-err').textContent='Please enter your email and the 6-digit code.'; $('l-err').classList.remove('hide'); return; }
   $('l-btn').disabled=true; $('l-btn').textContent='Logging in…';
-  try { const r=await api({action:'login',email,code}); S.token=r.token; LS.set(TKEY,r.token); LS.set(CKEY,btoa(email+':'+code)); await openHome(); }
+  try { const r=await api({action:'login',email,code}); S.token=r.token; LS.set(TKEY,r.token); LS.set(CKEY,btoa(email+':'+code)); try{ localStorage.setItem('sws_email',email); }catch(e){} await openHome(); }
   catch(e){ $('l-err').textContent=e.message; $('l-err').classList.remove('hide'); }
   $('l-btn').disabled=false; $('l-btn').textContent='Log in';
 };
 $('l-code').addEventListener('keydown',e=>{ if(e.key==='Enter') $('l-btn').click(); });
 $('l-forgot').onclick=async()=>{
   const email=$('l-email').value.trim(); $('l-err').classList.add('hide');
-  if(!email){ $('l-err').textContent='Type your email above first, then tap "Forgot your code?".'; $('l-err').classList.remove('hide'); return; }
+  if(!email){ $('l-err').textContent='Type your email above first, then tap "Email me my login link".'; $('l-err').classList.remove('hide'); return; }
   try{ await api({action:'forgot',email}); }catch(e){}
-  $('l-ok').textContent='If this email is registered, we\'ve sent your login link again. Check your inbox (and spam).'; $('l-ok').classList.remove('hide');
+  $('l-ok').textContent='Sent! If this email is registered, your login link, code and WhatsApp group links are in your inbox now (check spam too). Tap the button in the email to log straight in.'; $('l-ok').classList.remove('hide');
 };
 $('home-btn').onclick=()=>openHome();
-$('logout').onclick=()=>{ [TKEY,CKEY,CURKEY,DEMO?'sws_demo_mine':'sws_mine'].forEach(k=>LS.del(k)); S={token:null,st:null,step:null,tab:'today',mine:null}; $('t-name').textContent='Strong With Sherni'; $('t-sub').textContent='Sugar Break · 21 days, zero added sugar'; show('v-login'); };
+let _lo=0; $('logout').onclick=()=>{ if(Date.now()-_lo>3000){ _lo=Date.now(); toast('Tap again to log out. You\'ll need your email and code to log back in.'); return; } [TKEY,CKEY,CURKEY,DEMO?'sws_demo_mine':'sws_mine'].forEach(k=>LS.del(k)); S={token:null,st:null,step:null,tab:'today',mine:null}; $('t-name').textContent='Strong With Sherni'; $('t-sub').textContent='Sugar Break · 21 days, zero added sugar'; show('v-login'); try{ $('l-email').value=localStorage.getItem('sws_email')||''; }catch(e){} };
 $('demo-next').onclick=async()=>{ DEMO_OFF++; S.step=null; S.showEnd=false; S.tab='today'; if(S.st){ S.st=await api({action:'state',token:S.token}); render(); } else openHome(); };
 
 // If the saved login stops working, log in again silently with the remembered email + code.
@@ -777,10 +808,42 @@ function homeCards(){
   const C=window.SWS_CHALLENGES, mine=(S.mine&&S.mine.list)||[], joined=new Set(mine.map(m=>m.challenge));
   $('h-first').textContent = ((S.mine&&S.mine.name)||'Sherni').split(' ')[0];
   const line = m => m.status==='pre' ? (m.startsIn===1?'Starts tomorrow':`Starts in ${m.startsIn} days`) : m.status==='complete' ? 'Completed 🏆' : m.status==='expired' ? 'Window ended' : `Day ${m.currentDay} of ${(window.SWS_CHALLENGES[m.challenge]||{}).days||21}${m.passedToday?' · done today ✓':''}`;
-  $('home-list').innerHTML = mine.length ? mine.map(m=>{ const u=uiOf(C[m.challenge]); return `<button class="hcard" data-open="${m.token}" data-cid="${m.challenge}" style="background:${u.cardGrad}"><span class="hi">${u.icon}</span><span><b>${u.short}</b><small>${line(m)}</small></span><span class="go">Open</span></button>`; }).join('') : '<div class="gap" style="text-align:center;color:var(--muted);margin:8px 0 16px">Loading your challenges…</div>';
-  const more = Object.keys(C).filter(k=>!joined.has(k));
+  $('home-list').innerHTML = mine.length ? mine.map(m=>{ const u=uiOf(C[m.challenge]); const wa=(C[m.challenge]||{}).whatsapp; return `<button class="hcard" data-open="${m.token}" data-cid="${m.challenge}" style="background:${u.cardGrad};margin-bottom:${wa?0:12}px"><span class="hi">${u.icon}</span><span><b>${u.short}</b><small>${line(m)}</small></span><span class="go">Open</span></button>${wa?`<a class="wag" href="${wa}" target="_blank" rel="noopener">💬 ${u.short} WhatsApp group<span>Join</span></a>`:''}`; }).join('') : '<div class="gap" style="text-align:center;color:var(--muted);margin:8px 0 16px">Loading your challenges…</div>';
+  const more = Object.keys(C).filter(k=>!joined.has(k) && (C[k].level||1)===1 && !joined.has(k+'-level-2') && !joined.has(k+'-level-3'));
   $('home-more-h').classList.toggle('hide',!more.length);
   $('home-more').innerHTML = more.map(k=>{ const u=uiOf(C[k]); return `<a class="hcard more" href="https://www.strongwithsherni.com/${C[k].page||'challenges.html'}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)"><span class="hi">${u.icon}</span><span><b>${u.short}</b><small>${u.sub}</small></span><span class="go">Join</span></a>`; }).join('');
+  // Levels: Level 2 unlocks after Level 1, Level 3 after Level 2
+  const rw = ((S.mine&&S.mine.ref&&S.mine.ref.rewards)||[]);
+  const lvCards = ((S.mine&&S.mine.levels)||[]).map(l=>{
+    const id=n=>n>1?`${l.base}-level-${n}`:l.base, cur=l.highest+1;
+    if (cur>3) return `<div class="lvl"><span class="hi">🏆</span><span><b>${C[l.base].name}: all 3 levels done</b><small>You're a legend! Share your link and inspire a friend.</small></span></div>`;
+    if (l.open.includes(cur)) { const nx=cur+1; if(nx>3||!C[id(nx)]) return ''; const c=l.cur[cur]||{};
+      return `<div class="lvl locked"><span class="hi">🔒</span><span><b>${C[id(nx)].name}</b><small>Finish Level ${cur} to unlock${c.status==='active'?` · Day ${c.day} of ${C[l.base].days}`:c.status==='pre'?' · starts soon':''}</small></span><span class="go">Locked</span></div>`; }
+    if (cur===1) return `<a class="lvl locked" href="https://www.strongwithsherni.com/${C[l.base].page}" target="_blank" rel="noopener"><span class="hi">🔒</span><span><b>${C[id(2)].name}</b><small>Finish Level 1 to unlock. Join the next batch to try again.</small></span><span class="go">Rejoin</span></a>`;
+    const c2=C[id(cur)]; if(!c2) return '';
+    const free = rw.find(r=>r.base===l.base && r.status==='ready' && r.level===cur);
+    if (free) return `<div class="lvl"><span class="hi">🎁</span><span><b>${c2.name}</b><small>Unlocked! You have a free pass from ${free.name}.</small></span><button class="go" data-claim="${free.friend}">Claim free</button></div>`;
+    return `<a class="lvl" href="https://www.strongwithsherni.com/${c2.page}" target="_blank" rel="noopener"><span class="hi">🔓</span><span><b>${c2.name}</b><small>Unlocked! ${c2.tagline}</small></span><span class="go">Join</span></a>`;
+  }).filter(Boolean);
+  $('home-lv-h').classList.toggle('hide',!lvCards.length);
+  $('home-levels').innerHTML = lvCards.join('');
+  // Refer a friend
+  const R = S.mine && S.mine.ref;
+  if (!R || !R.links || !R.links.length) { $('home-ref').innerHTML=''; }
+  else {
+    const first = ((S.mine&&S.mine.name)||'').split(' ')[0];
+    const msg = l => `Hey! I'm doing the challenges with Coach Sherni and loving it. Join ${l.name} with my link and get ₹50 off: ${l.url}`;
+    const sel = Math.min(S.refPick||0, R.links.length-1), L = R.links[sel];
+    const rows = rw.map(r=>{ const lab = {ready:`<button data-claim="${r.friend}">Claim</button>`, wait:`<em>⏳ After your current level</em>`, used:'<em>✓ Claimed</em>'}[r.status] || '';
+      return `<div class="rw"><span>🎉 ${r.name} joined → free ${r.status==='wait'?'next '+((C[r.base]||{}).name||'')+' level':r.reward}</span>${lab}</div>`; }).join('');
+    $('home-ref').innerHTML = `<div class="refc"><h3>🎁 Refer a friend</h3><p>New friends get <b>₹50 off</b> any challenge. For each friend who joins, you get your <b>next level of that challenge free</b>.</p><span class="code">Your code: ${R.code}</span>`
+      + `<div class="pick">${R.links.map((l,i)=>`<button class="${i===sel?'on':''}" data-pick="${i}">${(C[l.base]&&uiOf(C[l.base]).icon)||''} ${l.name}</button>`).join('')}</div>`
+      + `<div class="sh"><a class="wa" href="https://wa.me/?text=${encodeURIComponent(msg(L))}" target="_blank" rel="noopener">Share ${L.name}</a><button class="cp" data-copy="${sel}">Copy link</button></div>`
+      + `<div class="stat">${R.friends ? `${R.friends} friend${R.friends>1?'s':''} joined with your link` : 'No friends joined yet. Share your link!'}</div>${rows}</div>`;
+    $('home-ref').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{ S.refPick=+b.dataset.pick; homeCards(); });
+    $('home-ref').querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ const u=R.links[+b.dataset.copy].url; try{ await navigator.clipboard.writeText(u); toast('Link copied!'); }catch(e){ prompt('Copy your link:', u); } });
+  }
+  document.querySelectorAll('#home-levels [data-claim], #home-ref [data-claim]').forEach(b=>b.onclick=()=>claimReward(b.dataset.claim, b));
   $('home-list').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openChallenge(b.dataset.open));
 }
 async function openHome(){
@@ -788,6 +851,11 @@ async function openHome(){
   show('v-home'); homeCards();
   try { S.mine = await api({action:'mine', token:S.token}); LS.set(DEMO?'sws_demo_mine':'sws_mine', JSON.stringify(S.mine)); homeCards(); }
   catch(e){ if (e.status===401 && await relogin()) return openHome(); if (e.status===401){ LS.del(TKEY); show('v-login'); } else if(!S.mine) toast('No internet? Pull down to refresh.'); }
+}
+async function claimReward(friend, btn){
+  if (btn) { btn.disabled=true; btn.textContent='Claiming…'; }
+  try { const r = await api({action:'claim', token:S.token, friend}); toast(`🎉 ${r.challenge} is yours! Starts ${new Date(r.startDate+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long'})}. Check your email.`); await openHome(); }
+  catch(e){ toast(e.message||'Could not claim. Please try again.'); if (btn) { btn.disabled=false; btn.textContent='Claim'; } }
 }
 function openChallenge(tok){
   S.token=tok; S.cur=tok; LS.set(CURKEY,tok); S.step=null; S.tab='today'; S.showEnd=false;
@@ -802,6 +870,7 @@ async function load(silent){
   }
 }
 
+try{ const le=localStorage.getItem('sws_email'); if(le) $('l-email').value=le; }catch(e){}
 if (DEMO){ $('demo-bar').classList.remove('hide'); $('l-email').value='demo@sws.com'; }
 (function(){
   const p=new URLSearchParams(location.search).get('login');
