@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import { vapidKeys, sendPush } from './_push.js';
+import { GROUPS, baseOf, levelOf, slugFor, MAX_LEVEL, challengeName, refCodeFor, refLink, PAGES, CHALLENGE_PRICES, REFERRAL_DISCOUNT, SB_URL as SBU, SB_KEY as SBK } from './_shared.js';
+import { createMembership } from './verify-payment.js';
 
 // Challenge app backend (unlock system). One endpoint, four actions:
 //   login   { email, code }  -> { token }
@@ -12,6 +14,14 @@ import { vapidKeys, sendPush } from './_push.js';
 //   pushkey {}               -> public key for phone notifications
 //   pushsub { token, sub }   -> saves this phone for notifications
 //   pushtest { token }       -> sends a test notification to this member's phones
+//   claim   { token, friend } -> uses a referral reward: their next level free, in the next batch
+//   dashboard { password }   -> everything for challenge-dashboard.html (password = DASHBOARD_PASSWORD in Vercel)
+//
+// Levels: every challenge has Level 2 ('<challenge>-level-2') and Level 3 ('<challenge>-level-3').
+//   Each level unlocks once the level before it is COMPLETE (all days passed). Every level costs the same.
+// Referrals: each person has one ref_code with a link for every challenge. A NEW person who joins Level 1 of any
+//   challenge with it gets ₹50 off (create-order.js), and the referrer earns one free pass to their NEXT level of
+//   that same challenge (Level 1 if never done, Level 2 after Level 1, Level 3 after Level 2).
 //
 // Rules:
 //   - One attempt per calendar day (India time). Today's attempt is always the next locked day.
@@ -24,7 +34,7 @@ const DAY = 86400000;
 const TOTAL_DAYS = 21, WINDOW = 42;
 // Challenges that aren't 21 days. The window to finish is always double the length.
 const DAYS_BY_CHALLENGE = { 'new-year-kickstart': 30, 'water-sleep-reset': 7 };
-const daysOf = m => DAYS_BY_CHALLENGE[m && m.challenge] || TOTAL_DAYS;
+const daysOf = m => DAYS_BY_CHALLENGE[baseOf(m && m.challenge)] || TOTAL_DAYS; // Level 2 has the same length as Level 1
 const P = { sugarFree: 40, task: 25, quizRight: 15, quizWrong: 10, learn: 10, craving: 10, unlock: 70 };
 const TOKEN_DAYS = 60;
 
@@ -110,6 +120,15 @@ export async function rows(path) {
   return r.json();
 }
 
+// Has this email COMPLETED a given level of this challenge (all days passed)?
+export async function finishedLevel(email, base, level = 1) {
+  const ms = await rows(`challenge_members?email=eq.${encodeURIComponent(String(email).trim().toLowerCase())}&challenge=eq.${encodeURIComponent(slugFor(base, level))}&select=id,challenge,start_date`);
+  if (!ms.length) return false;
+  const atts = await rows(`challenge_attempts?member_id=in.(${ms.map(m => m.id).join(',')})&select=member_id,attempt_date,passed,points`);
+  return ms.some(m => progress(m, atts.filter(a => a.member_id === m.id)).status === 'complete');
+}
+export const finishedLevel1 = (email, base) => finishedLevel(email, base, 1);
+
 // Email (same settings as api/verify-payment.js): RESEND_API_KEY (or older CHALLENGE_RESEND_KEY) + EMAIL_FROM.
 export async function sendMail(to, subject, html) {
   const key = String(process.env.RESEND_API_KEY || '').trim() || String(process.env.CHALLENGE_RESEND_KEY || '').trim();
@@ -176,13 +195,38 @@ export default async function handler(req, res) {
     }
 
     if (action === 'forgot') {
+      // Emails a one-tap login link + code, and the WhatsApp group link for every challenge/level they've joined.
       const email = String(req.body.email || '').trim().toLowerCase();
-      const found = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc&limit=1`);
-      if (found.length) await sendMail(email, `Your Strong With Sherni login code: ${found[0].access_code}`, loginEmailHtml(found[0]));
+      const found = email ? await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc`) : [];
+      if (found.length) {
+        const seen = new Set(), groups = found.filter(m => !seen.has(m.challenge) && seen.add(m.challenge)).map(m => ({ name: challengeName(m.challenge), link: GROUPS[m.challenge] || GROUPS[baseOf(m.challenge)] })).filter(g => g.link);
+        const extra = groups.length ? `<p style="margin-top:18px"><b>Your WhatsApp groups</b></p>` + groups.map(g => `<p style="margin:6px 0"><a href="${g.link}" style="display:inline-block;background:#25D366;color:#fff;padding:9px 16px;border-radius:20px;text-decoration:none;font-weight:bold">${g.name} group</a></p>`).join('') : '';
+        await sendMail(email, `Your Strong With Sherni login code: ${found[0].access_code}`, loginEmailHtml(found[0]).replace('<p>Coach Sherni</p>', extra + '<p>Coach Sherni</p>'));
+      }
       return res.status(200).json({ ok: true }); // same answer either way
     }
 
     if (action === 'pushkey') return res.status(200).json({ publicKey: vapidKeys().publicKey });
+
+    if (action === 'dashboard') {
+      const want = String(process.env.DASHBOARD_PASSWORD || '').trim(), got = String(req.body.password || '');
+      if (!want) return res.status(500).json({ error: 'Dashboard password is not set yet. Add DASHBOARD_PASSWORD in Vercel → Settings → Environment Variables.' });
+      const A = crypto.createHash('sha256').update(got).digest(), B = crypto.createHash('sha256').update(want).digest();
+      if (!crypto.timingSafeEqual(A, B)) return res.status(401).json({ error: 'Wrong password.' });
+      const all = await rows('challenge_members?select=id,name,email,phone,challenge,start_date,created_at,ref_code,referred_by,payment_id&order=created_at.asc&limit=5000');
+      const atts = all.length ? await rows('challenge_attempts?passed=eq.true&select=member_id,attempt_date,passed,points&limit=100000') : [];
+      const byM = {}; atts.forEach(a => (byM[a.member_id] = byM[a.member_id] || []).push(a));
+      const owner = {}; all.forEach(m => { if (m.ref_code && !owner[m.ref_code]) owner[m.ref_code] = m.name; });
+      const members = all.map(m => {
+        const pr = progress(m, byM[m.id] || []), base = baseOf(m.challenge), price = CHALLENGE_PRICES[base] || 0;
+        const payType = String(m.payment_id || '').startsWith('reward:') ? 'free' : m.referred_by ? 'ref' : 'paid';
+        return { id: m.id, name: m.name, email: String(m.email || '').toLowerCase(), phone: m.phone, challenge: m.challenge, start_date: m.start_date,
+          status: pr.status, daysDone: pr.score.daysCompleted, total: daysOf(m), points: pr.score.points, refCode: m.ref_code, payType,
+          amount: payType === 'free' ? 0 : payType === 'ref' ? price - REFERRAL_DISCOUNT : price,
+          referredBy: m.referred_by ? { code: m.referred_by, name: owner[m.referred_by] || m.referred_by } : null, created: m.created_at };
+      });
+      return res.status(200).json({ members });
+    }
 
     const memberId = verify(req.body.token);
     if (!memberId) return res.status(401).json({ error: 'Please log in again.' });
@@ -192,17 +236,64 @@ export default async function handler(req, res) {
 
     if (action === 'state') return res.status(200).json(await fullState(member));
 
-    if (action === 'mine') {
-      const list = await rows(`challenge_members?email=eq.${encodeURIComponent(String(member.email).trim().toLowerCase())}&select=id,name,challenge,start_date,created_at&order=created_at.desc`);
-      const ids = list.map(m => m.id);
+    if (action === 'mine' || action === 'claim') {
+      const email = String(member.email).trim().toLowerCase();
+      const all = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=id,name,phone,challenge,start_date,created_at,ref_code,payment_id&order=created_at.desc`);
+      const ids = all.map(m => m.id);
       const atts = ids.length ? await rows(`challenge_attempts?member_id=in.(${ids.join(',')})&select=member_id,attempt_date,day,sugar_free,passed,points`) : [];
-      const seen = new Set(); const out = [];
-      for (const m of list) {
-        if (seen.has(m.challenge)) continue; seen.add(m.challenge); // newest membership per challenge
-        const pr = progress(m, atts.filter(a => a.member_id === m.id));
-        out.push({ token: sign(m.id), challenge: m.challenge, start_date: m.start_date, status: pr.status, currentDay: pr.currentDay, startsIn: pr.startsIn, daysCompleted: pr.score.daysCompleted, passedToday: !!(pr.todayAttempt && pr.todayAttempt.passed) });
+      const prOf = m => progress(m, atts.filter(a => a.member_id === m.id));
+      // Level status per challenge: which levels are done, which are open (upcoming or running)
+      const bases = [...new Set(all.map(m => baseOf(m.challenge)))];
+      const levels = {};
+      for (const b of bases) {
+        const done = [], open = [], cur = {};
+        for (let n = 1; n <= MAX_LEVEL; n++) {
+          const ms = all.filter(m => m.challenge === slugFor(b, n));
+          if (ms.some(m => prOf(m).status === 'complete')) done.push(n);
+          const o = ms.find(m => ['pre', 'active'].includes(prOf(m).status));
+          if (o) { open.push(n); cur[n] = { status: prOf(o).status, day: prOf(o).currentDay }; }
+        }
+        const highest = done.length ? Math.max(...done) : 0;
+        levels[b] = { base: b, l1Joined: all.some(m => m.challenge === b), done, open, cur, highest,
+          next: Math.min(MAX_LEVEL, highest + 1), l1Done: done.includes(1) };
       }
-      return res.status(200).json({ name: member.name, list: out });
+      // Personal referral code (one per person). Older members get one the first time they open the app.
+      let code = (all.find(m => m.ref_code) || {}).ref_code;
+      if (!code) {
+        code = await refCodeFor(email, member.name);
+        await sb(`challenge_members?email=eq.${encodeURIComponent(email)}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ ref_code: code }) });
+      }
+      const friends = await rows(`challenge_members?referred_by=eq.${encodeURIComponent(code)}&select=id,name,challenge,created_at&order=created_at.asc`);
+      const used = new Set(all.map(m => m.payment_id).filter(p => String(p || '').startsWith('reward:')));
+      // Each friend = a free pass to YOUR next level of the challenge the friend joined:
+      // Level 1 if you've never done it, Level 2 after Level 1, Level 3 after Level 2.
+      // If you're in that level right now, the pass waits until it ends (then it moves up to the next level).
+      const rewards = friends.map(f => {
+        const b = baseOf(f.challenge), lv = levels[b] || { highest: 0, open: [] };
+        const next = Math.min(MAX_LEVEL, lv.highest + 1);
+        return { friend: f.id, name: shortName(f.name).split(' ')[0], base: b, level: next, reward: challengeName(slugFor(b, next)),
+          status: used.has('reward:' + f.id) ? 'used' : lv.open.includes(next) ? 'wait' : 'ready' };
+      });
+
+      if (action === 'claim') {
+        const r = rewards.find(x => x.friend === req.body.friend);
+        if (!r) return res.status(400).json({ error: 'This reward could not be found.' });
+        if (r.status === 'used') return res.status(400).json({ error: 'You have already claimed this reward.' });
+        if (r.status === 'wait') return res.status(400).json({ error: `You're already in ${r.reward}. Claim this reward after it ends.` });
+        const src = all.find(m => m.phone) || member;
+        const out = await createMembership({ customer: { name: member.name, email, phone: src.phone || '' }, slug: slugFor(r.base, r.level), paymentId: 'reward:' + r.friend, referredBy: null, sb: { url: SBU(), key: SBK() } });
+        if (out.warning) return res.status(500).json({ error: 'Could not claim right now. Please try again or message Coach Sherni.' });
+        return res.status(200).json({ ok: true, startDate: out.startDate, challenge: r.reward });
+      }
+
+      const seen = new Set(); const out = [];
+      for (const m of all) {
+        if (seen.has(m.challenge)) continue; seen.add(m.challenge); // newest membership per challenge
+        const pr = prOf(m);
+        out.push({ token: sign(m.id), challenge: m.challenge, level: levelOf(m.challenge), start_date: m.start_date, status: pr.status, currentDay: pr.currentDay, startsIn: pr.startsIn, daysCompleted: pr.score.daysCompleted, passedToday: !!(pr.todayAttempt && pr.todayAttempt.passed) });
+      }
+      const links = Object.keys(PAGES).map(b => ({ base: b, name: challengeName(b), url: refLink(code, b) })); // a link for every challenge
+      return res.status(200).json({ name: member.name, list: out, levels: Object.values(levels), ref: { code, links, friends: friends.length, rewards } });
     }
 
     if (action === 'diet') {

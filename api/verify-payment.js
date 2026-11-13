@@ -1,35 +1,22 @@
 import crypto from 'crypto';
+import { SITE, GROUPS, challengeSlug, baseOf, levelOf, challengeName as chName, batchStartIST, newAccessCode, refCodeFor, refLink, dbRows } from './_shared.js';
 
 // This runs on Vercel's server. It checks the payment is genuinely real (not faked).
 // - Coaching plans: creates the client record in the Supabase 'clients' table (same as before).
 // - Challenges: creates a challenge member with a 6-digit app login code and emails the
 //   client their welcome email (WhatsApp group link + app link + login code).
 
-const SITE = 'https://www.strongwithsherni.com';
 const DAY = 86400000;
-
-function challengeSlug(plan) {
-  return String(plan || '').replace(/\s*challenge\s*$/i, '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
-// Monthly batches: everyone starts together on the 1st of the month (India time).
-// Join on the 1st-3rd -> this month's batch. Join later -> next month's batch (waitlist).
-// You can still change any member's start_date in Supabase.
-const LATE_JOIN_DAYS = 3;
-function batchStartIST() {
-  const ist = new Date(Date.now() + 5.5 * 3600000);
-  let y = ist.getUTCFullYear(), m = ist.getUTCMonth();
-  if (ist.getUTCDate() > LATE_JOIN_DAYS) { m += 1; if (m > 11) { m = 0; y += 1; } }
-  return `${y}-${String(m + 1).padStart(2, '0')}-01`;
-}
 
 function prettyDate(iso) {
   return new Date(iso + 'T00:00:00Z').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 }
 
 // One line under the welcome heading, per challenge.
-const TAGLINES = { 'sugar-break': '21 days. Zero added sugar. You\'ve got this.', '5-am-club': '21 days to own your mornings. You\'ve got this.', 'mindful-eating': '21 days to slow down and enjoy food without guilt.', 'wedding-season-ready': '21 days to glow, feel strong and confident.', 'new-year-kickstart': '30 days to start the year strong. You\'ve got this.' };
-export function welcomeEmailHtml({ name, email, challengeName, code, startDate, groupLink, slug }) {
+const TAGLINES = { 'sugar-break': '21 days. Zero added sugar. You\'ve got this.', '5-am-club': '21 days to own your mornings. You\'ve got this.', 'mindful-eating': '21 days to slow down and enjoy food without guilt.', 'wedding-season-ready': '21 days to glow, feel strong and confident.', 'new-year-kickstart': '30 days to start the year strong. You\'ve got this.',
+  'sugar-break-level-2': 'Level 2: no hidden sugar, real-life ready.', '5-am-club-level-2': 'Level 2: 21 days of power mornings.', 'mindful-eating-level-2': 'Level 2: mindful eating in real life.', 'wedding-season-ready-level-2': 'Level 2: strength, stamina and confidence.', 'new-year-kickstart-level-2': 'Level 2: 30 days to level up your year.',
+  'sugar-break-level-3': 'Level 3: sugar-free for life.', '5-am-club-level-3': 'Level 3: 21 days of morning mastery.', 'mindful-eating-level-3': 'Level 3: complete food freedom.', 'wedding-season-ready-level-3': 'Level 3: peak strength and confidence.', 'new-year-kickstart-level-3': 'Level 3: make it a lifestyle.' };
+export function welcomeEmailHtml({ name, email, challengeName, code, startDate, groupLink, slug, refCode }) {
   const loginLink = `${SITE}/app.html?login=${Buffer.from(`${String(email).trim().toLowerCase()}:${code}`).toString('base64url')}`;
   const first = String(name || '').split(' ')[0] || 'there';
   return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#2D322C;background:#FAF9F3;padding:28px 24px;border-radius:14px">
@@ -44,6 +31,7 @@ export function welcomeEmailHtml({ name, email, challengeName, code, startDate, 
   <p style="margin:0 0 14px"><a href="${loginLink}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p>
   <p style="margin:0 0 8px;font-size:13px;color:#6B6459">On another phone? Log in with this email and your code:</p>
   <div style="font-size:30px;letter-spacing:8px;font-weight:bold;background:#fff;border:1px dashed #7B0237;color:#7B0237;text-align:center;padding:14px;border-radius:10px">${code}</div>
+  ${refCode ? `<div style="margin:22px 0 0;background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #eadfd3"><b>🎁 Bring a friend</b><p style="margin:6px 0 8px;font-size:14px">New friends get <b>₹50 off</b> any challenge, and for each friend who joins you get your <b>next level of that challenge free</b>. Your personal link (works for every challenge) is in your app.</p><a href="${refLink(refCode, baseOf(slug))}" style="color:#7B0237;font-weight:bold;word-break:break-all">${refLink(refCode, baseOf(slug))}</a></div>` : ''}
   <p style="margin:18px 0 0;font-size:13px;color:#6B6459">Tip: once it opens on your phone, tap "Add to Home Screen" so it works like an app.</p>
   <p style="margin:22px 0 0">See you inside,<br>Coach Sherni<br><span style="color:#6B6459;font-size:13px">Strong With Sherni &middot; Small habits. Big life.</span></p>
 </div>`;
@@ -78,51 +66,67 @@ async function sendEmail({ to, subject, html }) {
   }
 }
 
-async function handleChallenge(customer, paymentId, sb) {
-  const slug = challengeSlug(customer.plan);
-  const challengeName = String(customer.plan || '').replace(/\s*challenge\s*$/i, '').trim() || 'your challenge';
-  const code = String(crypto.randomInt(100000, 1000000));
+const memberHeaders = sb => ({ apikey: sb.key, Authorization: `Bearer ${sb.key}`, 'Content-Type': 'application/json' });
+
+// Creates the membership, emails the welcome email and returns what the success screen shows.
+// Also used by the app when someone claims their free Level 2 (paymentId = 'reward:<friend id>').
+export async function createMembership({ customer, slug, paymentId, referredBy, sb }) {
+  const name = chName(slug);
+  const email = String(customer.email).trim().toLowerCase();
+  // Same payment confirmed twice (e.g. page refreshed)? Return the existing membership instead of a duplicate.
+  const dup = await dbRows(`challenge_members?payment_id=eq.${encodeURIComponent(paymentId)}&select=*&limit=1`);
+  if (dup.length) {
+    const m = dup[0];
+    return { challenge: true, emailSent: true, code: m.access_code, groupLink: GROUPS[m.challenge] || GROUPS[baseOf(m.challenge)], startDate: m.start_date,
+      appLink: `${SITE}/app.html?login=${Buffer.from(`${email}:${m.access_code}`).toString('base64url')}`, refCode: m.ref_code, duplicate: true };
+  }
+  const code = newAccessCode();
   const startDate = process.env.CHALLENGE_START_DATE && process.env.CHALLENGE_START_DATE > new Date().toISOString().slice(0, 10)
     ? process.env.CHALLENGE_START_DATE : batchStartIST();
-
+  const refCode = await refCodeFor(email, customer.name);
   const ins = await fetch(`${sb.url}/rest/v1/challenge_members`, {
-    method: 'POST',
-    headers: { apikey: sb.key, Authorization: `Bearer ${sb.key}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
-    body: JSON.stringify({
-      name: customer.name, email: String(customer.email).trim().toLowerCase(), phone: customer.phone,
-      challenge: slug, start_date: startDate, access_code: code, payment_id: paymentId
-    })
+    method: 'POST', headers: { ...memberHeaders(sb), Prefer: 'return=representation' },
+    body: JSON.stringify({ name: customer.name, email, phone: customer.phone, challenge: slug, start_date: startDate, access_code: code, payment_id: paymentId, ref_code: refCode, referred_by: referredBy || null })
   });
   if (!ins.ok) return { warning: 'Payment verified but challenge record failed — please add manually', details: await ins.text() };
 
-  // WhatsApp group per challenge. Add new challenges' group links here.
-  const GROUPS = {
-    'sugar-break': 'https://chat.whatsapp.com/LdOprhlpyJ57FAT1flTFkU',
-    '5-am-club': 'https://chat.whatsapp.com/Jyx1nPHTWrMJiqSHPdQ2LN',
-    'mindful-eating': 'https://chat.whatsapp.com/DLrZZSG8KvpJvnzrWE03Gg',
-    'wedding-season-ready': 'https://chat.whatsapp.com/K2Vdt0R17FA2cxjxDiyVHZ',
-    'new-year-kickstart': 'https://chat.whatsapp.com/ELyrGbwJmG0IXzdYPB0yz6'
-  };
-  const groupLink = GROUPS[slug] ||
-    'https://wa.me/919036147675?text=' + encodeURIComponent(`Hi! I just joined the ${challengeName} challenge. Please add me to the group.`);
-
+  const base = baseOf(slug);
+  const groupLink = GROUPS[slug] || GROUPS[base] ||
+    'https://wa.me/919036147675?text=' + encodeURIComponent(`Hi! I just joined the ${name} challenge. Please add me to the group.`);
   const mail = await sendEmail({
-    to: customer.email,
-    subject: `You're in! Your ${challengeName} login code: ${code}`,
-    html: welcomeEmailHtml({ name: customer.name, email: customer.email, challengeName, code, startDate, groupLink, slug })
+    to: email,
+    subject: `You're in! Your ${name} login code: ${code}`,
+    html: welcomeEmailHtml({ name: customer.name, email, challengeName: name, code, startDate, groupLink, slug, refCode })
   });
 
-  // Let the coach know too (works even before the domain is verified in Resend).
+  // Tell the person who referred them: their free Level 2 is earned.
+  if (referredBy) {
+    const owner = await dbRows(`challenge_members?ref_code=eq.${encodeURIComponent(referredBy)}&select=name,email&order=created_at.desc&limit=1`);
+    if (owner.length) {
+      const friend = String(customer.name || 'Your friend').split(' ')[0];
+      await sendEmail({ to: owner[0].email, subject: `🎁 ${friend} joined with your link! You've earned a free ${chName(base)} level`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:480px"><p>Hi ${String(owner[0].name || '').split(' ')[0] || 'there'},</p><p><b>${friend}</b> just joined <b>${chName(base)}</b> with your referral link. Thank you!</p><p>You've earned your <b>next ${chName(base)} level free</b> (Level 1 if you haven't done it yet, Level 2 after Level 1, Level 3 after Level 2). Open your challenge app and tap <b>Claim</b>.</p><p><a href="${SITE}/app.html" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Open my challenge app</a></p><p>Coach Sherni</p></div>` });
+    }
+  }
   if (process.env.REMINDER_EMAIL) {
     await sendEmail({
       to: process.env.REMINDER_EMAIL,
-      subject: `New ${challengeName} member: ${customer.name}`,
-      html: `<p><b>${customer.name}</b> joined ${challengeName}.</p><p>Email: ${customer.email}<br>Phone: ${customer.phone}<br>Starts: ${startDate}<br>Login code: ${code}</p><p>${mail.ok ? 'Welcome email sent' : 'Welcome email FAILED - send them the code on WhatsApp: ' + (mail.error || '')}</p>`
+      subject: `New ${name} member: ${customer.name}${referredBy ? ' (referred by ' + referredBy + ')' : ''}${String(paymentId).startsWith('reward:') ? ' (free referral reward)' : ''}`,
+      html: `<p><b>${customer.name}</b> joined ${name}.</p><p>Email: ${email}<br>Phone: ${customer.phone || '-'}<br>Starts: ${startDate}<br>Login code: ${code}<br>${referredBy ? 'Referred by code: ' + referredBy + '<br>' : ''}${String(paymentId).startsWith('reward:') ? 'Free level from a referral (no payment).<br>' : ''}</p><p>${mail.ok ? 'Welcome email sent' : 'Welcome email FAILED - send them the code on WhatsApp: ' + (mail.error || '')}</p>`
     });
   }
-  // Also shown on the payment success screen, so nobody depends only on the email.
-  const appLink = `${SITE}/app.html?login=${Buffer.from(`${String(customer.email).trim().toLowerCase()}:${code}`).toString('base64url')}`;
-  return { challenge: true, emailSent: mail.ok, code, groupLink, appLink, startDate };
+  const appLink = `${SITE}/app.html?login=${Buffer.from(`${email}:${code}`).toString('base64url')}`;
+  return { challenge: true, emailSent: mail.ok, code, groupLink, appLink, startDate, refCode };
+}
+
+// Reads the order back from Razorpay: the real amount paid and the plan/referral the server set.
+async function razorpayOrder(orderId) {
+  const keyId = process.env.RAZORPAY_KEY_ID, keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keyId || !keySecret) return null;
+  try {
+    const r = await fetch(`https://api.razorpay.com/v1/orders/${encodeURIComponent(orderId)}`, { headers: { Authorization: 'Basic ' + Buffer.from(`${keyId}:${keySecret}`).toString('base64') } });
+    return r.ok ? await r.json() : null;
+  } catch (e) { return null; }
 }
 
 export default async function handler(req, res) {
@@ -152,11 +156,20 @@ export default async function handler(req, res) {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+    // Step 1b: the plan and referral come from the order the server created, not from the browser.
+    const order = await razorpayOrder(razorpay_order_id);
+    const notes = (order && order.notes) || {};
+    if (notes.plan) customer.plan = notes.plan;
+    if (notes.duration) customer.duration = notes.duration;
+
     // Step 2a: challenges get an app login code + welcome email
     if (/challenge/i.test(customer.plan || '')) {
-      const out = await handleChallenge(customer, razorpay_payment_id, {
-        url: String(process.env.CHALLENGE_SUPABASE_URL || supabaseUrl || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, ''),
-        key: String(process.env.CHALLENGE_SUPABASE_KEY || supabaseServiceKey || '').trim()
+      const out = await createMembership({
+        customer, slug: challengeSlug(customer.plan), paymentId: razorpay_payment_id, referredBy: notes.ref || null,
+        sb: {
+          url: String(process.env.CHALLENGE_SUPABASE_URL || supabaseUrl || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, ''),
+          key: String(process.env.CHALLENGE_SUPABASE_KEY || supabaseServiceKey || '').trim()
+        }
       });
       return res.status(200).json({ success: true, ...out });
     }
