@@ -186,6 +186,15 @@ export default async function handler(req, res) {
     };
     const durationValue = durationMap[customer.duration] || customer.duration;
 
+    // Referral code used on the website (set by create-order) -> who referred them. +10 days is added by the database.
+    let referredBy = null;
+    if (notes.ref) {
+      try {
+        const rr = await fetch(`${supabaseUrl}/rest/v1/clients?ref_code=eq.${encodeURIComponent(notes.ref)}&select=id&limit=1`, { headers: { apikey: supabaseServiceKey, Authorization: `Bearer ${supabaseServiceKey}` } });
+        const found = rr.ok ? await rr.json() : [];
+        if (found[0]) referredBy = found[0].id;
+      } catch (e) {}
+    }
     const supabaseRes = await fetch(`${supabaseUrl}/rest/v1/clients`, {
       method: 'POST',
       headers: {
@@ -207,6 +216,8 @@ export default async function handler(req, res) {
         extension_days: 0,
         referral_days: 0,
         payment_status: 'paid',
+        referred_by: referredBy,
+        amount: order && order.amount ? Math.round(order.amount / 100) : null,
         intro_done: false,
         onboarding_done: false,
         notes: `${customer.location ? 'Location: ' + customer.location + '. ' : ''}${customer.plan === '1-on-1 Trial Session' ? '⭐ TRIAL SESSION — if they join a full program, remember to add +1 day via Extension. ' : ''}Auto-created via Razorpay signup. Plan: ${customer.plan}. Payment ID: ${razorpay_payment_id}`

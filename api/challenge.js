@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { vapidKeys, sendPush } from './_push.js';
 import { GROUPS, baseOf, levelOf, slugFor, MAX_LEVEL, challengeName, refCodeFor, refLink, PAGES, CHALLENGE_PRICES, REFERRAL_DISCOUNT, SB_URL as SBU, SB_KEY as SBK } from './_shared.js';
 import { createMembership } from './verify-payment.js';
+import { checkAdminPassword } from './clients.js';
 
 // Challenge app backend (unlock system). One endpoint, four actions:
 //   login   { email, code }  -> { token }
@@ -210,9 +211,13 @@ export default async function handler(req, res) {
 
     if (action === 'dashboard') {
       const want = String(process.env.DASHBOARD_PASSWORD || '').trim(), got = String(req.body.password || '');
-      if (!want) return res.status(500).json({ error: 'Dashboard password is not set yet. Add DASHBOARD_PASSWORD in Vercel → Settings → Environment Variables.' });
-      const A = crypto.createHash('sha256').update(got).digest(), B = crypto.createHash('sha256').update(want).digest();
-      if (!crypto.timingSafeEqual(A, B)) return res.status(401).json({ error: 'Wrong password.' });
+      // Same password as the client tracker (admin.html) works too, so no Vercel setting is needed.
+      const sameAsAdmin = await checkAdminPassword(got).catch(() => null);
+      const A = crypto.createHash('sha256').update(got).digest(), B = crypto.createHash('sha256').update(want || crypto.randomUUID()).digest();
+      if (!sameAsAdmin && !(want && crypto.timingSafeEqual(A, B))) {
+        if (!want && sameAsAdmin === null) return res.status(500).json({ error: 'Dashboard password is not set yet. Run the setup SQL in Supabase.' });
+        return res.status(401).json({ error: 'Wrong password.' });
+      }
       const all = await rows('challenge_members?select=id,name,email,phone,challenge,start_date,created_at,ref_code,referred_by,payment_id&order=created_at.asc&limit=5000');
       const atts = all.length ? await rows('challenge_attempts?passed=eq.true&select=member_id,attempt_date,passed,points&limit=100000') : [];
       const byM = {}; atts.forEach(a => (byM[a.member_id] = byM[a.member_id] || []).push(a));

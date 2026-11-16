@@ -41,7 +41,14 @@ export async function priceFor({ planName, duration, email, phone, ref }) {
   }
   const price = PLAN_PRICES[`${plan}|${String(duration || '').trim()}`];
   if (!price) return { error: 'This plan could not be found. Please choose it again from the website.' };
-  return { plan, full: price, price, discount: 0, ref: null };
+  const out = { plan, full: price, price, discount: 0, ref: null };
+  // Coaching referral: a client's code (e.g. PRIYANKA482). The person who referred gets +10 days automatically.
+  const ccode = String(ref || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (ccode) {
+    const owner = (await dbRows(`clients?ref_code=eq.${ccode}&select=name,email&limit=1`).catch(() => []))[0];
+    if (owner && owner.email !== email) { out.ref = ccode; out.referrer = String(owner.name || '').split(' ')[0]; }
+  }
+  return out;
 }
 
 export default async function handler(req, res) {
