@@ -7,7 +7,6 @@
 <title>Admin — Strong With Sherni</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
   :root{
@@ -103,6 +102,19 @@
   .reminder-box.soon{ background:#FAEEDA; border-color:#FAC775; }
   .reminder-title{ font-size:13px; font-weight:700; margin-bottom:10px; }
   .reminder-row{ display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(0,0,0,0.06); font-size:13px; }
+  .ref-line{ font-size:12px; color:var(--taupe); margin:6px 0 10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .ref-chip{ font-size:11.5px; font-weight:700; letter-spacing:1px; background:#F3E8EE; color:var(--maroon); padding:3px 9px; border-radius:6px; }
+  .btn-portal{ background:#fff; border:1px solid var(--maroon); color:var(--maroon); border-radius:8px; padding:5px 12px; cursor:pointer; font-size:12px; font-weight:600; text-decoration:none; }
+  .tbl{ width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:13px; }
+  .tbl th{ text-align:left; font-size:11px; color:var(--taupe); text-transform:uppercase; letter-spacing:.5px; padding:10px 14px; background:#FBF8F2; border-bottom:1px solid var(--line); }
+  .tbl td{ padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .tbl tr:last-child td{ border-bottom:0; }
+  .rn-btn{ font-size:12px; padding:4px 10px; border-radius:6px; border:1px solid #D1D5DB; background:#fff; cursor:pointer; margin-left:4px; }
+  .rn-btn.on-yes{ background:#EAF3DE; border-color:#3B6D11; color:#3B6D11; font-weight:700; }
+  .rn-btn.on-no{ background:#FCEBEB; border-color:#A32D2D; color:#A32D2D; font-weight:700; }
+  .demo-bar{ background:#FBF1DE; color:#7A5212; border:1px solid #F1DDB5; border-radius:10px; padding:8px 14px; font-size:13px; font-weight:600; margin-bottom:14px; }
+  .toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#2D322C; color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600; opacity:0; transition:.2s; z-index:300; pointer-events:none; }
+  .toast.on{ opacity:1; }
 </style>
 </head>
 <body>
@@ -116,12 +128,8 @@
     </div>
     <div class="login-card">
       <div class="field">
-        <label>Username</label>
-        <input type="text" id="login-username" placeholder="Enter admin username">
-      </div>
-      <div class="field">
         <label>Password</label>
-        <input type="password" id="login-password" placeholder="Enter password">
+        <input type="password" id="login-password" placeholder="Enter your admin password" onkeydown="if(event.key==='Enter')handleLogin()">
       </div>
       <div id="login-error" class="error-msg hidden"></div>
       <button class="btn-primary" style="width:100%;padding:12px;" onclick="handleLogin()">Login</button>
@@ -130,12 +138,14 @@
 </div>
 
 <div id="dashboard-screen" class="hidden">
+  <div class="demo-bar hidden" id="demo-bar">Demo with sample clients. Nothing here is saved.</div>
   <div class="dash-header">
     <div>
       <h1>🦁 Strong With Sherni</h1>
       <p class="sub">Admin Dashboard <span id="save-status" style="color:var(--green);margin-left:6px;"></span></p>
     </div>
     <div class="header-actions">
+      <button class="btn-secondary" id="alerts-btn" onclick="enableAlerts()">🔔 Phone alerts</button>
       <button class="btn-secondary" onclick="exportCSV()">↓ CSV</button>
       <button class="btn-primary" onclick="openAddModal()">+ Add Client</button>
       <button class="btn-secondary" onclick="handleLogout()">Logout</button>
@@ -145,12 +155,16 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
     <button class="tab-btn" data-tab="clients" onclick="switchTab('clients')">Clients</button>
-    <button class="tab-btn" data-tab="reminders" onclick="switchTab('reminders')">Reminders</button>
+    <button class="tab-btn" data-tab="reminders" onclick="switchTab('reminders')">Reminders & Renewals</button>
+    <button class="tab-btn" data-tab="referrals" onclick="switchTab('referrals')">Referrals</button>
+    <button class="tab-btn" data-tab="growth" onclick="switchTab('growth')">Growth</button>
   </div>
 
   <div id="tab-overview"></div>
   <div id="tab-clients" class="hidden"></div>
   <div id="tab-reminders" class="hidden"></div>
+  <div id="tab-referrals" class="hidden"></div>
+  <div id="tab-growth" class="hidden"></div>
 </div>
 
 <div id="client-modal" class="modal-overlay hidden">
@@ -160,8 +174,9 @@
     <p class="section-label">Basic Info</p>
     <div class="form-grid">
       <div class="full field"><label>Full name *</label><input id="f-name"></div>
-      <div class="field"><label>Login email *</label><input id="f-email" type="email"></div>
-      <div class="field"><label>Password *</label><input id="f-password"></div>
+      <div class="field"><label>Email *</label><input id="f-email" type="email"></div>
+      <div class="field"><label>Amount paid (₹)</label><input id="f-amount" type="number" min="0" placeholder="e.g. 19499"></div>
+      <input id="f-password" type="hidden">
       <div class="full field"><label>Phone (for WhatsApp reminders)</label><input id="f-phone" placeholder="+91 XXXXX XXXXX"></div>
     </div>
 
@@ -177,9 +192,12 @@
       </div>
       <div class="field"><label>Pause days</label><input id="f-pause" type="number" min="0" value="0"></div>
       <div class="field"><label>Extension days</label><input id="f-ext" type="number" min="0" value="0"></div>
-      <div class="field"><label>Referral bonus days</label><input id="f-ref" type="number" min="0" value="0"></div>
+      <div class="field"><label>Referral bonus days (auto +10 per friend)</label><input id="f-ref" type="number" min="0" value="0"></div>
       <div class="field"><label>Payment status</label>
-        <select id="f-paystatus"><option value="pending">Pending</option><option value="paid">Paid</option></select>
+        <select id="f-paystatus"><option value="paid">Paid</option><option value="pending">Pending</option></select>
+      </div>
+      <div class="full field"><label>Referred by (they get +10 days automatically)</label>
+        <select id="f-referredby"><option value="">— Nobody —</option></select>
       </div>
     </div>
 
@@ -192,7 +210,20 @@
       </div>
     </div>
 
-    <p class="section-label">Notes</p>
+    <p class="section-label">Client portal</p>
+    <div class="form-grid">
+      <div class="full field"><label>Note for the client (shows at the top of their portal)</label><textarea id="f-coachnote" style="min-height:56px" placeholder="e.g. So proud of your consistency this month! 💛"></textarea></div>
+    </div>
+
+    <p class="section-label">Renewal</p>
+    <div class="form-grid">
+      <div class="field"><label>Renewal status</label>
+        <select id="f-renewal"><option value="">Not decided yet</option><option value="renewed">Renewed</option><option value="not_renewed">Not renewing</option></select>
+      </div>
+      <div class="field"><label>Why / note</label><input id="f-renewalnote" placeholder="e.g. Price, travelling, happy with results"></div>
+    </div>
+
+    <p class="section-label">Private notes (only you see these)</p>
     <textarea id="f-notes" style="width:100%;min-height:64px;padding:10px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;"></textarea>
 
     <div id="modal-error" class="error-msg hidden" style="margin-top:12px;"></div>
@@ -204,14 +235,30 @@
 </div>
 
 <script>
-  const SUPABASE_URL = "https://mvhuwsmcsubfdowukoyn.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_ZBLQx4UlBiN3GWSzsZtYTg_tjNimgzE";
-  const ADMIN_CREDS = { username: "sherni", password: "admin123" };
+  // All data goes through /api/clients (server). The password is checked on the server, never stored in this page.
+  const DEMO = /[?&]demo/.test(location.search) || !/strongwithsherni\.com|localhost/.test(location.host);
+  const TKEY = "sws_admin_token";
   const DURATIONS = { "3 months": 90, "4 months": 120, "6 months": 180, "12 months": 365, "1 hour": 1, "7 days": 7, "10 days": 10, "14 days": 14, "21 days": 21, "30 days": 30 };
   const STRIPE_COLOR = { critical:"#DC2626", warning:"#D97706", soon:"#B0576F", active:"#4D8A1F", expired:"#9CA3AF", unknown:"#D1D5DB" };
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let clients = [];
+  let token = ""; try{ token = localStorage.getItem(TKEY)||""; }catch(e){}
+  async function api(body){
+    if(DEMO) return demoApi(body);
+    const r = await fetch("/api/clients",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body, token})});
+    const j = await r.json().catch(()=>({}));
+    if(r.status===401 && body.action!=="admin_login"){ handleLogout(); throw new Error(j.error||"Please log in again."); }
+    if(!r.ok) throw new Error(j.error||"Something went wrong.");
+    return j;
+  }
+  function toast(t){ let el=document.getElementById("toast"); if(!el){ el=document.createElement("div"); el.id="toast"; el.className="toast"; document.body.appendChild(el); } el.textContent=t; el.classList.add("on"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("on"),2200); }
+  const byId = id => clients.find(x=>x.id===id);
+  const firstName = n => String(n||"").trim().split(/\s+/)[0];
+  function referralsOf(c){ return clients.filter(x=>x.referred_by===c.id); }
+  function portalMsg(c){
+    return `Hi ${firstName(c.name)}, this is Anshika from the Strong With Sherni team.\n\nWe've made you your own personal progress page, so you can see how far you've come and stay motivated through your journey:\n${c.portal}\n\nOn it you'll find:\n- Your days left and how much of your plan you've completed\n- Which phase you're in and badges you unlock along the way\n- Your own measurements graph to track your progress (only you can see it)\n- Your referral code: ${c.ref_code||"-"}. Every friend who joins with it gets you 10 extra days\n\nNo login needed, just tap the link. Save it so you can check in anytime.`;
+  }
+  async function copyPortal(id){ const c=byId(id); try{ await navigator.clipboard.writeText(c.portal); toast("Portal link copied"); }catch(e){ prompt("Copy the link:", c.portal); } }
   let editingId = null;
 
   function calcEnd(c){
@@ -273,31 +320,47 @@
     return `https://wa.me/${withCountry}?text=${encodeURIComponent(msg)}`;
   }
 
-  function handleLogin(){
-    const u = document.getElementById("login-username").value.trim();
+  function showDash(){
+    document.getElementById("login-screen").classList.add("hidden");
+    document.getElementById("dashboard-screen").classList.remove("hidden");
+    if(DEMO) document.getElementById("demo-bar").classList.remove("hidden");
+    loadClients();
+  }
+  async function handleLogin(){
     const p = document.getElementById("login-password").value;
     const err = document.getElementById("login-error");
-    if(u===ADMIN_CREDS.username && p===ADMIN_CREDS.password){
-      document.getElementById("login-screen").classList.add("hidden");
-      document.getElementById("dashboard-screen").classList.remove("hidden");
-      loadClients();
-      return;
-    }
-    err.textContent = "Invalid credentials. Please try again.";
-    err.classList.remove("hidden");
+    err.classList.add("hidden");
+    try{
+      const j = await api({action:"admin_login", password:p});
+      token = j.token; try{ localStorage.setItem(TKEY, token); }catch(e){}
+      showDash();
+    }catch(e){ err.textContent = e.message; err.classList.remove("hidden"); }
   }
   function handleLogout(){
+    token = ""; try{ localStorage.removeItem(TKEY); }catch(e){}
     document.getElementById("dashboard-screen").classList.add("hidden");
     document.getElementById("login-screen").classList.remove("hidden");
-    document.getElementById("login-username").value = "";
     document.getElementById("login-password").value = "";
   }
 
   async function loadClients(){
-    const { data, error } = await sb.from("clients").select("*").order("created_at",{ascending:true});
-    if(error){ alert("Error loading clients: "+error.message); return; }
-    clients = data || [];
-    renderAll();
+    try{ const j = await api({action:"list"}); clients = j.clients || []; renderAll(); }
+    catch(e){ toast(e.message); }
+  }
+
+  async function enableAlerts(){
+    if(DEMO){ toast("In the real tracker this turns on phone alerts for this device."); return; }
+    try{
+      if(!("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("This browser can't receive notifications. On iPhone, add the site to your Home Screen first.");
+      const perm = await Notification.requestPermission();
+      if(perm!=="granted") throw new Error("Notifications were blocked. Allow them in your browser settings.");
+      const reg = await navigator.serviceWorker.register("/sw.js");
+      const { publicKey } = await api({action:"pushkey"});
+      const raw = atob(publicKey.replace(/-/g,"+").replace(/_/g,"/")); const key = new Uint8Array([...raw].map(ch=>ch.charCodeAt(0)));
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:key });
+      await api({action:"pushsub", sub: sub.toJSON()});
+      toast("✅ Phone alerts are on for this device");
+    }catch(e){ toast(e.message); }
   }
   function flashSave(msg){
     const el = document.getElementById("save-status");
@@ -307,7 +370,7 @@
 
   function switchTab(tab){
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
-    ["overview","clients","reminders"].forEach(t=>{
+    ["overview","clients","reminders","referrals","growth"].forEach(t=>{
       document.getElementById("tab-"+t).classList.toggle("hidden", t!==tab);
     });
     renderAll();
@@ -317,6 +380,8 @@
     renderOverview();
     renderClients();
     renderReminders();
+    renderReferrals();
+    renderGrowth();
   }
 
   let chartStatus, chartPhase, chartPayment;
@@ -345,7 +410,7 @@
       </div>
 
       <p style="font-size:13px;font-weight:600;color:#374151;margin-bottom:10px;">At a Glance</p>
-      <div class="chart-grid">
+      <div class="chart-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
         <div class="chart-card">
           <h4>Client Status Breakdown</h4>
           <div class="chart-wrap">${total===0?'<p class="empty-note">No clients yet</p>':'<canvas id="chart-status"></canvas>'}</div>
@@ -353,10 +418,6 @@
         <div class="chart-card">
           <h4>Clients per Phase</h4>
           <div class="chart-wrap">${total===0?'<p class="empty-note">No clients yet</p>':'<canvas id="chart-phase"></canvas>'}</div>
-        </div>
-        <div class="chart-card">
-          <h4>Payment Status</h4>
-          <div class="chart-wrap">${total===0?'<p class="empty-note">No clients yet</p>':'<canvas id="chart-payment"></canvas>'}</div>
         </div>
       </div>
 
@@ -389,14 +450,6 @@
       options: { plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1, font:{size:11} } }, x:{ ticks:{ font:{size:11} } } }, maintainAspectRatio:false }
     });
 
-    chartPayment = new Chart(document.getElementById("chart-payment"), {
-      type: "doughnut",
-      data: {
-        labels: ["Paid","Pending"],
-        datasets: [{ data:[paid,pending], backgroundColor:["#3B6D11","#D97706"], borderWidth:0 }]
-      },
-      options: { plugins:{ legend:{ position:"bottom", labels:{ font:{ size:11 }, boxWidth:10, padding:8 } } }, maintainAspectRatio:false }
-    });
   }
 
   function renderClients(){
@@ -448,7 +501,7 @@
         const days = daysLeft(end);
         const group = statusGroup(c);
         const needsAttention = ["critical","warning"].includes(group) && !c.onboarding_done;
-        const pauseLine = Number(c.pause_days||0) > 0 ? `⏸️ Paused Days: ${c.pause_days} (added to your end date)\n` : ""; const referralLine = Number(c.referral_days||0) > 0 ? `🎁 Referral Bonus: ${c.referral_days} day(s) added\n` : ""; const extensionLine = Number(c.extension_days||0) > 0 ? `➕ Extension: ${c.extension_days} day(s) added\n` : ""; const reminderMsg = `Hi ${c.name.split(" ")[0]}! 👋\n\nQuick update on your Strong With Sherni programme:\n\n📅 Start Date: ${fmt(c.join_date)}\n📅 End Date: ${fmt(end)}\n⏳ Days Left: ${days!==null?Math.max(0,days):"a few"}\n${pauseLine}${referralLine}${extensionLine}\nLet's connect about your next steps!`; const wa = waLink(c.phone, reminderMsg);
+        const pauseLine = Number(c.pause_days||0) > 0 ? `⏸️ Paused Days: ${c.pause_days} (added to your end date)\n` : ""; const referralLine = Number(c.referral_days||0) > 0 ? `🎁 Referral Bonus: ${c.referral_days} day(s) added\n` : ""; const extensionLine = Number(c.extension_days||0) > 0 ? `➕ Extension: ${c.extension_days} day(s) added\n` : ""; const reminderMsg = `Hi ${c.name.split(" ")[0]}! 👋\n\nQuick update on your Strong With Sherni programme:\n\n📅 Start Date: ${fmt(c.join_date)}\n📅 End Date: ${fmt(end)}\n⏳ Days Left: ${days!==null?Math.max(0,days):"a few"}\n${pauseLine}${referralLine}${extensionLine}\n📲 Your portal: ${c.portal}\n\nLet's connect about your next steps!`; const wa = waLink(c.phone, reminderMsg); const waPortal = waLink(c.phone, portalMsg(c)); const refBy = c.referred_by ? byId(c.referred_by) : null; const friends = referralsOf(c);
         if(idx===firstExpiredIdx && firstExpiredIdx>0){
           html += `<div class="expired-divider"><span>Expired</span><div class="line"></div></div>`;
         }
@@ -465,11 +518,20 @@
                   ${needsAttention ? `<span class="badge" style="background:#FEE2E2;color:#B91C1C;">⚠ Needs Attention</span>` : ""}
                   <span class="badge" style="background:#EDE9FE;color:#5B21B6;">${effPhase(c)}</span>
                   ${statusBadgeHtml(days)}
-                  ${wa ? `<a href="${wa}" target="_blank" class="btn-wa">💬 WhatsApp</a>` : ""}
+                  ${waPortal ? `<a href="${waPortal}" target="_blank" class="btn-wa">📲 Send portal</a>` : ""}
+                  ${wa ? `<a href="${wa}" target="_blank" class="btn-wa" style="background:#128C7E">💬 Status</a>` : ""}
                   <span class="badge" style="background:${c.payment_status==='paid'?'#EAF3DE':'#FEF3C7'};color:${c.payment_status==='paid'?'#3B6D11':'#92400E'};">${c.payment_status==='paid'?'Paid':'Payment Pending'}</span>
                   <button class="edit-btn" onclick="openEditModal('${c.id}')">Edit</button>
                   <button class="del-btn" onclick="deleteClient('${c.id}')">Delete</button>
                 </div>
+              </div>
+              <div class="ref-line">
+                <span class="ref-chip">🎁 ${c.ref_code||"—"}</span>
+                ${refBy ? `<span>Referred by <b>${refBy.name}</b></span>` : ""}
+                ${friends.length ? `<span>· Brought <b>${friends.length}</b> friend${friends.length>1?"s":""} (${friends.map(f=>firstName(f.name)).join(", ")})</span>` : ""}
+                ${c.renewal_status==="renewed" ? `<span class="badge" style="background:#EAF3DE;color:#3B6D11;">Renewed</span>` : c.renewal_status==="not_renewed" ? `<span class="badge" style="background:#F3F4F6;color:#6B7280;">Not renewing</span>` : ""}
+                <button class="btn-portal" onclick="copyPortal('${c.id}')">🔗 Copy portal link</button>
+                <a class="btn-portal" href="${c.portal}" target="_blank">👁 View portal</a>
               </div>
               <div class="mini-grid">
                 <div class="mini-cell"><p class="k">Joined</p><p class="v">${fmt(c.join_date)}</p></div>
@@ -529,6 +591,16 @@
     const justChanged = clients.filter(c=>{const l=lastPhaseChangeDate(c); if(!l||statusGroup(c)==="expired") return false; const d=Math.floor((new Date()-l)/86400000); return d>=0&&d<=7;});
 
     let html = "";
+    const renewal = coaching.filter(c=>{ const d=daysLeft(calcEnd(c)); return d!==null && d<=15 && d>=-30; }).sort((a,b)=>daysLeft(calcEnd(a))-daysLeft(calcEnd(b)));
+    if(renewal.length){
+      html += `<div class="reminder-box" style="border-color:#7B0237;"><p class="reminder-title" style="color:#7B0237;">🔄 Renewals: ending within 15 days or recently ended (${renewal.length})</p>`;
+      renewal.forEach(c=>{ const d=daysLeft(calcEnd(c)); const msg=`Hi ${firstName(c.name)}! 👋 Your Strong With Sherni plan ${d<0?"ended on":"ends on"} ${fmt(calcEnd(c))}. You've done so well, want to keep the momentum going? 💪\n\nYour portal: ${c.portal}`; const w=waLink(c.phone,msg);
+        html += `<div class="reminder-row" style="align-items:center;flex-wrap:wrap;gap:6px;"><span><b>${c.name}</b> · ${d<0?`ended ${-d}d ago`:`${d}d left`}${c.renewal_note?` · <i style="color:var(--taupe)">${c.renewal_note}</i>`:""}</span><span>
+          ${w?`<a href="${w}" target="_blank" class="btn-wa">💬 Reach out</a>`:""}
+          <button class="rn-btn ${c.renewal_status==="renewed"?"on-yes":""}" onclick="setRenewal('${c.id}','renewed')">✓ Renewed</button>
+          <button class="rn-btn ${c.renewal_status==="not_renewed"?"on-no":""}" onclick="setRenewal('${c.id}','not_renewed')">✗ Not renewing</button></span></div>`; });
+      html += `</div>`;
+    }
     if(soonPhase.length || justChanged.length){
       html += `<div class="reminder-box"><p class="reminder-title" style="color:#5B21B6;">🔄 Phase changes (${soonPhase.length+justChanged.length})</p>`;
       justChanged.forEach(c=>{ html += `<div class="reminder-row"><span>${c.name}</span><span>Now <b>${effPhase(c)}</b> · changed ${fmt(lastPhaseChangeDate(c))}</span></div>`; });
@@ -555,22 +627,87 @@
       exp30.forEach(c=>{ const d=daysLeft(calcEnd(c)); html += `<div class="reminder-row" style="color:#854F0B;"><span>${c.name}</span><span>${d}d left · ends ${fmt(calcEnd(c))}</span></div>`; });
       html += `</div>`;
     }
-    if(!soonPhase.length && !justChanged.length && !introPending.length && !onboardPending.length && !exp7.length && !exp30.length){
+    if(!renewal.length && !soonPhase.length && !justChanged.length && !introPending.length && !onboardPending.length && !exp7.length && !exp30.length){
       html = `<div style="text-align:center;padding:3rem 0;color:var(--taupe);">🎉 All clear! No pending reminders.</div>`;
     }
     document.getElementById("tab-reminders").innerHTML = html;
   }
 
+  async function setRenewal(id, status){
+    const c = byId(id); const now = c.renewal_status===status ? null : status;
+    let note = c.renewal_note||"";
+    if(now==="not_renewed"){ const n = prompt("Why are they not renewing? (optional)", note); if(n!==null) note = n; }
+    await quickUpdate(id, { renewal_status: now, renewal_date: now ? new Date().toISOString().slice(0,10) : null, renewal_note: note || null });
+  }
+
+  function renderReferrals(){
+    const refs = clients.filter(c=>referralsOf(c).length).sort((a,b)=>referralsOf(b).length-referralsOf(a).length);
+    const total = clients.filter(c=>c.referred_by).length;
+    let html = `<div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="stat-card" style="background:#F3E8EE;"><p class="lbl" style="color:#7B0237;">Clients who came by referral</p><p class="val" style="color:#7B0237;">${total}</p></div>
+      <div class="stat-card" style="background:#EAF3DE;"><p class="lbl" style="color:#3B6D11;">Clients who referred someone</p><p class="val" style="color:#3B6D11;">${refs.length}</p></div>
+      <div class="stat-card" style="background:#FAEEDA;"><p class="lbl" style="color:#854F0B;">Bonus days given</p><p class="val" style="color:#854F0B;">${total*10}</p></div></div>`;
+    if(!refs.length){ html += `<div style="text-align:center;padding:2.5rem 0;color:var(--taupe);">No referrals yet. Every client has a code in their portal. Remind them to share it! 🎁</div>`; }
+    else {
+      html += `<table class="tbl"><tr><th>Referred by</th><th>Code</th><th>Friends who joined</th><th>Days earned</th></tr>` + refs.map(c=>`<tr><td><b>${c.name}</b></td><td><span class="ref-chip">${c.ref_code||""}</span></td><td>${referralsOf(c).map(f=>`${f.name} <span style="color:var(--taupe)">(${fmt(f.join_date)})</span>`).join("<br>")}</td><td><b>+${referralsOf(c).length*10}</b> days</td></tr>`).join("") + `</table>`;
+    }
+    document.getElementById("tab-referrals").innerHTML = html;
+  }
+
+  let chartGrowth;
+  function renderGrowth(){
+    const months = []; const d0 = new Date(); d0.setDate(1);
+    for(let i=11;i>=0;i--){ const d=new Date(d0.getFullYear(), d0.getMonth()-i, 1); months.push({key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`, label:d.toLocaleDateString("en-IN",{month:"short",year:"2-digit"})}); }
+    const mk = v => v ? String(v).slice(0,7) : "";
+    const coaching = clients.filter(c=>!isChallenge(c));
+    const rowsM = months.map(m=>({ ...m,
+      newC: coaching.filter(c=>mk(c.join_date)===m.key).length,
+      refs: coaching.filter(c=>c.referred_by && mk(c.join_date)===m.key).length,
+      ren: coaching.filter(c=>c.renewal_status==="renewed" && mk(c.renewal_date)===m.key).length,
+      lost: coaching.filter(c=>c.renewal_status==="not_renewed" && mk(c.renewal_date)===m.key).length,
+      rev: coaching.filter(c=>mk(c.payment_date)===m.key).reduce((s,c)=>s+Number(c.amount||0),0) }));
+    const thisM = rowsM[rowsM.length-1], lastM = rowsM[rowsM.length-2];
+    const inr = n => "₹"+Number(n||0).toLocaleString("en-IN");
+    const diff = (a,b) => b ? (a>=b?`<span style="color:#3B6D11">▲ ${a-b}</span>`:`<span style="color:#A32D2D">▼ ${b-a}</span>`) : "";
+    const decided = coaching.filter(c=>c.renewal_status).length, renewedAll = coaching.filter(c=>c.renewal_status==="renewed").length;
+    let html = `<p style="font-size:13px;font-weight:600;color:#374151;margin-bottom:10px;">This month (${thisM.label})</p>
+      <div class="stat-grid">
+        <div class="stat-card" style="background:#fff;border:1px solid var(--line);"><p class="lbl">New clients</p><p class="val">${thisM.newC}</p><p class="lbl">${diff(thisM.newC,lastM.newC)} vs last month</p></div>
+        <div class="stat-card" style="background:#F3E8EE;"><p class="lbl" style="color:#7B0237;">Came by referral</p><p class="val" style="color:#7B0237;">${thisM.refs}</p></div>
+        <div class="stat-card" style="background:#EAF3DE;"><p class="lbl" style="color:#3B6D11;">Renewed</p><p class="val" style="color:#3B6D11;">${thisM.ren}</p><p class="lbl" style="color:#3B6D11;">Renewal rate overall: ${decided?Math.round(renewedAll/decided*100)+"%":"—"}</p></div>
+        <div class="stat-card" style="background:#FAEEDA;"><p class="lbl" style="color:#854F0B;">Revenue</p><p class="val" style="color:#854F0B;font-size:22px;">${inr(thisM.rev)}</p><p class="lbl" style="color:#854F0B;">from "Amount paid"</p></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:16px;"><h4>New clients, referrals and renewals (last 12 months)</h4><div class="chart-wrap" style="height:240px"><canvas id="chart-growth"></canvas></div></div>
+      <table class="tbl"><tr><th>Month</th><th>New clients</th><th>By referral</th><th>Renewed</th><th>Not renewing</th><th>Revenue</th></tr>
+      ${rowsM.slice().reverse().map(r=>`<tr><td><b>${r.label}</b></td><td>${r.newC}</td><td>${r.refs}</td><td>${r.ren}</td><td>${r.lost}</td><td>${inr(r.rev)}</td></tr>`).join("")}</table>`;
+    document.getElementById("tab-growth").innerHTML = html;
+    if(chartGrowth) chartGrowth.destroy();
+    if(document.getElementById("tab-growth").classList.contains("hidden")) return;
+    chartGrowth = new Chart(document.getElementById("chart-growth"), { type:"bar",
+      data:{ labels: rowsM.map(r=>r.label), datasets:[
+        { label:"New clients", data: rowsM.map(r=>r.newC), backgroundColor:"#7B0237", borderRadius:5 },
+        { label:"By referral", data: rowsM.map(r=>r.refs), backgroundColor:"#E8A0BC", borderRadius:5 },
+        { label:"Renewed", data: rowsM.map(r=>r.ren), backgroundColor:"#4D8A1F", borderRadius:5 } ] },
+      options:{ maintainAspectRatio:false, plugins:{ legend:{ position:"bottom", labels:{ boxWidth:10, font:{size:11} } } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } } } } });
+  }
+
+  function fillReferredBy(selected, selfId){
+    const sel = document.getElementById("f-referredby");
+    sel.innerHTML = `<option value="">— Nobody —</option>` + clients.filter(c=>c.id!==selfId).slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${c.id===selected?"selected":""}>${c.name}${c.ref_code?" · "+c.ref_code:""}</option>`).join("");
+  }
+
   function openAddModal(){
     editingId = null;
     document.getElementById("modal-title").textContent = "Add New Client";
-    ["f-name","f-email","f-password","f-phone","f-join","f-payment","f-onboard-date","f-notes"].forEach(id=>document.getElementById(id).value="");
+    ["f-name","f-email","f-password","f-phone","f-join","f-payment","f-onboard-date","f-notes","f-amount","f-coachnote","f-renewal","f-renewalnote"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("f-join").value = new Date().toISOString().slice(0,10);
+    fillReferredBy("", null);
     document.getElementById("f-duration").value = "3 months";
     document.getElementById("f-phaseweeks").value = "4";
     document.getElementById("f-pause").value = 0;
     document.getElementById("f-ext").value = 0;
     document.getElementById("f-ref").value = 0;
-    document.getElementById("f-paystatus").value = "pending";
+    document.getElementById("f-paystatus").value = "paid";
     document.getElementById("f-intro").checked = false;
     document.getElementById("f-onboard").checked = false;
     document.getElementById("modal-error").classList.add("hidden");
@@ -583,7 +720,7 @@
     document.getElementById("modal-title").textContent = "Edit Client";
     document.getElementById("f-name").value = c.name;
     document.getElementById("f-email").value = c.email;
-    document.getElementById("f-password").value = c.password;
+    document.getElementById("f-password").value = c.password||"";
     document.getElementById("f-phone").value = c.phone||"";
     document.getElementById("f-join").value = c.join_date||"";
     document.getElementById("f-payment").value = c.payment_date||"";
@@ -593,7 +730,12 @@
     document.getElementById("f-pause").value = c.pause_days||0;
     document.getElementById("f-ext").value = c.extension_days||0;
     document.getElementById("f-ref").value = c.referral_days||0;
-    document.getElementById("f-paystatus").value = c.payment_status||"pending";
+    document.getElementById("f-paystatus").value = c.payment_status||"paid";
+    document.getElementById("f-amount").value = c.amount||"";
+    document.getElementById("f-coachnote").value = c.coach_note||"";
+    document.getElementById("f-renewal").value = c.renewal_status||"";
+    document.getElementById("f-renewalnote").value = c.renewal_note||"";
+    fillReferredBy(c.referred_by||"", c.id);
     document.getElementById("f-intro").checked = c.intro_done||false;
     document.getElementById("f-onboard").checked = c.onboarding_done||false;
     document.getElementById("f-notes").value = c.notes||"";
@@ -608,13 +750,13 @@
     const password = document.getElementById("f-password").value;
     const joinDate = document.getElementById("f-join").value;
     const errEl = document.getElementById("modal-error");
-    if(!name || !email || !password || !joinDate){
-      errEl.textContent = "Name, email, password and join date are required.";
+    if(!name || !email || !joinDate){
+      errEl.textContent = "Name, email and join date are required.";
       errEl.classList.remove("hidden");
       return;
     }
     const payload = {
-      name, email, password,
+      name, email, ...(password ? { password } : {}),
       phone: document.getElementById("f-phone").value.trim(),
       join_date: joinDate,
       payment_date: document.getElementById("f-payment").value || null,
@@ -627,41 +769,43 @@
       payment_status: document.getElementById("f-paystatus").value,
       intro_done: document.getElementById("f-intro").checked,
       onboarding_done: document.getElementById("f-onboard").checked,
-      notes: document.getElementById("f-notes").value
+      notes: document.getElementById("f-notes").value,
+      amount: document.getElementById("f-amount").value ? Number(document.getElementById("f-amount").value) : null,
+      coach_note: document.getElementById("f-coachnote").value.trim() || null,
+      referred_by: document.getElementById("f-referredby").value || null,
+      renewal_status: document.getElementById("f-renewal").value || null,
+      renewal_note: document.getElementById("f-renewalnote").value.trim() || null
     };
+    const prev = editingId ? byId(editingId) : null;
+    if(payload.renewal_status && (!prev || prev.renewal_status!==payload.renewal_status)) payload.renewal_date = new Date().toISOString().slice(0,10);
+    const newRef = payload.referred_by && (!prev || prev.referred_by!==payload.referred_by) ? byId(payload.referred_by) : null;
 
     payload.phase = effPhase({...(clients.find(x=>x.id===editingId)||{}), ...payload});
-    let error;
-    if(editingId){
-      ({ error } = await sb.from("clients").update(payload).eq("id", editingId));
-    } else {
-      ({ error } = await sb.from("clients").insert(payload));
-    }
-    if(error){ errEl.textContent = "Save failed: "+error.message; errEl.classList.remove("hidden"); return; }
+    try{ await api({action:"save", id: editingId||undefined, data: payload}); }
+    catch(e){ errEl.textContent = "Save failed: "+e.message; errEl.classList.remove("hidden"); return; }
     closeModal();
     flashSave("Saved ✓");
+    if(newRef && !(prev && prev.referral_credited)) toast(`🎁 +10 days added to ${firstName(newRef.name)}'s plan`);
     await loadClients();
   }
 
   async function quickUpdate(id, patch){
-    const { error } = await sb.from("clients").update(patch).eq("id", id);
-    if(error){ alert("Update failed: "+error.message); return; }
+    try{ await api({action:"save", id, data: patch}); }catch(e){ alert("Update failed: "+e.message); return; }
     flashSave("Saved ✓");
     await loadClients();
   }
 
   async function deleteClient(id){
     if(!confirm("Delete this client?")) return;
-    const { error } = await sb.from("clients").delete().eq("id", id);
-    if(error){ alert("Delete failed: "+error.message); return; }
+    try{ await api({action:"delete", id}); }catch(e){ alert("Delete failed: "+e.message); return; }
     await loadClients();
   }
 
   function exportCSV(){
-    const headers = ["Name","Email","Phone","Phase","Duration","Join Date","Payment Date","Onboarding Date","Pause Days","Extension Days","Referral Days","End Date","Days Remaining","Payment Status","Intro Call","Onboarding Call","Notes"];
+    const headers = ["Name","Email","Phone","Phase","Duration","Join Date","Payment Date","Onboarding Date","Pause Days","Extension Days","Referral Days","End Date","Days Remaining","Payment Status","Intro Call","Onboarding Call","Notes","Amount","Referral Code","Referred By","Renewal","Portal Link"];
     const rows = clients.map(c=>{
       const end = calcEnd(c); const days = daysLeft(end);
-      return [c.name,c.email,c.phone||"",effPhase(c),c.duration,fmt(c.join_date),fmt(c.payment_date),fmt(c.onboarding_date),c.pause_days||0,c.extension_days||0,c.referral_days||0,fmt(end),days!==null?Math.max(0,days):"",c.payment_status||"pending",c.intro_done?"Done":"Pending",c.onboarding_done?"Done":"Pending",c.notes||""];
+      return [c.name,c.email,c.phone||"",effPhase(c),c.duration,fmt(c.join_date),fmt(c.payment_date),fmt(c.onboarding_date),c.pause_days||0,c.extension_days||0,c.referral_days||0,fmt(end),days!==null?Math.max(0,days):"",c.payment_status||"pending",c.intro_done?"Done":"Pending",c.onboarding_done?"Done":"Pending",c.notes||"",c.amount||"",c.ref_code||"",c.referred_by?(byId(c.referred_by)||{}).name||"":"",c.renewal_status||"",c.portal||""];
     });
     const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
     const a = document.createElement("a");
@@ -669,6 +813,35 @@
     a.download = "sherni-clients.csv";
     a.click();
   }
+
+  // ---------- demo data (only when opened outside the website or with ?demo) ----------
+  function demoApi(b){
+    if(!window._demo){
+      const t = new Date(); const iso = d => d.toISOString().slice(0,10); const ago = n => { const d=new Date(t); d.setDate(d.getDate()-n); return iso(d); };
+      const mk = (id,name,phone,joined,dur,o={}) => ({ id, name, email:name.split(" ")[0].toLowerCase()+"@gmail.com", phone, join_date:ago(joined), payment_date:ago(joined), duration:dur, phase_weeks:4, pause_days:0, extension_days:0, referral_days:0, payment_status:"paid", intro_done:true, onboarding_done:true, notes:"", ref_code:name.split(" ")[0].toUpperCase()+(300+joined), portal:"my-plan.html?demo", created_at:ago(joined), ...o });
+      window._demo = [
+        mk("a1","Bhaavi Agarwal","+91 99158 72735",86,"3 months",{amount:19499}),
+        mk("a2","Shaashwat Jindal","+91 88269 08171",130,"4 months",{amount:25499, extension_days:5}),
+        mk("a3","Priyanka Rao","+91 98450 11223",150,"6 months",{amount:38999, referral_days:20}),
+        mk("a4","Neha Kapoor","+91 99001 22334",40,"3 months",{amount:19499, referred_by:"a3", referral_credited:true}),
+        mk("a5","Ritu Mehta","+91 90080 55667",12,"6 months",{amount:38999, referred_by:"a3", referral_credited:true}),
+        mk("a6","Ananya Iyer","+91 97400 88990",350,"12 months",{amount:65999, renewal_status:"renewed", renewal_date:ago(3)}),
+        mk("a7","Kavya Nair","+91 99860 44556",98,"3 months",{amount:19499, renewal_status:"not_renewed", renewal_note:"Moving abroad", renewal_date:ago(1)}),
+        mk("a8","Meera Shetty","+91 98860 77889",3,"3 months",{amount:19499, intro_done:false, onboarding_done:false})
+      ];
+    }
+    const D = window._demo;
+    if(b.action==="admin_login") return { token:"demo" };
+    if(b.action==="list") return { clients: D.map(c=>({...c})) };
+    if(b.action==="save"){
+      if(b.id){ const c=D.find(x=>x.id===b.id); const before=c.referred_by; Object.assign(c,b.data); if(c.referred_by && c.referred_by!==before && !c.referral_credited){ const r=D.find(x=>x.id===c.referred_by); r.referral_days=(r.referral_days||0)+10; c.referral_credited=true; } }
+      else { const c={ id:"n"+Date.now(), ref_code:String(b.data.name||"NEW").split(" ")[0].toUpperCase().replace(/[^A-Z]/g,"")+(100+Math.floor(Math.random()*900)), portal:"my-plan.html?demo", payment_status:"paid", created_at:new Date().toISOString(), ...b.data }; if(!c.payment_date) c.payment_date=c.join_date; if(c.referred_by){ const r=D.find(x=>x.id===c.referred_by); r.referral_days=(r.referral_days||0)+10; c.referral_credited=true; } D.push(c); }
+      return { ok:true };
+    }
+    if(b.action==="delete"){ const i=D.findIndex(x=>x.id===b.id); if(i>=0) D.splice(i,1); return { ok:true }; }
+    return {};
+  }
+  if(DEMO || token) showDash();
 </script>
 </body>
 </html>

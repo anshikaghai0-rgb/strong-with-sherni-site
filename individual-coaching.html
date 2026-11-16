@@ -274,5 +274,14 @@
     }
   });
 </script>
+<script>
+/* Client referral links (?ref=CODE): carry the code to the payment page so the referrer gets +10 days automatically. */
+(function(){
+  var ref=(new URLSearchParams(location.search).get('ref')||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  try{ if(ref) localStorage.setItem('sws_cref',ref); else ref=localStorage.getItem('sws_cref')||''; }catch(e){}
+  if(!ref) return;
+  document.querySelectorAll('a[href*="signup.html"]').forEach(function(a){ if(a.href.indexOf('ref=')<0) a.href=a.href+(a.href.indexOf('?')>-1?'&':'?')+'ref='+encodeURIComponent(ref); });
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>My Plan — Strong With Sherni</title>
+<link rel="icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+:root{--ink:#2D322C;--cream:#FAF6EF;--card:#fff;--maroon:#7B0237;--rose:#B5306A;--teal:#1F4037;--gold:#B7791F;--taupe:#6B6459;--line:rgba(45,50,44,.12);--mint:#EAF3DE;--blush:#FBEAF0}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.5 'Work Sans',system-ui,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 60px}
+h1,h2{font-family:'Cormorant Garamond',serif;margin:0}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}.brand img{width:38px;height:38px;border-radius:50%}.brand span{font-weight:700;font-size:13px;letter-spacing:2px;color:var(--maroon)}
+.hello{font-size:34px;line-height:1.1;color:var(--maroon)}
+.sub{color:var(--taupe);margin:4px 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 6px 20px rgba(123,2,55,.05)}
+.card h2{font-size:23px;margin-bottom:10px}
+.note{background:linear-gradient(135deg,#7B0237,#B5306A);color:#fff;border:0}
+.note small{display:block;font-weight:700;letter-spacing:2px;font-size:11px;opacity:.85;margin-bottom:6px}
+.note p{margin:0;font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1.25;font-style:italic}
+.days{display:flex;align-items:center;gap:18px}
+.ring{width:118px;height:118px;flex:0 0 118px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--maroon) var(--p),#F1E6EA 0)}
+.ring div{width:92px;height:92px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring b{font-size:30px;line-height:1;color:var(--maroon)}.ring small{font-size:11px;color:var(--taupe);font-weight:600}
+.kv{flex:1;display:grid;gap:8px}.kv div{display:flex;justify-content:space-between;font-size:14px;border-bottom:1px dashed var(--line);padding-bottom:6px}.kv div:last-child{border:0}.kv span{color:var(--taupe)}
+.extra{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.extra span{background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.phases{display:flex;align-items:flex-start;margin:6px 0 4px}
+.ph{flex:1;text-align:center;position:relative}
+.ph:before{content:"";position:absolute;top:17px;left:-50%;width:100%;height:4px;background:#EADFD3;z-index:0}
+.ph:first-child:before{display:none}.ph.done:before,.ph.now:before{background:var(--maroon)}
+.dot{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-weight:700;background:#EADFD3;color:var(--taupe)}
+.ph.done .dot{background:var(--maroon);color:#fff}.ph.now .dot{background:#fff;color:var(--maroon);border:3px solid var(--maroon);box-shadow:0 0 0 5px rgba(123,2,55,.12)}
+.ph small{font-size:11.5px;font-weight:600;color:var(--taupe)}.ph.now small{color:var(--maroon)}
+.here{font-size:13px;color:var(--taupe);margin-top:10px;text-align:center}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bd{text-align:center;padding:12px 6px;border-radius:16px;background:var(--cream);border:1px solid var(--line)}
+.bd i{display:block;font-style:normal;font-size:28px}.bd b{display:block;font-size:12px;margin-top:4px}
+.bd.off{opacity:.35;filter:grayscale(1)}
+.form{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.form label{font-size:11.5px;color:var(--taupe);font-weight:600}.form input{width:100%;padding:9px 10px;border:1px solid #D9CFC4;border-radius:10px;font:inherit;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.main{background:var(--maroon);color:#fff;width:100%}.btn.wa{background:#25D366;color:#fff}.btn.light{background:var(--cream);color:var(--ink);border:1px solid var(--line)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}.tabs button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}.tabs button.on{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+.chart{height:200px;position:relative}
+.mlist{margin-top:10px;font-size:13px}.mlist div{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}.mlist button{border:0;background:none;color:#B91C1C;cursor:pointer;font-size:12px}
+.ref{background:linear-gradient(160deg,#1F4037,#0F2A23);color:#fff;border:0}
+.ref p{color:#CFE6DC;margin:4px 0 12px;font-size:14px}.code{display:inline-block;font-weight:700;letter-spacing:3px;font-size:22px;background:rgba(255,255,255,.12);padding:8px 14px;border-radius:12px;margin-bottom:12px}
+.ref .row{display:flex;gap:8px}.ref .row .btn{flex:1}.ref .light{background:rgba(255,255,255,.14);color:#fff;border:0}
+.friends{margin-top:12px;font-size:13.5px;color:#CFE6DC}
+.renew{background:#FFF8EC;border-color:#F1DDB5}
+.muted{color:var(--taupe);font-size:13px}
+.err{text-align:center;padding:60px 20px;color:var(--taupe)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:50}.toast.on{opacity:1}
+.demo{background:#FBF1DE;color:#7A5212;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;margin-bottom:12px;text-align:center}
+.hide{display:none!important}
+.tip{background:var(--cream);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--taupe);margin:10px 0 0;line-height:1.45}
+.win{background:var(--mint);color:#2F5A10;border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px;margin-top:12px}
+@media(max-width:420px){.form{grid-template-columns:repeat(2,1fr)}.hello{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="err">Loading your plan…</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const DURATIONS = {"3 months":90,"4 months":120,"6 months":180,"12 months":365,"1 hour":1,"7 days":7,"10 days":10,"14 days":14,"21 days":21,"30 days":30};
+const LINES = ["Every rep counts, even on the days it feels small.","Consistency beats perfection. Just show up.","Your only competition is who you were yesterday.","Progress is progress, no matter how slow.","Rest is part of the plan too. Recover well this week.","Drink your water, hit your protein, trust the process.","Strong is a feeling before it's a look.","You didn't come this far to only come this far.","Small habits, done daily, change everything.","Be proud of the effort, not just the results.","Your body is doing amazing things. Be kind to it.","One good meal, one good workout, one good day at a time.","Discipline is choosing what you want most over what you want now.","Sleep well this week. Muscles grow when you rest.","Celebrate how far you've come, then keep going.","The hardest part is starting, and you already did that.","Fuel your body like you love it.","Missed a day? Don't miss two. Back at it.","You're building a stronger you, one week at a time.","Trust the process. The results are coming.","Showing up tired still counts as showing up.","Your future self is already thanking you.","Strong women lift each other up. Keep inspiring.","Finish this week stronger than you started it."];
+const DAY = 86400000, MEAS = [["weight","Weight","kg"],["waist","Waist","in"],["hips","Hips","in"],["chest","Chest","in"],["arms","Arms","in"],["thighs","Thighs","in"]];
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = d => new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+const sod = d => { const x=new Date(d); x.setHours(0,0,0,0); return x; };
+const toast = t => { const e=$("toast"); e.textContent=t; e.classList.add("on"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("on"),2200); };
+const K = new URLSearchParams(location.search).get("k") || "";
+const DEMO = /[?&]demo/.test(location.search) || (!K && !/strongwithsherni\.com/.test(location.host));
+let S = null, metric = "weight", chart;
+
+async function api(body){
+  if(DEMO) return demoApi(body);
+  const r = await fetch("/api/clients",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,k:K})});
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error||"Something went wrong. Please try again.");
+  return j;
+}
+function calc(c){
+  const start = sod(c.join_date), total = DURATIONS[c.duration]||0;
+  const bonus = Number(c.pause_days||0)+Number(c.extension_days||0)+Number(c.referral_days||0);
+  const end = new Date(start.getTime()+(total+bonus)*DAY);
+  const left = Math.ceil((end - sod(new Date()))/DAY), span = Math.max(1,total+bonus), done = Math.min(span, Math.max(0, span-left));
+  const trial = c.phase==="Trial"||c.phase==="Challenge"||c.duration==="1 hour";
+  const len = (Number(c.phase_weeks)||4)*7, m=/Phase (\d)/.exec(c.phase_override||"");
+  const manual = !!(m && c.phase_override_date), n0 = manual?Number(m[1]):1;
+  const pStart = manual ? sod(c.phase_override_date) : new Date(start.getTime()+Number(c.pause_days||0)*DAY);
+  const elapsed = Math.max(0, Math.floor((sod(new Date())-pStart)/DAY));
+  const phase = Math.min(4, n0+Math.floor(elapsed/len));
+  const next = phase<4 ? new Date(pStart.getTime()+(phase-n0+1)*len*DAY) : null;
+  const daysIn = Math.max(0, Math.floor((sod(new Date())-start)/DAY))+1;
+  return { start, end, left, span, done, trial, phase, next, daysIn };
+}
+function render(){
+  const c = S.client, x = calc(c), first = String(c.name||"").split(" ")[0];
+  const pct = Math.round(x.done/x.span*100);
+  const friends = S.friends||[], ms = S.measurements||[];
+  const badges = [
+    ["🌱","Day 1 done", x.daysIn>=1],["🔥","30 days strong", x.daysIn>=30],["⚡","Phase 2", !x.trial && x.phase>=2],
+    ["🏔️","Halfway there", pct>=50],["💪","Phase 3", !x.trial && x.phase>=3],["👑","Phase 4", !x.trial && x.phase>=4],
+    ["📏","First check-in", ms.length>0],["🎁","Brought a friend", friends.length>0],["🏆","Plan complete", x.left<=0]];
+  const share = `Hey! I've been training with Coach Sherni (Strong With Sherni) and loving it 💪 Use my code ${c.ref_code} when you join: ${S.shareUrl}`;
+  const renewMsg = `Hi Vanshika! 👋 This is ${first}. My plan ends on ${fmt(x.end)}. I'd love to chat about my next goal!`;
+  $("app").innerHTML = `
+    ${DEMO?'<div class="demo">Demo with a sample client. Nothing is saved.</div>':''}
+    <div class="brand"><img src="/logo.png" alt="" onerror="this.style.display='none'"><span>STRONG WITH SHERNI</span></div>
+    <h1 class="hello">Hi ${esc(first)} 👋</h1>
+    <p class="sub">Here's everything about your plan, in one place.</p>
+    <div class="card note"><small>${c.coach_note?'A NOTE FROM COACH SHERNI':`WEEK ${Math.ceil(x.daysIn/7)} · YOUR REMINDER`}</small><p>“${esc(c.coach_note||LINES[(Math.ceil(x.daysIn/7)-1)%LINES.length])}”</p></div>
+    ${x.left<=15?`<div class="card renew"><h2>${x.left>0?`Almost at the finish line! ${x.left} day${x.left===1?'':'s'} to go`:'You did it! Plan complete 🏆'}</h2>
+      <p class="muted" style="margin:0 0 12px">${x.left>0?"Look how far you've come. Finish strong, and let's chat about your next goal whenever you're ready.":"So proud of everything you've achieved. Whenever you're ready, let's set your next goal together."} 💛</p>
+      <a class="btn main" href="https://wa.me/${S.coachWa}?text=${encodeURIComponent(renewMsg)}" target="_blank" rel="noopener">💬 Plan my next goal with Coach Sherni</a></div>`:''}
+    <div class="card">
+      <div class="days">
+        <div class="ring" style="--p:${pct}%"><div><b>${Math.max(0,x.left)}</b><small>DAYS LEFT</small></div></div>
+        <div class="kv">
+          <div><span>Plan</span><b>${esc(c.duration||"")}</b></div>
+          <div><span>Started</span><b>${fmt(x.start)}</b></div>
+          <div><span>Ends</span><b>${fmt(x.end)}</b></div>
+          <div><span>Completed</span><b>${pct}%</b></div>
+        </div>
+      </div>
+      ${(c.referral_days||c.extension_days||c.pause_days)?`<div class="extra">
+        ${c.referral_days?`<span>🎁 +${c.referral_days} referral days</span>`:''}${c.extension_days?`<span>➕ +${c.extension_days} extension days</span>`:''}${c.pause_days?`<span>⏸️ +${c.pause_days} pause days</span>`:''}</div>`:''}
+    </div>
+    ${x.trial?'':`<div class="card"><h2>Your journey</h2>
+      <div class="phases">${[1,2,3,4].map(n=>`<div class="ph ${n<x.phase?'done':n===x.phase?'now':''}"><div class="dot">${n<x.phase?'✓':n}</div><small>${n===x.phase?'📍 You are here':'Phase '+n}</small></div>`).join('')}</div>
+      <p class="here">You're in <b>Phase ${x.phase}</b>${x.next?` · Phase ${x.phase+1} starts ${fmt(x.next)}`:' · the final phase. Finish strong! 💪'}</p></div>`}
+    <div class="card"><h2>Your badges</h2>
+      <div class="badges">${badges.map(b=>`<div class="bd ${b[2]?'':'off'}"><i>${b[0]}</i><b>${b[1]}</b></div>`).join('')}</div></div>
+    <div class="card"><h2>My measurements</h2>
+      <p class="muted" style="margin:-4px 0 10px">Only you see this. Add your numbers whenever you check, and watch your progress.</p>
+      ${ms.length?`<div class="tabs">${MEAS.filter(m=>ms.some(r=>r[m[0]]!=null)).map(m=>`<button class="${metric===m[0]?'on':''}" onclick="metric='${m[0]}';render()">${m[1]}</button>`).join('')}</div>
+        <div class="chart"><canvas id="mchart"></canvas></div>${progressWords(ms)}`:`<p class="muted">No measurements yet. Add your first one below 👇</p>`}
+      <details style="margin-top:12px" ${ms.length?'':'open'}><summary style="cursor:pointer;font-weight:700;color:var(--maroon)">+ Add measurements</summary>
+        <div class="form" style="margin-top:10px">
+          <div><label>Date</label><input id="m-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+          ${MEAS.map(m=>`<div><label>${m[1]} (${m[2]})</label><input id="m-${m[0]}" type="number" step="0.1" inputmode="decimal"></div>`).join('')}
+        </div>
+        <p class="tip">📏 <b>How to measure:</b> same day each week, first thing in the morning before breakfast. Weigh yourself after using the washroom. For waist, wrap the tape around your belly button, snug but not tight. Fill in only what you have, every box is optional.</p>
+        <button class="btn main" style="margin-top:10px" onclick="addMeasure()">Save</button>
+      </details>
+      ${ms.length?`<div class="mlist">${ms.slice().reverse().slice(0,6).map(r=>`<div><span><b>${fmt(r.date)}</b> · ${MEAS.filter(m=>r[m[0]]!=null).map(m=>`${m[1]} ${r[m[0]]}${m[2]}`).join(' · ')}</span><button onclick="delMeasure('${r.id}')">Remove</button></div>`).join('')}</div>`:''}
+    </div>
+    <div class="card ref"><h2 style="color:#fff">🎁 Refer a friend</h2>
+      <p>For every friend who joins with your code, you get <b>10 extra days</b> on your plan.</p>
+      <div class="code">${esc(c.ref_code||"—")}</div>
+      <div class="row">
+        <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(share)}" target="_blank" rel="noopener">Share on WhatsApp</a>
+        <button class="btn light" onclick="copyCode()">Copy code</button>
+      </div>
+      <div class="friends">${friends.length?`🎉 You've referred <b>${friends.length}</b> friend${friends.length>1?'s':''} (${friends.map(f=>esc(f.name)).join(', ')}) · <b>+${friends.length*10} days</b> earned`:'No friends joined yet. Your first one earns you +10 days!'}</div>
+    </div>
+    <p class="muted" style="text-align:center">Questions? <a href="https://wa.me/${S.coachWa}" target="_blank" rel="noopener" style="color:var(--maroon);font-weight:700">Message Coach Sherni</a></p>`;
+  drawChart();
+}
+function progressWords(ms){
+  if(ms.length<2) return ms.length?'<div class="win">Great start! Add your next check-in in a week or two and we\'ll show your progress here.</div>':'';
+  const diff=k=>{ const v=ms.filter(r=>r[k]!=null); return v.length>1 ? Number(v[0][k])-Number(v[v.length-1][k]) : 0; };
+  const r1=n=>Math.round(n*10)/10, wins=[];
+  const w=diff("weight"); if(w>=0.1) wins.push(`<b>${r1(w)} kg</b> down`);
+  const inch=["waist","hips","chest","thighs"].map(k=>[k,diff(k)]).filter(z=>z[1]>=0.1);
+  if(inch.length===1) wins.push(`<b>${r1(inch[0][1])} in</b> off your ${inch[0][0]}`);
+  else if(inch.length>1) wins.push(`<b>${r1(inch.reduce((s,z)=>s+z[1],0))} inches</b> lost in total`);
+  const arms=-diff("arms"); if(arms>=0.1) wins.push(`<b>${r1(arms)} in</b> stronger arms`);
+  return wins.length ? `<div class="win">💪 Since you started: ${wins.join(', ')}. Look at you go!</div>`
+    : '<div class="win">Every check-in counts. Bodies change in waves, so keep going. Your progress is building 💛</div>';
+}
+function drawChart(){
+  if(chart) chart.destroy(); const el=$("mchart"); if(!el) return;
+  const m = MEAS.find(z=>z[0]===metric), pts = S.measurements.filter(r=>r[metric]!=null);
+  chart = new Chart(el,{type:"line",data:{labels:pts.map(r=>new Date(r.date).toLocaleDateString("en-IN",{day:"numeric",month:"short"})),datasets:[{data:pts.map(r=>Number(r[metric])),borderColor:"#7B0237",backgroundColor:"rgba(123,2,55,.08)",fill:true,tension:.35,pointRadius:4,pointBackgroundColor:"#7B0237"}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:t=>`${t.parsed.y} ${m[2]}`}}},scales:{y:{ticks:{callback:v=>v+" "+m[2]}}}}});
+}
+async function addMeasure(){
+  const body={action:"measure",date:$("m-date").value}; MEAS.forEach(m=>body[m[0]]=$("m-"+m[0]).value);
+  try{ S = await api(body); const got=MEAS.find(m=>body[m[0]]); if(got) metric=got[0]; render(); toast("Saved 💪"); }catch(e){ toast(e.message); }
+}
+async function delMeasure(id){ if(!confirm("Remove this entry?")) return; try{ S = await api({action:"measure_del",id}); render(); }catch(e){ toast(e.message); } }
+async function copyCode(){ try{ await navigator.clipboard.writeText(S.client.ref_code); toast("Code copied"); }catch(e){ prompt("Your code:",S.client.ref_code); } }
+
+function demoApi(b){
+  if(!window._d){
+    const t=new Date(), ago=n=>{const d=new Date(t); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10);};
+    window._d={ client:{name:"Priyanka Rao",join_date:ago(70),duration:"3 months",phase_weeks:4,pause_days:0,extension_days:0,referral_days:20,ref_code:"PRIYANKA482"},
+      friends:[{name:"Neha",date:ago(40)},{name:"Ritu",date:ago(12)}],
+      measurements:[{id:"1",date:ago(68),weight:72.4,waist:34},{id:"2",date:ago(45),weight:70.9,waist:33},{id:"3",date:ago(21),weight:69.6,waist:32.2},{id:"4",date:ago(2),weight:68.8,waist:31.5}],
+      shareUrl:"https://www.strongwithsherni.com/individual-coaching.html?ref=PRIYANKA482", coachWa:"919036147675" };
+  }
+  const D=window._d;
+  if(b.action==="measure"){ const r={id:String(Date.now()),date:b.date}; MEAS.forEach(m=>{ if(b[m[0]]) r[m[0]]=Number(b[m[0]]); }); D.measurements.push(r); D.measurements.sort((a,c)=>a.date.localeCompare(c.date)); }
+  if(b.action==="measure_del") D.measurements=D.measurements.filter(r=>r.id!==b.id);
+  return JSON.parse(JSON.stringify(D));
+}
+(async()=>{
+  if(!K && !DEMO){ $("app").innerHTML='<div class="err">Please open your personal link from Coach Sherni 💛</div>'; return; }
+  try{ S = await api({action:"me"}); render(); }catch(e){ $("app").innerHTML=`<div class="err">${esc(e.message)}</div>`; }
+})();
+</script>
+</body>
+</html>
