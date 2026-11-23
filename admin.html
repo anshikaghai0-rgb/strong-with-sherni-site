@@ -197,7 +197,11 @@
         <select id="f-paystatus"><option value="paid">Paid</option><option value="pending">Pending</option></select>
       </div>
       <div class="full field"><label>Referred by (they get +10 days automatically)</label>
-        <select id="f-referredby"><option value="">— Nobody —</option></select>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="f-refcode" placeholder="Type their code, e.g. PRIYANKA482" style="flex:1;min-width:180px;text-transform:uppercase" oninput="matchRefCode()">
+          <select id="f-referredby" style="flex:1;min-width:180px" onchange="document.getElementById('f-refmsg').textContent=''"><option value="">— Nobody —</option></select>
+        </div>
+        <div id="f-refmsg" style="font-size:12.5px;font-weight:600;margin-top:5px"></div>
       </div>
     </div>
 
@@ -343,8 +347,44 @@
     document.getElementById("login-password").value = "";
   }
 
+  let signups = [], pendingSignupId = null;
+  function matchRefCode(){
+    const code = document.getElementById("f-refcode").value.trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
+    const msg = document.getElementById("f-refmsg"), sel = document.getElementById("f-referredby");
+    if(!code){ msg.textContent=""; return; }
+    const c = clients.find(x=>(x.ref_code||"").toUpperCase()===code && x.id!==editingId);
+    if(c){ sel.value = c.id; msg.style.color="#1F4037"; msg.textContent = `✅ ${c.name} will get +10 days`; }
+    else { msg.style.color="#B91C1C"; msg.textContent = "No client has this code yet. Check the spelling."; }
+  }
+  function signupsBox(){
+    if(!signups.length) return "";
+    const esc = s => String(s==null?"":s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+    return `<div class="reminder-box" style="border-color:#1F4037;background:#F2F8F4;margin-bottom:16px;">
+      <p class="reminder-title" style="color:#1F4037;">🎁 Referrals from the form (last 30 days)</p>
+      <p style="font-size:12.5px;color:var(--taupe);margin:-4px 0 8px;">The +10 days were added automatically. When you add the new client, use <b>Add as client</b> so it links up (no extra days are added twice).</p>
+      ${signups.map(s=>{ const r = s.referrer_id ? byId(s.referrer_id) : null; return `<div class="reminder-row" style="align-items:center;flex-wrap:wrap;gap:6px;">
+        <span><b>${esc(s.name)}</b> · ${esc(s.phone)} used <b>${esc(r?r.name:s.ref_code)}</b>'s code · <span style="color:#1F4037;font-weight:600">+10 days added</span><br>
+        <small style="color:var(--taupe)">${fmt(s.created_at)}${s.status==="added"?" · ✓ Added as a client":""}</small></span>
+        <span>${s.status==="credited"?`<button class="btn-primary" style="padding:7px 12px;font-size:13px" onclick="addFromSignup('${s.id}')">+ Add as client</button>`:""}
+        <button class="rn-btn" onclick="undoSignup('${s.id}')">↺ Undo</button></span></div>`; }).join("")}
+    </div>`;
+  }
+  function addFromSignup(id){
+    const s = signups.find(x=>x.id===id); if(!s) return;
+    openAddModal(); pendingSignupId = id;
+    document.getElementById("modal-title").textContent = "Add New Client (referred)";
+    document.getElementById("f-name").value = s.name||"";
+    document.getElementById("f-phone").value = s.phone||"";
+    if(s.referrer_id && byId(s.referrer_id)){ document.getElementById("f-referredby").value = s.referrer_id; const m=document.getElementById("f-refmsg"); m.style.color="#1F4037"; m.textContent=`✅ Referred by ${byId(s.referrer_id).name} (their +10 days are already added)`; }
+  }
+  async function undoSignup(id){
+    if(!confirm("Undo this referral? The 10 days will be taken back from the friend's plan.")) return;
+    try{ await api({action:"signup_undo", id}); }catch(e){ alert(e.message); return; }
+    toast("Referral undone"); await loadClients();
+  }
+
   async function loadClients(){
-    try{ const j = await api({action:"list"}); clients = j.clients || []; renderAll(); }
+    try{ const j = await api({action:"list"}); clients = j.clients || []; signups = j.signups || []; renderAll(); }
     catch(e){ toast(e.message); }
   }
 
@@ -566,7 +606,8 @@
         `;
       });
     }
-    document.getElementById("tab-clients").innerHTML = html;
+    document.getElementById("tab-clients").innerHTML = signupsBox() + html;
+    const tb = document.querySelector('.tab-btn[data-tab="clients"]'); if(tb) tb.innerHTML = "Clients" + (signups.filter(s=>s.status==="credited").length ? ` <span style="background:#1F4037;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">${signups.filter(s=>s.status==="credited").length} 🎁</span>` : "");
   }
   function statusBadgeHtml(days){
     if(days===null) return "";
@@ -701,7 +742,8 @@
     document.getElementById("modal-title").textContent = "Add New Client";
     ["f-name","f-email","f-password","f-phone","f-join","f-payment","f-onboard-date","f-notes","f-amount","f-coachnote","f-renewal","f-renewalnote"].forEach(id=>document.getElementById(id).value="");
     document.getElementById("f-join").value = new Date().toISOString().slice(0,10);
-    fillReferredBy("", null);
+    fillReferredBy("", null); pendingSignupId = null;
+    document.getElementById("f-refcode").value = ""; document.getElementById("f-refmsg").textContent = "";
     document.getElementById("f-duration").value = "3 months";
     document.getElementById("f-phaseweeks").value = "4";
     document.getElementById("f-pause").value = 0;
@@ -735,7 +777,8 @@
     document.getElementById("f-coachnote").value = c.coach_note||"";
     document.getElementById("f-renewal").value = c.renewal_status||"";
     document.getElementById("f-renewalnote").value = c.renewal_note||"";
-    fillReferredBy(c.referred_by||"", c.id);
+    fillReferredBy(c.referred_by||"", c.id); pendingSignupId = null;
+    document.getElementById("f-refcode").value = ""; document.getElementById("f-refmsg").textContent = "";
     document.getElementById("f-intro").checked = c.intro_done||false;
     document.getElementById("f-onboard").checked = c.onboarding_done||false;
     document.getElementById("f-notes").value = c.notes||"";
@@ -781,11 +824,13 @@
     const newRef = payload.referred_by && (!prev || prev.referred_by!==payload.referred_by) ? byId(payload.referred_by) : null;
 
     payload.phase = effPhase({...(clients.find(x=>x.id===editingId)||{}), ...payload});
-    try{ await api({action:"save", id: editingId||undefined, data: payload}); }
+    let savedRes;
+    try{ savedRes = await api({action:"save", id: editingId||undefined, data: payload}); }
     catch(e){ errEl.textContent = "Save failed: "+e.message; errEl.classList.remove("hidden"); return; }
+    const fromForm = !!(pendingSignupId && !editingId); pendingSignupId = null;
     closeModal();
     flashSave("Saved ✓");
-    if(newRef && !(prev && prev.referral_credited)) toast(`🎁 +10 days added to ${firstName(newRef.name)}'s plan`);
+    if(newRef && !fromForm && !(prev && prev.referral_credited)) toast(`🎁 +10 days added to ${firstName(newRef.name)}'s plan`);
     await loadClients();
   }
 
@@ -832,10 +877,13 @@
     }
     const D = window._demo;
     if(b.action==="admin_login") return { token:"demo" };
-    if(b.action==="list") return { clients: D.map(c=>({...c})) };
+    if(!window._demoSU) window._demoSU = [{ id:"s1", name:"Sneha Kulkarni", phone:"+91 98450 22113", ref_code:"PRIYANKA450", referrer_id:"a3", status:"credited", created_at:new Date().toISOString() }];
+    if(b.action==="list") return { clients: D.map(c=>({...c})), signups: window._demoSU.map(s=>({...s})) };
+    if(b.action==="signup_undo"){ const s=window._demoSU.find(x=>x.id===b.id); if(s){ const r=D.find(x=>x.id===s.referrer_id); if(r) r.referral_days=Math.max(0,(r.referral_days||0)-10); } window._demoSU = window._demoSU.filter(x=>x.id!==b.id); return { ok:true }; }
+    if(b.action==="save" && !b.id && b.data.phone){ const s=window._demoSU.find(x=>x.status==="credited" && x.phone.replace(/\D/g,"").slice(-10)===String(b.data.phone).replace(/\D/g,"").slice(-10)); if(s && b.data.referred_by===s.referrer_id){ b.data.referral_credited=true; s.status="added"; } }
     if(b.action==="save"){
       if(b.id){ const c=D.find(x=>x.id===b.id); const before=c.referred_by; Object.assign(c,b.data); if(c.referred_by && c.referred_by!==before && !c.referral_credited){ const r=D.find(x=>x.id===c.referred_by); r.referral_days=(r.referral_days||0)+10; c.referral_credited=true; } }
-      else { const c={ id:"n"+Date.now(), ref_code:String(b.data.name||"NEW").split(" ")[0].toUpperCase().replace(/[^A-Z]/g,"")+(100+Math.floor(Math.random()*900)), portal:"my-plan.html?demo", payment_status:"paid", created_at:new Date().toISOString(), ...b.data }; if(!c.payment_date) c.payment_date=c.join_date; if(c.referred_by){ const r=D.find(x=>x.id===c.referred_by); r.referral_days=(r.referral_days||0)+10; c.referral_credited=true; } D.push(c); }
+      else { const c={ id:"n"+Date.now(), ref_code:String(b.data.name||"NEW").split(" ")[0].toUpperCase().replace(/[^A-Z]/g,"")+(100+Math.floor(Math.random()*900)), portal:"my-plan.html?demo", payment_status:"paid", created_at:new Date().toISOString(), ...b.data }; if(!c.payment_date) c.payment_date=c.join_date; if(c.referred_by && !c.referral_credited){ const r=D.find(x=>x.id===c.referred_by); r.referral_days=(r.referral_days||0)+10; c.referral_credited=true; } D.push(c); return { ok:true, client:c }; }
       return { ok:true };
     }
     if(b.action==="delete"){ const i=D.findIndex(x=>x.id===b.id); if(i>=0) D.splice(i,1); return { ok:true }; }

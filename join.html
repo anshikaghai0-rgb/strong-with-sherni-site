@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Referral Code — Strong With Sherni</title>
+<link rel="icon" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2D322C;--cream:#FAF6EF;--maroon:#7B0237;--teal:#1F4037;--taupe:#6B6459;--line:rgba(45,50,44,.14)}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.5 'Work Sans',system-ui,sans-serif}
+.wrap{max-width:480px;margin:0 auto;padding:22px 16px 60px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}.brand img{width:40px;height:40px;border-radius:50%}.brand span{font-weight:700;font-size:13px;letter-spacing:2px;color:var(--maroon)}
+h1{font-family:'Cormorant Garamond',serif;font-size:36px;line-height:1.1;color:var(--maroon);margin:0 0 6px}
+.sub{color:var(--taupe);margin:0 0 18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 6px 20px rgba(123,2,55,.05)}
+.field{margin-bottom:14px}label{display:block;font-size:13px;font-weight:600;color:var(--taupe);margin-bottom:5px}
+input{width:100%;padding:12px 13px;border:1px solid #D9CFC4;border-radius:12px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+input:focus{outline:2px solid rgba(123,2,55,.25);border-color:var(--maroon)}
+#f-ref{text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.msg{font-size:13.5px;font-weight:600;margin-top:6px;min-height:1px}.ok{color:var(--teal)}.bad{color:#B91C1C}
+.btn{width:100%;border:0;border-radius:26px;padding:15px;background:var(--maroon);color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
+.btn:disabled{opacity:.6}
+.err{background:#FCEBEB;color:#A32D2D;border-radius:12px;padding:10px 12px;font-size:14px;font-weight:600;margin-bottom:12px;display:none}
+.done{text-align:center;padding:30px 14px}.done .tick{font-size:54px}.done h2{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--maroon);margin:8px 0}
+.hp{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="/logo.png" alt="" onerror="this.style.display='none'"><span>STRONG WITH SHERNI</span></div>
+  <div id="form-view">
+    <h1>Joined through a friend?</h1>
+    <p class="sub">Add their referral code and they'll get 10 extra days on their plan, as a thank you from us.</p>
+    <div class="card">
+      <div class="err" id="err"></div>
+      <div class="field"><label for="f-name">Your name</label><input id="f-name" autocomplete="name" placeholder="Your full name"></div>
+      <div class="field"><label for="f-phone">Your WhatsApp number</label><input id="f-phone" type="tel" autocomplete="tel" placeholder="+91 XXXXX XXXXX"></div>
+      <div class="field"><label for="f-ref">Friend's referral code</label><input id="f-ref" autocomplete="off" placeholder="e.g. PRIYANKA482"><div class="msg" id="ref-msg"></div></div>
+      <input class="hp" id="f-website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn" id="go" onclick="submitJoin()">Submit</button>
+    </div>
+  </div>
+  <div class="card done" id="done-view" style="display:none">
+    <div class="tick">💛</div>
+    <h2 id="done-title">Thank you!</h2>
+    <p id="done-text"></p>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const P = new URLSearchParams(location.search);
+async function api(body){
+  const r = await fetch("/api/clients", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  const j = await r.json().catch(()=>({})); if (!r.ok) throw new Error(j.error || "Something went wrong. Please try again."); return j;
+}
+const clean = v => String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+$("f-ref").value = clean(P.get("ref") || (()=>{ try { return localStorage.getItem("sws_cref") || ""; } catch(e) { return ""; } })());
+async function checkRef(){
+  const code = clean($("f-ref").value); $("f-ref").value = code;
+  const m = $("ref-msg"); if (!code) { m.textContent = ""; return; }
+  try { const j = await api({ action:"ref_check", code });
+    if (j.ok) { m.className = "msg ok"; m.textContent = `✅ That's ${j.referrer}'s code`; }
+    else { m.className = "msg bad"; m.textContent = "This code wasn't found. Please check the spelling."; }
+  } catch(e) { m.textContent = ""; }
+}
+$("f-ref").addEventListener("change", checkRef);
+if ($("f-ref").value) checkRef();
+function err(t){ const e = $("err"); e.textContent = t; e.style.display = t ? "block" : "none"; }
+async function submitJoin(){
+  const name = $("f-name").value.trim(), phone = $("f-phone").value.trim(), ref = clean($("f-ref").value);
+  if (!name) return err("Please add your name.");
+  if (phone.replace(/\D/g,"").length < 10) return err("Please add your WhatsApp number.");
+  if (!ref) return err("Please add your friend's referral code.");
+  err(""); const b = $("go"); b.disabled = true; b.textContent = "Submitting…";
+  try {
+    const j = await api({ action:"join", name, phone, ref, website: $("f-website").value });
+    $("form-view").style.display = "none"; $("done-view").style.display = "block";
+    $("done-text").textContent = j.already
+      ? `We already have your referral for ${j.referrer}. Welcome to Strong With Sherni!`
+      : `${j.referrer} just got 10 extra days on their plan. Welcome to Strong With Sherni, we're so happy to have you!`;
+    try { localStorage.removeItem("sws_cref"); } catch(e) {}
+  } catch(e) { err(e.message); b.disabled = false; b.textContent = "Submit"; }
+}
+</script>
+</body>
+</html>

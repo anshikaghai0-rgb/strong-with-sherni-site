@@ -88,8 +88,22 @@
       <label for="f-location">Location / City</label>
       <input type="text" id="f-location" placeholder="e.g. Bengaluru">
     </div>
+    <div class="field" id="ref-field">
+      <label for="f-ref">Referral Code <span style="font-weight:400;color:#9a8f86">(optional)</span></label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="f-ref" placeholder="e.g. PRIYANKA482" autocomplete="off" style="text-transform:uppercase;flex:1">
+        <button type="button" id="ref-apply" onclick="applyRef()" style="border:0;border-radius:10px;padding:0 18px;background:#1F4037;color:#fff;font:inherit;font-weight:700;cursor:pointer">Apply</button>
+      </div>
+      <div id="ref-msg" style="font-size:13.5px;font-weight:600;margin-top:6px;display:none"></div>
+    </div>
     <button class="btn-pay" id="pay-btn" onclick="startPayment()">Pay & Confirm Enrollment</button>
     <div class="secure-note">🔒 Secure payment powered by Razorpay</div>
+    <div id="upi-alt" style="display:none;margin-top:18px;padding:16px;border:1px dashed rgba(123,2,55,.35);border-radius:16px;text-align:center">
+      <b style="color:#7B0237">Prefer UPI or bank transfer?</b>
+      <div style="font-size:13.5px;color:#6B6459;margin:4px 0 10px">Get our payment details on WhatsApp. Joined through a friend? After paying, add their referral code.</div>
+      <a id="upi-wa" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:#fff;padding:10px 16px;border-radius:22px;text-decoration:none;font-weight:700;margin:3px">Get payment details</a>
+      <a id="upi-join" style="display:inline-block;background:#1F4037;color:#fff;padding:10px 16px;border-radius:22px;text-decoration:none;font-weight:700;margin:3px">Add a referral code</a>
+    </div>
   </div>
 
   <div class="success-box" id="success-box">
@@ -131,9 +145,34 @@
       return q;
     } catch(e) { return null; }
   }
-  quote();
+  // UPI / bank transfer option (coaching plans only): no gateway fee.
+  if (!isChallenge) {
+    document.getElementById('upi-alt').style.display = 'block';
+    document.getElementById('upi-wa').href = 'https://wa.me/919036147675?text=' + encodeURIComponent(`Hi Vanshika! I'd like to join ${planName}${planDuration ? ' (' + planDuration + ')' : ''}. Could you share the payment details?`);
+    const joinLink = () => 'join.html' + (refCode ? '?ref=' + encodeURIComponent(refCode) : '');
+    const j = document.getElementById('upi-join'); j.href = joinLink(); j.addEventListener('click', () => { j.href = joinLink(); });
+  }
+  // Referral code box: prefilled from a shared link, or typed in by hand.
+  const refInput = document.getElementById('f-ref'), refMsg = document.getElementById('ref-msg');
+  if (isLevel2) document.getElementById('ref-field').style.display = 'none';
+  if (refCode) refInput.value = refCode;
+  function showRefMsg(text, ok){ refMsg.style.display = text ? 'block' : 'none'; refMsg.textContent = text; refMsg.style.color = ok ? '#1F4037' : '#B91C1C'; }
+  async function applyRef(){
+    refCode = refInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    refInput.value = refCode;
+    try { if (refCode) localStorage.setItem('sws_ref', refCode); else localStorage.removeItem('sws_ref'); } catch(e) {}
+    if (!refCode) { showRefMsg(''); quote(document.getElementById('f-email').value.trim()); return; }
+    const q = await quote(document.getElementById('f-email').value.trim());
+    if (!q) return;
+    if (q.ref) showRefMsg(`✅ Code applied${q.referrer ? `. Referred by ${q.referrer}` : ''}`, true);
+    else if (q.refNote) showRefMsg(q.refNote, false);
+    else showRefMsg("This code wasn't found. Please check the spelling.", false);
+  }
+  refInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyRef(); } });
+  refInput.addEventListener('change', applyRef);
+  quote().then(() => { if (refCode) applyRef(); });
   // Re-check the price once we know who is buying (Level 2/3 unlock, and referral discount is for new members only).
-  if (isLevel2 || refCode) ['f-email','f-phone'].forEach(id => document.getElementById(id).addEventListener('change', () => quote(document.getElementById('f-email').value.trim())));
+  ['f-email','f-phone'].forEach(id => document.getElementById(id).addEventListener('change', () => quote(document.getElementById('f-email').value.trim())));
 
   // IMPORTANT: replace with your actual Razorpay Key ID (safe to expose publicly, this is NOT the secret key)
   const RAZORPAY_KEY_ID = "rzp_live_TaH9SdrvliaZXd";
