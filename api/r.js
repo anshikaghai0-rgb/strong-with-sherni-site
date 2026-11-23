@@ -68,9 +68,10 @@ ${has ? `<section><div class="label">In 60 days</div><div class="bl"><span>Today
 </div><script>
 var C=${JSON.stringify(c)},S=${has ? Number(p.score) : 'null'};
 function post(d){try{fetch('/api/rewire',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d),keepalive:true})}catch(e){}}
-function vote(v){post({action:'vote',c:C,v:v});document.getElementById('btns').style.display='none';var t=document.getElementById('thanks');t.style.display='block';
+function vote(v){if(!ME)post({action:'vote',c:C,v:v});document.getElementById('btns').style.display='none';var t=document.getElementById('thanks');t.style.display='block';
 t.textContent=v==='yes'?"Amazing! We'll reach out to you shortly.":"No worries, thanks for letting us know.";}
-post({action:'opened',c:C});
+var ME=false;try{ME=!!localStorage.getItem('rw_t')}catch(e){}
+if(!ME)post({action:'opened',c:C});
 window.addEventListener('load',function(){setTimeout(function(){if(S!==null){document.getElementById('arc').style.strokeDashoffset=389.6*(1-S/100);
 var n=document.getElementById('num'),i=0,iv=setInterval(function(){i+=2;n.textContent=Math.min(i,S);if(i>=S)clearInterval(iv)},26);}
 document.querySelectorAll('.bar i').forEach(function(b){b.style.width=b.dataset.w+'%'});},300);});
