@@ -10,6 +10,10 @@
 //   me       { k }                           -> the client's own plan, phase info, referrals, measurements
 //   measure  { k, date, weight, waist, ... } -> add a measurement
 //   measure_del { k, id }
+// JOIN FORM (public, join.html — for clients who pay by UPI / bank transfer):
+//   ref_check { code }                       -> { ok, referrer }  checks a friend's referral code
+//   join { name, phone, ref }               -> the friend who referred gets +10 days straight away (once per phone number)
+//   ADMIN: list also returns the last 30 days of form referrals; signup_undo { token, id } takes the 10 days back
 import crypto from 'crypto';
 import { vapidKeys, sendPush } from './_push.js';
 
@@ -130,6 +134,32 @@ export default async function handler(req, res) {
         shareUrl: `${SITE}/individual-coaching.html?ref=${encodeURIComponent(c.ref_code || '')}`, coachWa: COACH_WA });
     }
 
+    // ---------- join form (UPI / bank transfer clients): name + phone + referral code ----------
+    if (action === 'ref_check' || action === 'join') {
+      const code = String(b.ref || b.code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20);
+      const owner = code ? (await rows(`clients?ref_code=eq.${code}&select=id,name,email,phone,referral_days&limit=1`))[0] : null;
+      if (action === 'ref_check') return res.status(200).json(owner ? { ok: true, referrer: first(owner.name) } : { ok: false });
+      if (b.website) return res.status(200).json({ ok: true }); // spam bots fill this hidden field
+      const name = String(b.name || '').trim().slice(0, 80), phone = String(b.phone || '').trim().slice(0, 20);
+      const d10 = x => String(x || '').replace(/\D/g, '').slice(-10);
+      if (!name || d10(phone).length < 10) return res.status(400).json({ error: 'Please add your name and WhatsApp number.' });
+      if (!owner) return res.status(400).json({ error: "This referral code wasn't found. Please check the spelling." });
+      if (d10(owner.phone) === d10(phone)) return res.status(400).json({ error: "You can't use your own referral code." });
+      // one referral per phone number, ever
+      const used = (await rows(`signups?status=in.(credited,added)&select=phone`)).some(r => d10(r.phone) === d10(phone));
+      const already = (await rows(`clients?referred_by=not.is.null&select=phone`)).some(r => d10(r.phone) === d10(phone));
+      if (used || already) return res.status(200).json({ ok: true, already: true, referrer: first(owner.name) });
+      const ins = await db('signups', { method: 'POST', headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ name, phone, ref_code: code, referrer_id: owner.id, status: 'credited' }) });
+      if (!ins.ok) return res.status(500).json({ error: 'Could not submit right now. Please try again, or message us on WhatsApp.' });
+      await db(`clients?id=eq.${owner.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ referral_days: Number(owner.referral_days || 0) + 10 }) });
+      if (owner.email) await sendMail(owner.email, `🎁 ${first(name)} joined with your code! +10 days added to your plan`, mailWrap(
+        `<p>Hi ${first(owner.name)},</p><p><b>${first(name)}</b> just joined Strong With Sherni with your referral code, so we've added <b>10 extra days</b> to your plan. Thank you for spreading the love! 💛</p>
+         <p><a href="${portalLink(owner.id)}" style="display:inline-block;background:#7B0237;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">See my plan</a></p>`)).catch(() => {});
+      await pushAdmins({ title: '🎁 Referral added', body: `${name} used ${first(owner.name)}'s code · +10 days added to ${first(owner.name)}`, url: '/admin.html', tag: 'sws-ref' }).catch(() => {});
+      return res.status(200).json({ ok: true, referrer: first(owner.name) });
+    }
+
     // ---------- admin ----------
     if (action === 'pushkey') return res.status(200).json({ publicKey: vapidKeys().publicKey });
     if (action === 'admin_login') {
@@ -141,8 +171,17 @@ export default async function handler(req, res) {
     if (!adminOk(b.token)) return res.status(401).json({ error: 'Please log in again.' });
 
     if (action === 'list') {
-      const cs = await rows('clients?select=*&order=created_at.asc');
-      return res.status(200).json({ clients: cs.map(c => ({ ...c, portal: portalLink(c.id) })) });
+      const [cs, su] = await Promise.all([rows('clients?select=*&order=created_at.asc'), rows(`signups?status=in.(credited,added)&created_at=gte.${new Date(Date.now() - 30 * 86400000).toISOString()}&select=*&order=created_at.desc`).catch(() => [])]);
+      return res.status(200).json({ clients: cs.map(c => ({ ...c, portal: portalLink(c.id) })), signups: su });
+    }
+    if (action === 'signup_undo') { // a referral was added by mistake: take the 10 days back
+      if (!/^[0-9a-f-]{36}$/i.test(b.id || '')) return res.status(400).json({ error: 'Bad id' });
+      const su = (await rows(`signups?id=eq.${b.id}&select=*`))[0];
+      if (!su || su.status === 'undone') return res.status(200).json({ ok: true });
+      const ref = su.referrer_id && (await rows(`clients?id=eq.${su.referrer_id}&select=referral_days`))[0];
+      if (ref) await db(`clients?id=eq.${su.referrer_id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ referral_days: Math.max(0, Number(ref.referral_days || 0) - 10) }) });
+      await db(`signups?id=eq.${b.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'undone' }) });
+      return res.status(200).json({ ok: true });
     }
     if (action === 'save') {
       const data = {};
@@ -150,11 +189,18 @@ export default async function handler(req, res) {
       if (!data.password && !b.id) data.password = String(crypto.randomInt(100000, 1000000));
       if (data.email) data.email = String(data.email).trim().toLowerCase();
       if (b.id && data.referred_by === b.id) data.referred_by = null;
+      let formRef = null;
+      if (!b.id && data.phone) { // already credited through the Join form? then link it, don't add 10 days again
+        const d10 = x => String(x || '').replace(/\D/g, '').slice(-10);
+        formRef = (await rows('signups?status=eq.credited&select=id,phone,referrer_id').catch(() => [])).find(r => d10(r.phone) === d10(data.phone) && d10(data.phone).length === 10);
+        if (formRef) { data.referred_by = data.referred_by || formRef.referrer_id; if (data.referred_by === formRef.referrer_id) { data.referral_credited = true; data.referral_notified = true; } }
+      }
       const r = b.id
         ? await db(`clients?id=eq.${b.id}`, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(data) })
         : await db('clients', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(data) });
       if (!r.ok) return res.status(400).json({ error: (await r.text()).slice(0, 200) });
       const saved = (await r.json())[0];
+      if (formRef && saved) await db(`signups?id=eq.${formRef.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ status: 'added', client_id: saved.id }) }).catch(() => {});
       if (saved && saved.referred_by && !saved.referral_notified) await notifyReferral(saved).catch(() => {});
       if (saved && !b.id) await pushAdmins({ title: '🦁 New client added', body: `${saved.name} · ${saved.duration || ''}`, url: '/admin.html' }).catch(() => {});
       return res.status(200).json({ ok: true, client: saved && { ...saved, portal: portalLink(saved.id) } });

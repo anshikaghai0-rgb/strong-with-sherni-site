@@ -46,7 +46,9 @@ export async function priceFor({ planName, duration, email, phone, ref }) {
   const ccode = String(ref || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (ccode) {
     const owner = (await dbRows(`clients?ref_code=eq.${ccode}&select=name,email&limit=1`).catch(() => []))[0];
-    if (owner && owner.email !== email) { out.ref = ccode; out.referrer = String(owner.name || '').split(' ')[0]; }
+    if (!owner) out.refNote = '';
+    else if (owner.email && email && String(owner.email).toLowerCase() === String(email).toLowerCase()) out.refNote = 'You can\'t use your own referral code.';
+    else { out.ref = ccode; out.referrer = String(owner.name || '').split(' ')[0]; }
   }
   return out;
 }
