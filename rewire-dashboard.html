@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REWIRE Calls – Strong With Sherni</title><meta name="robots" content="noindex">
+<link rel="icon" href="/logo.png"><link rel="apple-touch-icon" href="/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF6EE;--ink:#1C2B24;--green:#1A3C2E;--gold:#BE9637;--red:#C0392B;--grey:#78807A;--line:#E2DBCC;--soft:#F0E9DA}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.top{position:sticky;top:0;z-index:5;background:var(--green);color:var(--bg);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.top b{font-size:17px}.top button{background:transparent;color:var(--bg);border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:6px 12px;font:500 13px Poppins}
+main{max-width:720px;margin:0 auto;padding:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.stat b{display:block;font-size:22px;color:var(--green)}.stat span{font-size:11px;color:var(--grey)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px}.tabs button{flex:none;border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 13px;font:500 13px Poppins;white-space:nowrap}
+.tabs button.on{background:var(--green);color:#fff;border-color:var(--green)}
+input.q{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:12px;font:14px Poppins;margin-bottom:10px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.head{padding:12px 14px;display:flex;gap:10px;align-items:center;cursor:pointer}
+.head .who{flex:1;min-width:0}.head b{font-size:16px}.head small{display:block;color:var(--grey);font-size:12px}
+.tier{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.t-SuperHot{background:#F7DADA;color:#a33}.t-Callnext{background:#FFE7C7;color:#8a5200}.t-Hot{background:#FDE2C6;color:#9a4b00}.t-Warm{background:#FFF0C7;color:#8a6400}.t-Nurture{background:#E3EEDF;color:#3f6b36}.t-Cold{background:#eee;color:#666}
+.st{font-size:11px;font-weight:600;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.s-not{background:#eee;color:#666}.s-sent{background:#DCE8F7;color:#2a5a9a}.s-open{background:#FFF0C7;color:#8a6400}.s-yes{background:#D7F0DE;color:#1f7a3a}.s-no{background:#F7DADA;color:#a33}
+.body{display:none;border-top:1px solid var(--line);padding:12px 14px}.card.open .body{display:block}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.btn{display:block;text-align:center;text-decoration:none;font:600 14px Poppins;padding:12px 6px;border-radius:12px}
+.wa{background:#1F8F4E;color:#fff}.call{background:var(--soft);color:var(--green);border:1px solid var(--line)}
+.sec{margin-bottom:10px}.sec .l{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--grey);margin-bottom:2px}
+.sec p{font-size:14px;line-height:1.5}.bad p{color:var(--red)}.good p{color:#1f7a3a}
+.script{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.6}
+.row2{display:flex;gap:8px;align-items:center;margin-top:10px}select,textarea{font:14px Poppins;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff}
+select{flex:1}textarea{width:100%;margin-top:8px;min-height:56px}
+.alert{background:#C0392B;color:#fff;border-radius:16px;padding:12px 14px;margin-bottom:12px;animation:pulse 1.6s infinite}
+.alert b{font-size:16px}.alert .p{display:flex;justify-content:space-between;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:12px;padding:8px 10px;margin-top:8px}
+.alert .p a{background:#fff;color:#C0392B;text-decoration:none;font:700 13px Poppins;padding:8px 12px;border-radius:10px;white-space:nowrap}
+.alert .p span{font-size:14px}.alert .p small{display:block;font-size:11px;opacity:.85}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.5)}50%{box-shadow:0 0 0 8px rgba(192,57,43,0)}}
+.link{font-size:12px;color:var(--grey);word-break:break-all;margin-top:6px}
+.login{max-width:360px;margin:80px auto;text-align:center;padding:20px}.login input{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;font:15px Poppins;margin:16px 0}
+.login button{width:100%;padding:13px;border:0;border-radius:12px;background:var(--green);color:#fff;font:600 15px Poppins}.err{color:var(--red);font-size:13px;margin-top:10px}
+</style></head><body>
+<div id="loginBox" class="login"><h2>REWIRE Calls</h2><p style="color:var(--grey);font-size:14px">Same password as your admin page</p>
+<input id="pw" type="password" placeholder="Password"><button onclick="login()">Log in</button><div class="err" id="err"></div></div>
+<div id="app" style="display:none"><div class="top"><b>REWIRE Calls</b><button onclick="load()">Refresh</button></div><main>
+<div class="stats"><div class="stat"><b id="sSent">0</b><span>Sent</span></div><div class="stat"><b id="sOpen">0</b><span>Opened report</span></div><div class="stat"><b id="sYes">0</b><span>Said Yes</span></div><div class="stat"><b id="sJoin">0</b><span>Joined</span></div></div>
+<div id="alert"></div><div class="tabs" id="tabs"></div><input class="q" id="q" placeholder="Search name" oninput="render()"><div id="list"></div></main></div>
+<script>
+var T=null,L=[],F='Super Hot',OPEN={};try{T=localStorage.getItem('rw_t')}catch(e){}
+var TIERS=['Super Hot','Call next','Hot','Warm','Nurture','Cold'],CALL=['Not called','Report sent','No answer','Call back','Interested','Joined','Not interested'];
+function api(d){return fetch('/api/rewire',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json().then(function(j){if(!r.ok)throw j;return j})})}
+function login(){api({action:'login',password:document.getElementById('pw').value}).then(function(j){T=j.token;try{localStorage.setItem('rw_t',T)}catch(e){}start()}).catch(function(e){document.getElementById('err').textContent=(e&&e.error)||'Could not log in'})}
+function start(){document.getElementById('loginBox').style.display='none';document.getElementById('app').style.display='block';load()}
+function load(){api({action:'list',token:T}).then(function(j){L=j.leads||[];render()}).catch(function(){T=null;document.getElementById('app').style.display='none';document.getElementById('loginBox').style.display='block'})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function link(x){return 'https://www.strongwithsherni.com/r/'+x.code}
+function msg(x){return 'Hi '+x.first+", I'm Anshika from Team Strong With Sherni (@strongwithshernii on Instagram).\n\nYou took our Brain Fitness Score test, so we've made you a personal report. Here it is:\n"+link(x)+"\n\nI'll give you a quick call in 10 minutes to walk you through it."}
+function num(x){return String(x.phone||'').replace(/[^0-9]/g,'')}
+function st(x){if(x.vote==='yes')return['yes','Tapped Yes'];if(x.vote==='no')return['no','Tapped No'];if(x.opened_at)return['open','Opened report'];if(x.sent_at)return['sent','Sent'];return['not','Not sent']}
+function sent(c){var x=L.find(function(y){return y.code===c});if(x&&!x.sent_at){x.sent_at=new Date().toISOString();if(x.call_status==='Not called')x.call_status='Report sent';render();api({action:'update',token:T,c:c,call_status:x.call_status}).catch(function(){})}api({action:'sent',token:T,c:c}).catch(function(){})}
+function upd(c,k,v){var x=L.find(function(y){return y.code===c});x[k]=v;var d={action:'update',token:T,c:c};d[k]=v;api(d).catch(function(){alert('Not saved, check internet')});if(k==='call_status')render()}
+function tog(c){OPEN[c]=!OPEN[c];render()}
+var SEEN=null;
+function ding(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.2;o.start();setTimeout(function(){o.stop()},350)}catch(e){}try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+function callNow(){return L.filter(function(x){return x.vote==='yes'&&['Interested','Joined','Not interested'].indexOf(x.call_status)<0})}
+function renderAlert(){var c=callNow(),box=document.getElementById('alert');
+ var ids=c.map(function(x){return x.code}).join(',');if(SEEN!==null&&c.some(function(x){return SEEN.indexOf(x.code)<0}))ding();SEEN=ids;
+ box.innerHTML=c.length?'<div class="alert"><b>🔥 '+c.length+(c.length>1?' people':' person')+' said YES. Call now!</b>'+c.map(function(x){var n=num(x);return '<div class="p"><span>'+esc(x.name)+'<small>'+esc(x.grp)+(x.score!=null?' · score '+x.score:'')+' · '+esc(x.call_status||'Not called')+'</small></span><a href="tel:+'+n+'" onclick="OPEN[\''+x.code+'\']=true">Call +'+n+'</a></div>'}).join('')+'</div>':''}
+setInterval(function(){if(T&&document.visibilityState==='visible')api({action:'list',token:T}).then(function(j){L=j.leads||[];render()}).catch(function(){})},30000);
+function render(){renderAlert();
+ sSent.textContent=L.filter(function(x){return x.sent_at}).length;sOpen.textContent=L.filter(function(x){return x.opened_at}).length;
+ sYes.textContent=L.filter(function(x){return x.vote==='yes'}).length;sJoin.textContent=L.filter(function(x){return x.call_status==='Joined'}).length;
+ var tabs=TIERS.concat(['Tapped Yes','All']);
+ document.getElementById('tabs').innerHTML=tabs.map(function(t){var n=t==='All'?L.length:t==='Tapped Yes'?L.filter(function(x){return x.vote==='yes'}).length:L.filter(function(x){return x.tier===t}).length;return '<button class="'+(F===t?'on':'')+'" onclick="F=\''+t+'\';render()">'+t+' ('+n+')</button>'}).join('');
+ var q=document.getElementById('q').value.toLowerCase();
+ var rows=L.filter(function(x){return(F==='All'||(F==='Tapped Yes'?x.vote==='yes':x.tier===F))&&(!q||x.name.toLowerCase().indexOf(q)>=0)});
+ document.getElementById('list').innerHTML=rows.map(function(x){var s=st(x),n=num(x);
+  return '<div class="card'+(OPEN[x.code]?' open':'')+'"><div class="head" onclick="tog(\''+x.code+'\')"><div class="who"><b>'+esc(x.name)+'</b><small>'+(x.score!=null?'Score '+x.score+' · ':'')+esc(x.grp)+' · '+esc(x.call_status||'Not called')+'</small></div>'+
+  '<span class="tier t-'+x.tier.replace(' ','')+'">'+esc(x.tier)+'</span><span class="st s-'+s[0]+'">'+s[1]+'</span></div>'+
+  '<div class="body"><div class="btns">'+(x.wa_ok&&n?'<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+n+'?text='+encodeURIComponent(msg(x))+'" onclick="sent(\''+x.code+'\')">1. Send report</a>':'<span class="btn call">No WhatsApp number</span>')+
+  '<a class="btn call" href="tel:+'+n+'">2. Call +'+n+'</a></div>'+
+  '<div class="sec bad"><div class="l">Struggling with</div><p>'+esc(x.weak_txt)+'</p></div>'+
+  '<div class="sec good"><div class="l">Doing well</div><p>'+esc(x.good_txt)+'</p></div>'+
+  '<div class="sec"><div class="l">Ask them</div><p>'+esc(x.ask)+'</p></div>'+
+  '<div class="sec"><div class="l">REWIRE pitch for them</div><p>'+esc(x.pitch)+'</p></div>'+
+  '<div class="sec"><div class="l">Keep in mind</div><p>'+esc(x.keep)+'</p></div>'+
+  '<div class="sec"><div class="l">Your script</div><div class="script">'+esc(x.script)+'</div></div>'+
+  '<div class="row2"><select onchange="upd(\''+x.code+'\',\'call_status\',this.value)">'+CALL.map(function(c){return '<option'+(c===(x.call_status||'Not called')?' selected':'')+'>'+c+'</option>'}).join('')+'</select></div>'+
+  '<textarea placeholder="Notes from the call" onchange="upd(\''+x.code+'\',\'notes\',this.value)">'+esc(x.notes||'')+'</textarea>'+
+  '<div class="link">Their report: '+link(x)+'</div></div></div>'}).join('')||'<p style="text-align:center;color:var(--grey);padding:30px">Nobody here.</p>';
+}
+document.getElementById('pw').addEventListener('keydown',function(e){if(e.key==='Enter')login()});
+if(T)start();
+</script></body></html>

@@ -44,5 +44,11 @@
       "destination": "/blog.html",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/r/:code",
+      "destination": "/api/r?c=:code"
+    }
   ]
 }
