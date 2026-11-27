@@ -161,9 +161,9 @@ tr:last-child td{border-bottom:0}
 <div class="toast" id="toast"></div>
 
 <script>
-const NAMES={'sugar-break':'Sugar Break','5-am-club':'5 AM Club','mindful-eating':'Mindful Eating','wedding-season-ready':'Wedding Season Ready','new-year-kickstart':'New Year Kickstart'};
-const PRICES={'sugar-break':299,'5-am-club':299,'mindful-eating':479,'wedding-season-ready':599,'new-year-kickstart':299};
-const DAYS={'new-year-kickstart':30};
+const NAMES={'sugar-break':'Sugar Break','5-am-club':'5 AM Club','mindful-eating':'Mindful Eating','wedding-season-ready':'Wedding Season Ready','new-year-kickstart':'New Year Kickstart','water-sleep-reset':'Water & Sleep Reset (free)'};
+const PRICES={'sugar-break':299,'5-am-club':299,'mindful-eating':479,'wedding-season-ready':599,'new-year-kickstart':299,'water-sleep-reset':0};
+const DAYS={'new-year-kickstart':30,'water-sleep-reset':7};
 const GROUPS={'sugar-break':['LdOprhlpyJ57FAT1flTFkU','Govt9yZGVojHTlFlZnyh8d','HTNBEMWxfV3CfffsvnGlkX'],'5-am-club':['Jyx1nPHTWrMJiqSHPdQ2LN','KFe6M5PvVxh9g3qsWY7MJv','DEDZGbqVhSnFnlZGbQWMXE'],'mindful-eating':['DLrZZSG8KvpJvnzrWE03Gg','DD0b05ZtifL5lhGOmLzkuG','CGAAXB5F9Ox55OGp3CXctt'],'wedding-season-ready':['K2Vdt0R17FA2cxjxDiyVHZ','E4cyA1yCrMGHUJGTSZtd5a','CmJR6NMEjcQ4mqDN2rwHEu'],'new-year-kickstart':['ELyrGbwJmG0IXzdYPB0yz6','LOHz4RgfkP1AKsecSIq6Cn','HVxXVUykMV92lC3EC8n2DR']};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));

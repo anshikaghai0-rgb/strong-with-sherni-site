@@ -573,6 +573,76 @@ window.SWS_CHALLENGES = {
       'Breathe in for 4, out for 6, five times.',
       'Message the group: "Need a push!" Your batch will cheer you on.'
     ]
+  }  ,
+  'water-sleep-reset': {
+    id: 'water-sleep-reset', name: 'Water & Sleep Reset', tagline: 'A free 7-day reset for water and sleep',
+    days: 7, windowDays: 14, free: true, page: 'challenge-water-sleep-reset.html', whatsapp: '',
+    points: { sugarFree: 40, task: 25, quizRight: 15, quizWrong: 10, learn: 10, craving: 10, unlock: 70 },
+    ui: {
+      short: 'Water & Sleep Reset', icon: '💧', sub: 'Free 7-day reset for water and sleep',
+      cardGrad: 'linear-gradient(135deg,#0EA5E9,#6366F1 55%,#7B0237)',
+      preSteps: ['Join the WhatsApp group.', 'Keep a 1-litre water bottle where you can see it.', 'Decide a bedtime that gives you 7-8 hours of sleep.', 'Add this app to your home screen.'],
+      rulesTitle: '7 days. Better water, better sleep.', rulesSub: 'Two simple habits for 7 days', rulesNo: 'Try to avoid', rulesYes: 'Do this',
+      quiz: 'Water & sleep quiz', bodyTitle: "What's happening in your body", swapTitle: 'Swap of the day',
+      rate: { label: 'Sleep check', q: 'How did you sleep last night?', faces: [['😫', 'Terrible'], ['🥱', 'Poor'], ['😐', 'Okay'], ['🙂', 'Good'], ['😴', 'Great']], lowIsBad: true,
+        bad: '🥱 Poor sleep? Try this today', mid: 'Okay is a fine start. A fixed bedtime makes it better every night.', good: 'Great sleep! Your body is loving the reset. ✨' },
+      main: { label: 'Water check', icon: '💧', q: 'Did you drink at least 8 glasses (about 2 litres) of water today?',
+        note: 'Count every glass of plain water. Tea and coffee don\'t count.',
+        yes: ['💧', 'Yes, 8+ glasses'], no: ['😅', 'Not today'], foot: "Not today? No stress, you'll simply repeat this day tomorrow.",
+        failText: 'One low-water day doesn\'t erase your progress. Your completed days are safe. Keep your bottle in sight tomorrow.', failBtn: 'Get water tips', short: 'water check' },
+      tab2: { label: 'Habits', tag: 'Your day', title: 'Daily water & sleep habits', sub: 'Tick each one off as you do it.', all: 'All habits done today. Brilliant!', of: 'done today', next: "See tomorrow's habits" },
+      water: 'Aim for 8 glasses through the day. Sip, don\'t gulp it all at night.',
+      sos: { btn: 'SOS', tag: 'Can\'t sleep?', title: 'Try this right now.', text: 'Pick one, then lie back down:', close: 'Feeling calmer' },
+      badges: [{ day: 3, name: 'Hydrated', e: '💧' }, { day: 5, name: 'Sleep Builder', e: '🌙' }, { day: 7, name: 'Reset Sherni', e: '🏆' }],
+      endFinal: 'Final task: pick the one habit you\'ll keep and share it in the group.',
+      dayDone: 'You did the full reset. Ready for your next challenge?'
+    },
+    rules: {
+      no: ['Tea or coffee after 3 PM', 'Scrolling your phone in bed', 'Drinking most of your water late at night', 'A heavy meal right before bed', 'Very different bedtimes every night'],
+      yes: ['A glass of water first thing after waking', '8 glasses (about 2 litres) of water through the day', 'A water bottle near you at all times', 'A fixed bedtime with 7-8 hours of sleep', 'Screens off 30 minutes before bed']
+    },
+    weeks: [
+      { n: 1, title: 'Reset', sub: 'Days 1-7 · Water and sleep, one day at a time.' }
+    ],
+    tasks: [
+      { day: 1, title: 'Water first', task: 'Drink a glass of water first thing after waking, and note how many glasses you drink today.', tip: 'Keep a glass of water by your bed tonight so it\'s ready tomorrow.',
+        quiz: { q: 'Why drink water right after waking?', options: ['You lose water while you sleep', 'It replaces breakfast', 'It burns fat'], answer: 0, why: 'You lose water through breathing overnight. A glass first thing helps you feel fresher.' },
+        body: 'After 7-8 hours without water you wake up slightly dehydrated, which can make you feel tired and foggy.', swap: 'Swap your first phone check for your first glass of water.', img: { task: '💧', body: '🫗', from: '📱', to: '💧' } },
+      { day: 2, title: '2 litres', task: 'Aim for 8 glasses (about 2 litres) of water today. Keep a bottle near you all day.', tip: 'Fill a 1-litre bottle twice. When both are empty, you\'re done.',
+        quiz: { q: 'What is the easiest way to drink more water?', options: ['Drink it all at night', 'Keep a bottle where you can see it', 'Only drink when very thirsty'], answer: 1, why: 'When water is in sight, you sip without thinking. Out of sight usually means forgotten.' },
+        body: 'Even mild dehydration can lower your energy, focus and mood, and is sometimes mistaken for hunger.', swap: 'Swap one packaged drink or extra chai for a glass of water or nimbu pani.', img: { task: '🧴', body: '🧠', from: '🥤', to: '💧' } },
+      { day: 3, title: 'Fixed bedtime', task: 'Set a fixed bedtime tonight and switch off screens 30 minutes before it.', tip: 'Count back 8 hours from your alarm. That is your bedtime.',
+        quiz: { q: 'Why switch off screens before bed?', options: ['To save battery', 'Bright light can delay your sleep hormone', 'It makes you hungry'], answer: 1, why: 'Bright screen light in the evening can delay melatonin, the hormone that makes you sleepy.' },
+        body: 'Your body runs on a 24-hour clock. Going to bed at the same time every night helps it reset.', swap: 'Swap scrolling in bed for 10 minutes of reading or slow breathing.', img: { task: '🌙', body: '🕰️', from: '📱', to: '📖' } },
+      { day: 4, title: 'Water + walk', task: 'Drink a glass of water with every meal and take a 10-minute walk in the evening.', tip: 'A short walk after dinner also helps digestion.',
+        quiz: { q: 'What does an evening walk help with?', options: ['Better digestion and sleep', 'Nothing', 'It keeps you awake all night'], answer: 0, why: 'Gentle movement helps digestion and can make it easier to fall asleep.' },
+        body: 'Light activity during the day builds healthy tiredness, so your body is ready to sleep at night.', swap: 'Swap 10 minutes of sitting after dinner for a slow walk.', img: { task: '🚶‍♀️', body: '😌', from: '🛋️', to: '👟' } },
+      { day: 5, title: 'Wind down', task: 'No tea or coffee after 3 PM. Start a simple wind-down routine before bed.', tip: 'Dim lights, warm shower, a few slow breaths. Keep it short and simple.',
+        quiz: { q: 'Caffeine stays in your body for about…', options: ['30 minutes', 'Several hours', 'A whole week'], answer: 1, why: 'Caffeine can stay in your system for several hours, so an evening chai can disturb your sleep.' },
+        body: 'Caffeine blocks the sleepy signal in your brain for hours. A calm routine tells your body it\'s time to rest.', swap: 'Swap your evening chai for warm haldi milk or a herbal tea.', img: { task: '🕯️', body: '☕', from: '☕', to: '🥛' } },
+      { day: 6, title: 'Notice the change', task: 'Notice your energy and mood today compared with Day 1. Write down one change.', tip: 'Small changes count: fewer headaches, better focus, less afternoon slump.',
+        quiz: { q: 'What often improves with enough water and sleep?', options: ['Energy, mood and focus', 'Nothing at all', 'Only your hair'], answer: 0, why: 'Good hydration and steady sleep support better energy, mood and focus.' },
+        body: 'Just a few days of steady water and sleep can make your energy feel more even through the day.', swap: 'Swap a late-night show for going to bed on time tonight.', img: { task: '🪞', body: '✨', from: '😫', to: '😁' } },
+      { day: 7, title: 'Keep one habit', task: 'Final check-in: which water or sleep habit will you keep? Share it in the group.', tip: 'Pick the one that felt easiest. Easy habits are the ones that last.',
+        quiz: { q: 'How do you keep a habit after a challenge?', options: ['Stop completely', 'Keep it simple and keep showing up', 'Only do it when motivated'], answer: 1, why: 'Habits stay when they\'re simple and repeated. You\'ve built the base. Keep going.' },
+        body: 'You\'ve given your body 7 days of steady signals. Keep going and these habits become automatic.', swap: 'Write your one habit on a sticky note and put it where you\'ll see it every day.', img: { task: '🏆', body: '🌅', from: '🌙', to: '☀️' } }
+    ],
+    routine: [
+      { slot: 'Morning', img: '💧', name: 'A glass of water after waking', alt: '' },
+      { slot: 'Day', img: '🧴', name: 'Bottle near you, 8 glasses total', alt: '' },
+      { slot: '3 PM', img: '☕', name: 'No tea or coffee after this', alt: '' },
+      { slot: 'Night', img: '🌙', name: 'Screens off 30 min before bed', alt: '' }
+    ],
+    lowTips: ['Drink a big glass of water now.', 'Step outside for 5 minutes of daylight.', 'Skip tea or coffee after 3 PM today.', 'Go to bed 30 minutes earlier tonight.'],
+    sos: [
+      'Breathe in for 4, hold for 4, out for 6. Repeat 5 times.',
+      'Put your phone face down, away from the bed.',
+      'Relax your body from toes to head, one part at a time.',
+      'Get out of bed for 5 minutes in dim light, then try again.',
+      'Write down what\'s on your mind so you can let it go.',
+      'Have a few sips of water, not a full glass.',
+      'Keep the room cool and dark.'
+    ]
   }
 };
 

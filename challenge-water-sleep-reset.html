@@ -210,6 +210,15 @@
   }
   @media (max-width:520px){ .acc-grid{ grid-template-columns:1fr; } details.week summary{ padding:18px 18px; } ol.days{ padding:4px 18px 20px; } ol.days li{ flex-direction:column; gap:4px; } }
 
+  .fj{ max-width:520px; margin:28px auto 0; background:#fff; border:1px solid var(--line); border-radius:18px; padding:26px 22px; text-align:left; scroll-margin-top:90px; }
+  .fj h3{ font-family:'Cormorant Garamond',serif; font-size:30px; color:var(--maroon); margin:0 0 4px; }
+  .fj p.s{ font-size:14px; color:var(--taupe); margin:0 0 16px; }
+  .fj label{ display:block; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin:12px 0 6px; }
+  .fj input{ width:100%; box-sizing:border-box; padding:13px 14px; border:1px solid var(--line); border-radius:12px; font:inherit; font-size:16px; }
+  .fj .btn{ width:100%; margin-top:18px; }
+  .fj .err{ color:#B42318; font-size:14px; margin-top:10px; min-height:1em; }
+  .fj .ok a.btn{ display:block; text-align:center; text-decoration:none; margin-top:12px; }
+  .fj .hp{ position:absolute; left:-9999px; }
 </style>
 </head>
 <body class="has-bar">
@@ -247,7 +256,7 @@
     <h1>Water &amp; Sleep <em>Reset</em></h1>
     <p class="tag">A free 7-day taster to build better water and sleep habits.</p>
     <div class="chips"><span class="chip">7 days</span><span class="chip">2 minutes a day</span><span class="chip">WhatsApp group</span><span class="chip">Coach check-ins</span></div>
-    <div class="hero-cta"><span class="pr">Free</span><a class="btn" href="https://wa.me/919036147675?text=Hi%21%20I%27d%20like%20to%20join%20the%20free%207-day%20Water%20%26%20Sleep%20Reset%20challenge." target="_blank" rel="noopener">Join free on WhatsApp</a><a class="btn ghost" href="#guide">See the day-by-day guide</a></div>
+    <div class="hero-cta"><span class="pr">Free</span><a class="btn" href="#join">Join free</a><a class="btn ghost" href="#guide">See the day-by-day guide</a></div>
   </div>
   <div class="media-wrap"><div class="media"><img src="images/rewire-community-1.jpg" alt="Water &amp; Sleep Reset challenge" style="object-position:50% 45%"></div><div class="sticker"><b>7</b><span>DAYS</span></div></div>
 </div></section>
@@ -286,7 +295,22 @@
 <section class="blk" style="background:var(--cream)"><div class="wrap">
   <div class="sec-head reveal"><span class="eyebrow">Everything included</span><h2>What you get</h2></div>
   <ul class="incl reveal"><li>A private WhatsApp group with your batch</li><li>One short daily task (about 2 minutes) sent every morning</li><li>A reminder and a quick check-in reply each day</li><li>Streaks and a weekly leaderboard</li><li>A personal message from Coach Sherni if you miss 2 days</li><li>A special offer on your next challenge when you finish</li></ul>
-  <div class="buy reveal"><div class="pr">Free<small>no payment needed</small></div><a class="btn" href="https://wa.me/919036147675?text=Hi%21%20I%27d%20like%20to%20join%20the%20free%207-day%20Water%20%26%20Sleep%20Reset%20challenge." target="_blank" rel="noopener">Join free on WhatsApp</a></div>
+  <div class="buy reveal"><div class="pr">Free<small>no payment needed</small></div><a class="btn" href="#join">Join free</a></div>
+  <div class="fj" id="join">
+    <div id="fj-form">
+      <h3>Join the free 7-day reset</h3>
+      <p class="s">Fill this in and you'll get your challenge app login straight away. It starts today.</p>
+      <form onsubmit="return freeJoin(event)">
+        <label for="fj-name">Your name</label><input id="fj-name" autocomplete="name" required maxlength="60">
+        <label for="fj-email">Email</label><input id="fj-email" type="email" autocomplete="email" required maxlength="120">
+        <label for="fj-phone">WhatsApp number</label><input id="fj-phone" type="tel" autocomplete="tel" required maxlength="15" placeholder="98765 43210">
+        <input class="hp" id="fj-web" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn" id="fj-btn" type="submit">Start my free challenge</button>
+        <div class="err" id="fj-err"></div>
+      </form>
+    </div>
+    <div class="ok" id="fj-ok" hidden></div>
+  </div>
 </div></section>
 
 <section class="blk"><div class="wrap">
@@ -315,7 +339,7 @@
 
 <p class="disc" style="padding-top:34px">Challenges are lifestyle support, not medical treatment. If you have a medical condition, are pregnant or take medication, please check with your doctor first.</p>
 
-<div class="join-bar"><div class="pr">Free<small>7 days</small></div><a class="btn" href="https://wa.me/919036147675?text=Hi%21%20I%27d%20like%20to%20join%20the%20free%207-day%20Water%20%26%20Sleep%20Reset%20challenge." target="_blank" rel="noopener">Join free</a></div>
+<div class="join-bar"><div class="pr">Free<small>7 days</small></div><a class="btn" href="#join">Join free</a></div>
 
 
 <footer>
@@ -381,6 +405,25 @@
     var io = new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in-view'); io.unobserve(en.target); } }); }, {threshold:0.12});
     els.forEach(function(e){ io.observe(e); });
   });
+</script>
+<script>
+async function freeJoin(e){
+  e.preventDefault();
+  const v=id=>document.getElementById(id).value.trim(), btn=document.getElementById('fj-btn'), err=document.getElementById('fj-err');
+  err.textContent=''; btn.disabled=true; btn.textContent='Signing you up...';
+  try{
+    const r=await fetch('/api/challenge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'freejoin',challenge:'water-sleep-reset',name:v('fj-name'),email:v('fj-email'),phone:v('fj-phone'),website:v('fj-web')})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.ok) throw new Error(d.error||'Something went wrong. Please try again.');
+    const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const grp=d.groupLink?`<a class="btn ghost" href="${esc(d.groupLink)}" target="_blank" rel="noopener">Join the WhatsApp group</a>`:'';
+    let html;
+    if(d.appLink) html=`<h3>You're in! 🎉</h3><p class="s">Day 1 starts today. Your login code is <b>${esc(d.code)}</b>, and we've emailed it to you too.</p><a class="btn" href="${esc(d.appLink)}">Open my challenge app</a>${grp}`;
+    else html=`<h3>Check your email 📩</h3><p class="s">${d.again?"You've already joined this challenge. We've emailed your login link again.":"You're in! We've sent your challenge app login to your email."} Can't find it? Check spam or message us on WhatsApp.</p>${grp}`;
+    document.getElementById('fj-form').hidden=true; const ok=document.getElementById('fj-ok'); ok.innerHTML=html; ok.hidden=false;
+  }catch(x){ err.textContent=x.message; btn.disabled=false; btn.textContent='Start my free challenge'; }
+  return false;
+}
 </script>
 </body>
 </html>

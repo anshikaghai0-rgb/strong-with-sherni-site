@@ -814,7 +814,7 @@ function homeCards(){
   $('home-more').innerHTML = more.map(k=>{ const u=uiOf(C[k]); return `<a class="hcard more" href="https://www.strongwithsherni.com/${C[k].page||'challenges.html'}" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)"><span class="hi">${u.icon}</span><span><b>${u.short}</b><small>${u.sub}</small></span><span class="go">Join</span></a>`; }).join('');
   // Levels: Level 2 unlocks after Level 1, Level 3 after Level 2
   const rw = ((S.mine&&S.mine.ref&&S.mine.ref.rewards)||[]);
-  const lvCards = ((S.mine&&S.mine.levels)||[]).map(l=>{
+  const lvCards = ((S.mine&&S.mine.levels)||[]).filter(l=>C[l.base+'-level-2']).map(l=>{
     const id=n=>n>1?`${l.base}-level-${n}`:l.base, cur=l.highest+1;
     if (cur>3) return `<div class="lvl"><span class="hi">🏆</span><span><b>${C[l.base].name}: all 3 levels done</b><small>You're a legend! Share your link and inspire a friend.</small></span></div>`;
     if (l.open.includes(cur)) { const nx=cur+1; if(nx>3||!C[id(nx)]) return ''; const c=l.cur[cur]||{};

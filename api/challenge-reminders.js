@@ -87,6 +87,20 @@ const CFG = {
       evening: ["Don't let today go unmarked. You showed up, now count it.", "Tomorrow's day unlocks the moment you finish tonight.", 'Strong With Sherni means finishing what you start.', 'Two minutes is all today needs.', "Be honest with yourself. That's what makes this work.", 'Every day you mark is a day your future self thanks you for.', 'Sleep well tonight. You earned it.']
     }
   },
+  'water-sleep-reset': {
+    name: 'Water & Sleep Reset', days: 7, titles: ["Water first", "2 litres", "Fixed bedtime", "Water + walk", "Wind down", "Notice the change", "Keep one habit"],
+    steps: { quiz: 'Water & sleep quiz', craving: 'Sleep check', main: 'Water check (before bed)' },
+    pass: 'drink 8 glasses of water', mainShort: 'water check',
+    morningTip: "Start with a glass of water, then do today's task and quiz. That's 50 points before lunch.",
+    afternoonTip: 'Halfway check: have you had 4 glasses yet? And no tea or coffee after 3 PM.',
+    nightTip: d => `Missed your water today? No stress. Mark it honestly and you'll simply repeat Day ${d} tomorrow.`,
+    nightPush: 'Mark your water check, then screens off before bed.',
+    lines: {
+      morning: ['Water first, then the world.', 'Small habits. Big life. Today is one more brick.', 'Keep your bottle where you can see it today.', "You don't need motivation, you need the next small step.", 'One glass now. Seven more through the day.', 'Progress, not perfection. Just today.', 'Your body wakes up thirsty. Give it water first.'],
+      afternoon: ['Afternoon slump? It might be thirst. Drink a glass now.', 'No tea or coffee after 3 PM means better sleep tonight.', "Your group is doing this too. You're not alone.", 'Refill your bottle now so the evening is easy.', 'A 10-minute walk later will help you sleep better.', 'Halfway there. Keep sipping.', "You're closer than you think. A few taps a day is all it takes."],
+      evening: ['Bedtime is where tomorrow starts.', 'Screens off 30 minutes before bed tonight.', 'Dim the lights and put the phone away.', "Don't let today go unmarked. You showed up, now count it.", "Tomorrow's day unlocks the moment you finish today.", 'Good sleep tonight means more energy tomorrow.', 'Strong With Sherni means finishing what you start.']
+    }
+  },
   'new-year-kickstart': {
     name: 'New Year Kickstart', days: 30, titles: ["Set your goal", "Water first", "Protein breakfast", "Drink smart", "Add veggies", "Balanced plate", "Week 1 check-in", "Walk after meals", "First workout", "Morning stretch", "You choose", "Walk and talk", "Rest day", "Week 2 check-in", "Set a bedtime", "Breathe to sleep", "Caffeine cut-off", "Gratitude", "Move and rest", "Screen-free evening", "Week 3 check-in", "Your top 3", "Best workout", "Meal prep", "New recipe", "Walk with someone", "Reflect", "Slip-up plan", "Full routine", "Next month goals"],
     steps: { quiz: 'Habit quiz', craving: 'Energy check', main: 'Daily habit check' },

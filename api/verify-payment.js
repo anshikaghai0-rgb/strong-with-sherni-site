@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { SITE, GROUPS, challengeSlug, baseOf, levelOf, challengeName as chName, batchStartIST, newAccessCode, refCodeFor, refLink, dbRows } from './_shared.js';
+import { FREE_CHALLENGES, SITE, GROUPS, challengeSlug, baseOf, levelOf, challengeName as chName, batchStartIST, newAccessCode, refCodeFor, refLink, dbRows } from './_shared.js';
 
 // This runs on Vercel's server. It checks the payment is genuinely real (not faked).
 // - Coaching plans: creates the client record in the Supabase 'clients' table (same as before).
@@ -13,7 +13,7 @@ function prettyDate(iso) {
 }
 
 // One line under the welcome heading, per challenge.
-const TAGLINES = { 'sugar-break': '21 days. Zero added sugar. You\'ve got this.', '5-am-club': '21 days to own your mornings. You\'ve got this.', 'mindful-eating': '21 days to slow down and enjoy food without guilt.', 'wedding-season-ready': '21 days to glow, feel strong and confident.', 'new-year-kickstart': '30 days to start the year strong. You\'ve got this.',
+const TAGLINES = { 'water-sleep-reset': '7 days. Better water, better sleep. You\'ve got this.', 'sugar-break': '21 days. Zero added sugar. You\'ve got this.', '5-am-club': '21 days to own your mornings. You\'ve got this.', 'mindful-eating': '21 days to slow down and enjoy food without guilt.', 'wedding-season-ready': '21 days to glow, feel strong and confident.', 'new-year-kickstart': '30 days to start the year strong. You\'ve got this.',
   'sugar-break-level-2': 'Level 2: no hidden sugar, real-life ready.', '5-am-club-level-2': 'Level 2: 21 days of power mornings.', 'mindful-eating-level-2': 'Level 2: mindful eating in real life.', 'wedding-season-ready-level-2': 'Level 2: strength, stamina and confidence.', 'new-year-kickstart-level-2': 'Level 2: 30 days to level up your year.',
   'sugar-break-level-3': 'Level 3: sugar-free for life.', '5-am-club-level-3': 'Level 3: 21 days of morning mastery.', 'mindful-eating-level-3': 'Level 3: complete food freedom.', 'wedding-season-ready-level-3': 'Level 3: peak strength and confidence.', 'new-year-kickstart-level-3': 'Level 3: make it a lifestyle.' };
 export function welcomeEmailHtml({ name, email, challengeName, code, startDate, groupLink, slug, refCode }) {
@@ -22,7 +22,7 @@ export function welcomeEmailHtml({ name, email, challengeName, code, startDate, 
   return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#2D322C;background:#FAF9F3;padding:28px 24px;border-radius:14px">
   <h2 style="font-family:Georgia,serif;color:#7B0237;margin:0 0 6px">Welcome to ${challengeName}, ${first}!</h2>
   <p style="margin:0 0 18px;color:#6B6459">${TAGLINES[slug] || 'Small habits. Big life. You\'ve got this.'}</p>
-  <p style="margin:0 0 6px"><b>Your batch starts:</b> ${prettyDate(startDate)}</p><p style="margin:0 0 6px;color:#6B6459;font-size:14px">Everyone in your batch starts Day 1 together. Your app shows a countdown until then.</p>
+  ${FREE_CHALLENGES.includes(slug) ? `<p style="margin:0 0 6px"><b>You start:</b> today, ${prettyDate(startDate)}</p><p style="margin:0 0 6px;color:#6B6459;font-size:14px">Day 1 is open in your app right now.</p>` : `<p style="margin:0 0 6px"><b>Your batch starts:</b> ${prettyDate(startDate)}</p><p style="margin:0 0 6px;color:#6B6459;font-size:14px">Everyone in your batch starts Day 1 together. Your app shows a countdown until then.</p>`}
   <h3 style="margin:22px 0 8px;font-size:16px">Step 1 &mdash; Join your WhatsApp group</h3>
   <p style="margin:0 0 10px">Your daily tasks, reminders and batch support happen here.</p>
   <a href="${groupLink}" style="display:inline-block;background:#1F4037;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none;font-weight:bold">Join WhatsApp group</a>
@@ -70,7 +70,7 @@ const memberHeaders = sb => ({ apikey: sb.key, Authorization: `Bearer ${sb.key}`
 
 // Creates the membership, emails the welcome email and returns what the success screen shows.
 // Also used by the app when someone claims their free Level 2 (paymentId = 'reward:<friend id>').
-export async function createMembership({ customer, slug, paymentId, referredBy, sb }) {
+export async function createMembership({ customer, slug, paymentId, referredBy, sb, startDate: fixedStart }) {
   const name = chName(slug);
   const email = String(customer.email).trim().toLowerCase();
   // Same payment confirmed twice (e.g. page refreshed)? Return the existing membership instead of a duplicate.
@@ -81,8 +81,8 @@ export async function createMembership({ customer, slug, paymentId, referredBy, 
       appLink: `${SITE}/app.html?login=${Buffer.from(`${email}:${m.access_code}`).toString('base64url')}`, refCode: m.ref_code, duplicate: true };
   }
   const code = newAccessCode();
-  const startDate = process.env.CHALLENGE_START_DATE && process.env.CHALLENGE_START_DATE > new Date().toISOString().slice(0, 10)
-    ? process.env.CHALLENGE_START_DATE : batchStartIST();
+  const startDate = fixedStart || (process.env.CHALLENGE_START_DATE && process.env.CHALLENGE_START_DATE > new Date().toISOString().slice(0, 10)
+    ? process.env.CHALLENGE_START_DATE : batchStartIST());
   const refCode = await refCodeFor(email, customer.name);
   const ins = await fetch(`${sb.url}/rest/v1/challenge_members`, {
     method: 'POST', headers: { ...memberHeaders(sb), Prefer: 'return=representation' },

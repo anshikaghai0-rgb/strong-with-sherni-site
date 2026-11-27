@@ -50,9 +50,11 @@ export const GROUPS = {
   'new-year-kickstart-level-2': 'https://chat.whatsapp.com/LOHz4RgfkP1AKsecSIq6Cn',
   'new-year-kickstart-level-3': 'https://chat.whatsapp.com/HVxXVUykMV92lC3EC8n2DR'
 };
-export const NAMES = { 'sugar-break': 'Sugar Break', '5-am-club': '5 AM Club', 'mindful-eating': 'Mindful Eating', 'wedding-season-ready': 'Wedding Season Ready', 'new-year-kickstart': 'New Year Kickstart' };
+export const NAMES = { 'sugar-break': 'Sugar Break', '5-am-club': '5 AM Club', 'mindful-eating': 'Mindful Eating', 'wedding-season-ready': 'Wedding Season Ready', 'new-year-kickstart': 'New Year Kickstart', 'water-sleep-reset': 'Water & Sleep Reset' };
 export const PAGES = { 'sugar-break': 'challenge-sugar-break.html', '5-am-club': 'challenge-5-am-club.html', 'mindful-eating': 'challenge-mindful-eating.html', 'wedding-season-ready': 'challenge-wedding-season-ready.html', 'new-year-kickstart': 'challenge-new-year-kickstart.html' };
-export const DAYS = { 'new-year-kickstart': 30 };
+export const DAYS = { 'new-year-kickstart': 30, 'water-sleep-reset': 7 };
+// Free challenges: no payment, no levels, start the same day you join (api/challenge.js -> freejoin).
+export const FREE_CHALLENGES = ['water-sleep-reset'];
 
 export function challengeSlug(plan) {
   return String(plan || '').replace(/\s*challenge\s*$/i, '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

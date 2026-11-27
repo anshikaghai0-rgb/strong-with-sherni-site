@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { vapidKeys, sendPush } from './_push.js';
-import { GROUPS, baseOf, levelOf, slugFor, MAX_LEVEL, challengeName, refCodeFor, refLink, PAGES, CHALLENGE_PRICES, REFERRAL_DISCOUNT, SB_URL as SBU, SB_KEY as SBK } from './_shared.js';
+import { FREE_CHALLENGES, GROUPS, baseOf, levelOf, slugFor, MAX_LEVEL, challengeName, refCodeFor, refLink, PAGES, CHALLENGE_PRICES, REFERRAL_DISCOUNT, SB_URL as SBU, SB_KEY as SBK } from './_shared.js';
 import { createMembership } from './verify-payment.js';
 import { checkAdminPassword } from './clients.js';
 
@@ -16,6 +16,7 @@ import { checkAdminPassword } from './clients.js';
 //   pushsub { token, sub }   -> saves this phone for notifications
 //   pushtest { token }       -> sends a test notification to this member's phones
 //   claim   { token, friend } -> uses a referral reward: their next level free, in the next batch
+//   freejoin { name, email, phone } -> joins a FREE challenge (Water & Sleep Reset), starts today, emails the login
 //   dashboard { password }   -> everything for challenge-dashboard.html (password = DASHBOARD_PASSWORD in Vercel)
 //
 // Levels: every challenge has Level 2 ('<challenge>-level-2') and Level 3 ('<challenge>-level-3').
@@ -207,6 +208,29 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true }); // same answer either way
     }
 
+    if (action === 'freejoin') {
+      const b = req.body || {};
+      if (b.website) return res.status(200).json({ ok: true }); // hidden spam-trap field
+      const slug = FREE_CHALLENGES.includes(b.challenge) ? b.challenge : FREE_CHALLENGES[0];
+      const name = String(b.name || '').trim().slice(0, 60);
+      const email = String(b.email || '').trim().toLowerCase().slice(0, 120);
+      const phone = String(b.phone || '').replace(/[^0-9+]/g, '').slice(0, 15);
+      if (name.length < 2) return res.status(400).json({ error: 'Please enter your name.' });
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email.' });
+      if (phone.replace(/\D/g, '').length < 10) return res.status(400).json({ error: 'Please enter your WhatsApp number.' });
+      const existing = await rows(`challenge_members?email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc`);
+      const already = existing.find(m => m.challenge === slug);
+      if (already) { // joined before: email the login again, never show it on screen
+        await sendMail(email, `Your ${challengeName(slug)} login code: ${already.access_code}`, loginEmailHtml(already));
+        return res.status(200).json({ ok: true, again: true });
+      }
+      const out = await createMembership({ customer: { name, email, phone }, slug, paymentId: `free:${slug}:${email}`, referredBy: null, sb: { url: SBU(), key: SBK() }, startDate: todayIST() });
+      if (out.warning) return res.status(500).json({ error: 'Could not sign you up right now. Please try again or message Coach Sherni on WhatsApp.' });
+      // An email that already has other challenges: send the login by email only (keeps their account private)
+      if (existing.length) return res.status(200).json({ ok: true, emailOnly: true, groupLink: out.groupLink });
+      return res.status(200).json({ ok: true, appLink: out.appLink, code: out.code, groupLink: out.groupLink, startDate: out.startDate, emailSent: out.emailSent });
+    }
+
     if (action === 'pushkey') return res.status(200).json({ publicKey: vapidKeys().publicKey });
 
     if (action === 'dashboard') {
@@ -248,7 +272,7 @@ export default async function handler(req, res) {
       const atts = ids.length ? await rows(`challenge_attempts?member_id=in.(${ids.join(',')})&select=member_id,attempt_date,day,sugar_free,passed,points`) : [];
       const prOf = m => progress(m, atts.filter(a => a.member_id === m.id));
       // Level status per challenge: which levels are done, which are open (upcoming or running)
-      const bases = [...new Set(all.map(m => baseOf(m.challenge)))];
+      const bases = [...new Set(all.map(m => baseOf(m.challenge)))].filter(b => CHALLENGE_PRICES[b]); // free challenges have no levels
       const levels = {};
       for (const b of bases) {
         const done = [], open = [], cur = {};
@@ -268,7 +292,7 @@ export default async function handler(req, res) {
         code = await refCodeFor(email, member.name);
         await sb(`challenge_members?email=eq.${encodeURIComponent(email)}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ ref_code: code }) });
       }
-      const friends = await rows(`challenge_members?referred_by=eq.${encodeURIComponent(code)}&select=id,name,challenge,created_at&order=created_at.asc`);
+      const friends = (await rows(`challenge_members?referred_by=eq.${encodeURIComponent(code)}&select=id,name,challenge,created_at&order=created_at.asc`)).filter(f => CHALLENGE_PRICES[baseOf(f.challenge)]);
       const used = new Set(all.map(m => m.payment_id).filter(p => String(p || '').startsWith('reward:')));
       // Each friend = a free pass to YOUR next level of the challenge the friend joined:
       // Level 1 if you've never done it, Level 2 after Level 1, Level 3 after Level 2.
